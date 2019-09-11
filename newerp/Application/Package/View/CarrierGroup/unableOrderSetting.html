@@ -1,0 +1,153 @@
+<extend name="Public/groupCarrierBase"/>
+
+
+<block name="linkrel">
+    <style type="text/css">
+        table tr th,td {text-align: center !important;}
+        .btn {border-radius: 2px;}
+        table, div{font-size: 14px;}
+    </style>
+</block>
+
+<block name="bread">
+    <li>
+        <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+    </li>
+    <li>
+        <a class="m-r-xs"> 无法货找单分组配置</a>
+    </li>
+</block>
+
+
+<block name="content">
+    <div class="container-fluid">
+        <!-- 查询行 -->
+        <div class="row">
+
+        </div>
+
+        <!-- 分页行 -->
+        <div class="row">
+            <button class="btn btn-info btn-sm" id="createNewGroup"> 新建分组 </button>
+            <div class="pageInfo">
+                <ul class="pagination" style="margin: 5px">{$pageString}</ul>
+            </div>
+        </div>
+
+        <!-- 主体内容行 -->
+        <div class="row">
+            <table class="table table-responsive table-hover table-condensed table-border">
+                <tr>
+                    <th>序号</th>
+                    <th>分组名称</th>
+                    <th>渠道</th>
+                    <th>备注</th>
+                    <th>添加人/时间</th>
+                    <th>操作</th>
+                </tr>
+
+                <foreach name="carrierGroups" item="groupItem">
+                    <tr>
+                        <td>{$groupItem.id}</td>
+                        <td>{$groupItem.group_name}</td>
+                        <td>{$groupItem.carrier}</td>
+                        <td>{$groupItem.note}</td>
+                        <td style="width: 250px;word-break: break-all;">{$groupItem.create_by}<br/>{$groupItem.create_at}</td>
+                        <td>
+                            <button class="btn btn-success btn-sm btn-modifyItem" data-id="{$groupItem.id}"> 修改 </button>
+                            <button class="btn btn-danger btn-sm btn-deleteItem" data-id="{$groupItem.id}" data-item="{$groupItem.group_name}"> 删除 </button>
+                        </td>
+                    </tr>
+                </foreach>
+
+
+            </table>
+        </div>
+    </div>
+</block>
+
+<block name="src_js">
+    <script type="application/javascript">
+        (function(window, $, layer, undefined) {
+
+            /**
+             * 新建运输方式
+             */
+            $('#createNewGroup').on('click', function() {
+                var url = '{:U("CarrierGroup/showCreateUnableGroup")}';
+                var createLoadIndex = layer.open({
+                    type : 2,
+                    area : ['40%', '65%'],
+                    title: '添加分组',
+                    shift: 2,
+                    maxmin: true,
+                    scrollbar : false,
+                    content : url,
+                    cancel : function(index, layerOb) {
+                        localStorage.removeItem('createLayerIndex');
+                    }
+                });
+
+                localStorage.setItem('createLayerIndex', createLoadIndex);
+            });
+
+
+            /**
+             * 修改运输方式分组
+             */
+            $('.btn-modifyItem').on('click', function() {
+                var groupId = $(this).attr('data-id');
+
+                layer.open({
+                    content : "{:U('CarrierGroup/showCreateUnableGroup')}&groupId=" + groupId,
+                    type    : 2,
+                    title   : '修改分组',
+                    area    : ['50%', '70%'],
+                    maxmin  : true,
+                    shift   : 2
+                });
+            });
+
+
+            /**
+             * 删除运输方式分组
+             */
+            $('.btn-deleteItem').on('click', function() {
+                var groupName = $(this).attr('data-item');
+                var groupId   = $(this).attr('data-id');
+
+                layer.confirm(
+                    '您确认要删除分组<span class="alert alert-danger" style="padding: 5px 20px">' + groupName + '</span> ？',
+                    {
+                        title : '删除分组确认',
+                        btn   : ['确认删除', '放弃删除'],
+                        yes   : function(index, layerO) {
+                            var loadIndex = layer.load(1, {shade: 0.5});
+                            $.ajax({
+                                url      :  '{:U("CarrierGroup/deleteUnableGroup")}',
+                                type     :  'post',
+                                data     :  {groupId:groupId},
+                                dataType :  'json'
+                            }).done(function(result) {
+                                layer.msg(result.data);
+                                if (result.status) {
+                                    setTimeout(function() {window.location.reload();}, 1000);
+                                }
+                            }).fail(function() {
+                                layer.msg('访问出错.');
+                            }).always(function() {
+                                layer.close(loadIndex);
+                            });
+                        },
+                        btn2  : function(index, layerO) {
+                            layer.close(index);
+                        }
+                    }
+                );
+            });
+
+        })(window, $, layer);
+    </script>
+</block>
+
+

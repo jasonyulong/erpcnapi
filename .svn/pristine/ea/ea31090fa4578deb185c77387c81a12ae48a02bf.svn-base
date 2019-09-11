@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css">
+    <link rel="stylesheet" type="text/css" href="/newerp/Public/css/custom.css">
+    <link href="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.css" rel="stylesheet">
+    <script src="/newerp/Public/js/jquery.js"></script>
+    <script src="/newerp/Public/layer/layer.js"></script>
+    <script type="text/javascript" src="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.jquery.min.js"></script>
+    <script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+    <style>
+        th[type=sort] {
+            cursor: pointer;
+        }
+
+        .text-primary {
+            color: #1ab394;
+        }
+
+        .search-bar > div > li, .search-bar > div > div > li {
+            width: 120px;
+            /*float: left;*/
+            margin: 5px;
+            display: inline-block;
+            height: 30px;
+        }
+
+        .search-bar > div > li, .search-bar > div > div > li {
+            width: 120px;
+            /*float: left;*/
+            margin: 5px;
+            display: inline-block;
+            height: 30px;
+        }
+
+        .ibox-content {
+            padding: 0
+        }
+
+        .search-bar > div > .searchTitle, .search-bar > div > div > .searchTitle {
+            line-height: 30px;
+        }
+
+        .custom-table th {
+            font-weight: normal;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .custom-table td {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /*.chosen-container .chosen-single {*/
+        /*height: 30px;*/
+        /*line-height: 30px;*/
+        /*border: 1px solid #ccc;*/
+        /*}*/
+
+        .input-group {
+            margin: 5px 5px;
+        }
+
+        .form-control {
+            border: 1px solid #ccc;
+            padding: 0px 12px;
+        }
+
+        .form-control:focus {
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+        }
+
+        .chosen-container .chosen-single {
+            height: 30px;
+            line-height: 30px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+    <table class="table custom-table">
+        <thead>
+        <th>仓库</th>
+        <th>图片</th>
+        <th>品名</th>
+        <th>SKU</th>
+        <th>数量</th>
+        <th>还需集多少个</th>
+        <th>库位</th>
+        </thead>
+        <tbody>
+        <?php foreach($skuInfo as $sku):?>
+        <tr>
+            <td><?php echo $sku['storeid']== $currStoreId ?'<span style="color:#911;">{$storeNameArr[$sku['storeid']]}</td>':'<span style="color:blue;">{$storeNameArr[$sku['storeid']]}</span>'?></td>
+            <td><img class="img-responsive {$sku['sku']}" data-val="{$sku['sku']}" src="{:C('ONLINE_PIC_URL')}/images/{$sku['goods_pic']}" width="90" height="90"/></td>
+            <td><?php echo $sku['goods_name'];?></td>
+            <td><?php echo $sku['sku'];?></td>
+            <td><?php echo $sku['qty'];?></td>
+            <td><?php $num = $sku['qty']-$sku['real_qty']; echo '<span style="color:#911;font-size:24px;">'.$num.'</span>';?></td>
+            <td><?php echo $sku['g_location']?></td>
+        </tr>
+        <?php endforeach;?>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

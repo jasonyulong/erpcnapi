@@ -1,0 +1,52 @@
+<css href="/newerp/Public/css/fonts.css" />
+<?php
+    if($Order['ebay_carrier']=='出口易小包挂号'){
+        $imgstyle="position: relative; margin: -15px 0px 0px -8px; width: 104mm; height: 160mm;";
+    }elseif($Order['ebay_carrier']=='出口易小包平邮'){
+        $imgstyle="position: relative; margin: -15px 0px 0px -8px; width: 110mm; height: 148mm;";
+    }else{
+        $imgstyle="height:100mm;width:100mm;";
+    }
+?>
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <img style="{$imgstyle}" class="view" src="{$Order['pdfimg']}"/>
+    <div style="position: absolute;right: 0;bottom: 0;width: 6mm;height: 6mm;">
+        <b>
+            <?php
+             if(strstr($Order['ebay_carrier'],'带电')){
+                echo '↯';
+             }
+            ?>
+        </b>
+    </div>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;rigth:0px;right: 3px;bottom: 1px;">
+        <span class="fonts" style="margin-right: 2px;font-size: 15px;">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <div class="line_break font12" style="width:80mm;">
+        {$Order['skustr']}
+    </div>
+
+    <div class="font20" style="width:80mm;">
+        {$Order['ebay_carrier']}
+    </div>
+
+
+    <div class="font20" style="width:80mm;">
+        {$Order['ebay_id']}
+    </div>
+
+    <div class="font20" style="width:80mm;">
+        {$Order['ebay_tracknumber']}
+    </div>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>
+

@@ -1,0 +1,290 @@
+<extend name="Public/groupBase"/>
+
+<block name="linkrel">
+
+    <style type="text/css">
+
+        .btn {
+            border-radius: 2px;
+            margin-left: 20px;
+        }
+        .colors{font-size:14px;color:#0066cc}
+        .form-group select,label{
+            margin-left: 10px;
+            font-size: 18px;
+            color: #777;
+            font-weight: unset;
+            line-height: 2;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .table-responsive table {
+            border-collapse: collapse;
+            border: 1px #e3e3e3 solid;
+        }
+
+        .table-responsive th, td {
+            border: 1px solid #e3e3e3;
+            background: white;
+        }
+
+        .table-responsive th {
+            background: #199fff;
+            color: white;
+        } /*模拟对角线*/
+        .out {
+            border-top: 3em #199fff solid; /*上边框宽度等于表格第一行行高*/
+            border-left: 160px #ff8838 solid; /*左边框宽度等于表格第一行第一格宽度*/
+            position: relative; /*让里面的两个子容器绝对定位*/
+            color:white;
+            font-size: 16px;
+        }
+
+        .out b {
+            font-style: normal;
+            display: block;
+            position: absolute;
+            top: -3.3em;
+            left: -70px;
+            width: 160px;
+        }
+
+        .out em {
+            font-style: normal;
+            display: block;
+            position: absolute;
+            top: -30px;
+            left: -156px;
+            width: 160px;
+        }
+        .date_show{
+            white-space: pre;
+            width: 100px;
+            text-align: center;
+        }
+        .table-responsive table tbody tr{
+            text-align: center;
+        }
+        .show_count{
+            color: green;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .total{
+            color: #337ab7;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .table-responsive{
+            overflow: auto;
+        }
+        .btn-toolbar .active{
+            background-color: #0Bc0FF;
+        }
+    </style>
+
+</block>
+
+
+<block name="bread">
+    <li>
+        <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+    </li>
+    <li>
+        <a class="m-r-xs"> 统计报表 -> sku出库报表</a>
+    </li>
+</block>
+
+
+
+<block name="content">
+    <!--头部条件搜索框-->
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="javaScript:void(0);">时间</a>
+            </div>
+            <form class="navbar-form navbar-left" action="__CONTROLLER__/skuOutStoreStatistics" method="post" role="search" onSubmit="return checkDate();">
+                <div class="form-group">
+                    <input type="text" class="form-control"  value="{$rawCondition['timeArea_start']}" name="timeArea_start" placeholder="开始时间点" onclick="laydate({format:'YYYY-MM-DD'})" id="timeArea_start"/>
+                    <b style="margin: 0 10px 0 10px;">——</b>
+                    <input type="text" class="form-control" value="{$rawCondition['timeArea_end']}" name="timeArea_end" onclick="laydate({format:'YYYY-MM-DD'})" placeholder="结束时间点" id="timeArea_end"/>
+                </div>
+                <input type="hidden" name="model" id="model" value="{$model}" />
+                <button type="submit" class="btn btn-info">搜索</button>
+                <button type="button" class="btn btn-warning" onclick="exportExcel('{$model}')">导出</button>
+            </form>
+        </div>
+        <div class="btn-toolbar" role="toolbar" style="float: right">
+            <div class="btn-group padding-top8 paddint-right5">
+                <a href="javascript:void(0)" data-toggle="tooltip" id="showTable"
+                   class="btn btn-xs btn-default {$model == 'table' ? 'active' : ''}"
+                   title="列表模式"><span class="fa fa-fw fa-th-large" style="font-size: 20px;padding: 3px;"></span></a>
+                <a href="javascript:void(0)" data-toggle="tooltip" id="showChart"
+                   class="btn btn-xs btn-default {$model == 'chart' ? 'active' : ''}"
+                   title="图表模式"><span class="fa fa-fw fa-bar-chart-o" style="font-size: 20px;padding: 3px;"></span></a>
+            </div>
+        </div>
+    </nav>
+
+
+    <empty name="fetch">
+        <div class="table-responsive" id="contentArr">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th  width="160px;">
+                        <div class="out">
+                            <b>日期</b> <em>类型</em>
+                        </div>
+                    </th>
+                    <volist name="dateData" id="day">
+                        <th class="date_show"  style="vertical-align: middle;">{$day}</th>
+                    </volist>
+                    <th class="date_show" style="vertical-align: middle;">合计</th>
+                </tr>
+                </thead>
+                <tbody>
+                <foreach name="data" item="vo">
+                    <tr>
+                        <td>{$typeInfo[$key]}</td>
+                        <?php $count=0; foreach($dateData as $today) {  ?>
+                        <td>
+                            <?php
+                                  if(in_array($today,array_keys($vo['arr']))){
+                                     $num = $vo['arr'][$today];
+                                     $count = $count + $num;
+                                     echo "<span class='show_count'>".$num."</span>";
+                            }else{
+                            echo 0;
+                            }
+                            ?>
+                        </td>
+                        <?php }?>
+                        <td class="total">{$count}</td>
+                    </tr>
+                </foreach>
+                <tr>
+
+                    <td>合计</td>
+                    <?php $counts=0; foreach($dateData as $value) { ?>
+                    <td>
+                        <?php
+                          if(in_array($value,array_keys($countsArr['arr']))){
+                             $num = $countsArr['arr'][$value];
+                             $counts = $counts + $num;
+                             echo "<span class='show_count'>".$num."</span>";
+                        }else{
+                        echo '0';
+                        }
+                        ?>
+                    </td>
+                    <?php }?>
+                    <td class="total">{$counts}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <else/>
+        {$fetch}
+    </empty>
+
+
+
+</block>
+
+<block name="src_js">
+    <script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+
+    <script type="application/javascript">
+        $(function(){
+            if($('#contentArr').size() > 0){
+                var s = $('#contentArr').offset().top;
+                var h= window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+                var hig = h - s - 45;
+                $("#contentArr").height(hig);
+            }
+            $("#showTable").unbind("click").click(function (e) {
+                $("#model").val("table");
+                $(".navbar-form").submit();
+            });
+            $("#showChart").unbind("click").click(function (e) {
+                $("#model").val("chart");
+                $(".navbar-form").submit();
+            });
+        });
+        /**
+         * 导出功能
+         * @author Shawn
+         * @date 2018-08-03
+         */
+        function exportExcel(model){
+            var url='t.php?s=/Package/Statistics/exportSkuOutStatistics'+"&timeArea_start="+$("#timeArea_start").val()+'&timeArea_end='+$("#timeArea_end").val()+'&model='+model;
+            window.open(url,'_blank');
+        }
+        /**
+         * 判断时间是否超过一个月
+         * @author Shawn
+         * @date 2018-04-06
+         */
+        function checkDate() {
+            var beginTime = $.trim($('input[name="timeArea_start"]').val());
+            var endTime   = $.trim($('input[name="timeArea_end"]').val());
+            var time1 = new Date(beginTime).getTime();
+            var time2 = new Date(endTime).getTime();
+            if(beginTime == ''){
+                alert("开始时间不能为空");
+                return false;
+            }
+            if(endTime == ''){
+                alert("结束时间不能为空");
+                return false;
+            }
+            if(time1 > time2){
+                alert("开始时间不能大于结束时间");
+                return false;
+            }
+            //判断时间跨度是否大于1个月
+            var arr1 = beginTime.split('-');
+            var arr2 = endTime.split('-');
+            arr1[1] = parseInt(arr1[1]);
+            arr1[2] = parseInt(arr1[2]);
+            arr2[1] = parseInt(arr2[1]);
+            arr2[2] = parseInt(arr2[2]);
+            var flag = true;
+            if(arr1[0] == arr2[0]){ //同年
+                if(arr2[1]-arr1[1] > 1){ //月间隔超过1个月
+                    flag = false;
+                }else if(arr2[1]-arr1[1] == 1){ //月相隔1个月，比较日
+                    if(arr2[2] > arr1[2]){ //结束日期的日大于开始日期的日
+                        flag = false;
+                    }
+                }
+            }else{ //不同年
+                if(arr2[0] - arr1[0] > 1){
+                    flag = false;
+                }else if(arr2[0] - arr1[0] == 1){
+                    if(arr1[1] < 12){ //开始年的月份小于12时，不需要跨年
+                        flag = false;
+                    }else if(arr1[1]+1-arr2[1] < 12){ //月相隔大于1个月
+                        flag = false;
+                    }else if(arr1[1]+1-arr2[1] == 12){ //月相隔1个月，比较日
+                        if(arr2[2] > arr1[2]){ //结束日期的日大于开始日期的日
+                            flag = false;
+                        }
+                    }
+                }
+            }
+            if(!flag){
+                alert("查询区间不能超过一个月");
+            }
+            return flag;
+        }
+    </script>
+</block>
+
+
+
+
+
+

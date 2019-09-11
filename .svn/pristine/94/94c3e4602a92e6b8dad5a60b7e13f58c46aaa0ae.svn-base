@@ -1,0 +1,142 @@
+<css href="/newerp/Public/css/fonts.css" />
+<style>
+    body{
+        font-family: '微软雅黑', sans-serif;
+    }
+</style>
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table style="table-layout: fixed" width="100%" cellpadding="0" cellspacing="0">
+        <col style="width: 8%">
+        <col style="width: 10%">
+        <col style="width: 20%">
+        <col style="width: 20%">
+        <col style="width: 10%">
+        <col style="width: 14%">
+        <col style="width: 18%">
+        <tr>
+            <td colspan="3" width="40%" style="border-right-style: none;">
+                <div style="height: 10mm">
+                    <img src="../themes/Sugar5/images/hrb_logo.jpg" width="100" height="38" style="float: left;"/>
+                </div>
+
+            </td>
+            <td colspan="2" width="30%" align="center" style="vertical-align: middle;border-left-style: none">
+                <div style="font-size:8pt;">Small Packet BY AIR</div>
+            </td>
+            <td align="center" style="vertical-align: middle;">
+                <div>
+                    <span style="font-size:13pt;">{$Order['countrycode']}</span>
+                </div>
+            </td>
+            <td width="12%" align="center" style="vertical-align: middle;">
+                <div>
+                    <img src="../themes/Sugar5/images/wishyou_log.jpg" width="61" height="38" style="float:right;"/>
+                </div>
+            </td>
+        </tr>
+        <tr class="tag">
+            <td colspan="3" width="40%" style="font-size:8pt;line-height:9pt;">
+                <b>From:</b><br>
+                &nbsp;44190002147000（22）<br>No. 39,west bihu avenue (xinxing section), fenggang town, dongguan city
+                <br>
+                <b>Phone:</b>&nbsp;17666427427<br><br>
+            </td>
+            <td colspan="4" rowspan="2" style="font-size:9pt;line-height:10pt;">
+
+                <b>Ship To:</b>&nbsp;{$Order['ebay_username']}<br>
+                <div style="overflow-wrap: break-word;">
+                    {$Order['ebay_street']}, {$Order['ebay_street1']}
+                    {$Order['ebay_city']}, {$Order['ebay_state']}<br>
+                    {$Order['ebay_countryname']}&nbsp;&nbsp;{$Order['countrycn']}<br>
+                    <b>Zip:</b>&nbsp;{$Order['ebay_postcode']}<br>
+                    <br>
+                    <b>Phone:&nbsp;</b>{$Order['ebay_phone']}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" style="font-size: 9px;">自编号:<br>{$Order['recordnumber']}</td>
+        </tr>
+
+
+        <tr  class="tag">
+            <td colspan="2" style="border-right-style: none;text-align:center;font-size: 35px"><b>R</b></td>
+            <td colspan="5">
+                <div style="width:80mm;height: 14mm;text-align: center;float: right;">
+                    <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="270" height="37"/>
+                    <br>
+                    {$Order['ebay_tracknumber']}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">退件单位：</td>
+            <td colspan="5">&nbsp;东莞市邮政局电商包裹局国际小包处理组</td>
+        </tr>
+        <tr style="text-align:center;font-size: 7pt" class="tag">
+
+            <td colspan="5" class="blod">Description of Contents</td>
+            <td style="line-height: 9pt;"  class="blod">kg.</td>
+            <td style="line-height: 9pt;"  class="blod">Val(US $)</td>
+
+        </tr>
+        <tr align="center" class="tag" style="font-size: 7pt">
+            <?php
+                $qty = explode('*', $Order['skustr'])[0];
+            ?>
+
+            <td colspan="5">{$Order['yingwen']}</td>
+            <td style="line-height: 8pt;" >
+                {$Order['orderweight']}
+            </td>
+
+            <td>{$Order['sbjz']}</td>
+        </tr>
+        <tr align="center" class="tag" style="font-size: 7pt">
+
+            <td colspan="5">Total Gross Weight(Kg)</td>
+            <td style="line-height: 8pt;" >{$Order['orderweight']}</td>
+            <td style="line-height: 8pt;" >{$Order['sbjz']}</td>
+
+        </tr>
+        <tr class="tag" style="font-size: 7pt">
+            <td  colspan="7">
+                <p style="line-height:7pt;">I certify that the particulars given in this declaration are correct and this item does not contain any dangerous articles prohibited by legislation or by postal or customers regulatioins.</p>
+                <br>
+                <div>
+                    <div style="float:left;height:9pt;line-height:9pt;"><p><b>Sender's signiture& Data Signed:</b>
+                    </p></div>
+                    <div style="float:right;margin-right:5px;margin-top:-1px;text-align:center;line-height:15px;border:2px solid #0a0a0a;font-size: 13px;padding: 2px;">已验视 CN22</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 5px;bottom: 0px;margin-right: 90px;">
+        <span style="text-align: center;font-weight: bold;font-size:18px;padding-left: 8px;padding-right: 8px;padding-top: -1px;padding-bottom: -1px;">{$countriest[$Order['ebay_carrier']]}</span>
+        <!--<span class="fonts" style="margin-right: 18px;">{$countriest[$Order['ebay_carrier']]}</span> -->
+    </div>
+
+</div>
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <div style="margin:10mm;" class="font14 line_break width:80mm;">
+        {$Order['skustr']}
+    </div>
+    <div class="line_break font14 pcenter1 ">
+        订单号:{$Order['ebay_id']}
+    </div>
+    <div class="line_break font14 pcenter1">
+        跟踪号:{$Order['ebay_tracknumber']}
+    </div>
+    <div class="line_break font14 pcenter1">
+        捡货用
+    </div>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

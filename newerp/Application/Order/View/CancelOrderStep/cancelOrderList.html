@@ -1,0 +1,190 @@
+<extend name="Public:index" />
+<block name="main">
+<div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+    <form>
+        <div class="form-inline">
+            <div class="input-group">
+                <div class="input-group-addon">订单号</div>
+                <input type="text" name="ebay_id" class="form-control input-sm" value="{$request.ebay_id}" placeholder="多个订单用英文逗号隔开">
+            </div>
+            <div class="input-group">
+                <div class="input-group-addon">跟踪号</div>
+                <input type="text" name="ebay_tracknumber" class="form-control input-sm" value="{$request.ebay_tracknumber}">
+            </div>
+            <div class="input-group">
+                <div class="input-group-addon">添加时间</div>
+                <input type="text" class="form-control input-sm" name="addtime_start" style="width: 100px;" placeholder="开始日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request['addtime_start']}">
+                <div class="input-group-addon">至</div>
+                <input type="text" class="form-control input-sm" name="addtime_end" style="width: 100px;" placeholder="结束日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request['addtime_end']}">
+            </div>
+
+            <div class="input-group">
+                <div class="input-group-addon" id="ebay_status">订单状态</div>
+                <select name="ebay_status">
+                    <option value="100"></option>
+                    <?php foreach($all_ebay_status as $manage_status_key=>$manage_status_value){?>
+                    <option value="<?php echo $manage_status_key;?>" <?php if($request['ebay_status'] == $manage_status_key){echo 'selected';}?>><?php echo $manage_status_value;?></option>
+                    <?php }?>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <div class="input-group-addon" id="manage_status">处理状态</div>
+                <select name="status">
+                    <option value=""></option>
+                    <?php foreach($all_manage_status as $key_value=>$manage_status){?>
+                    <option value="<?php echo $key_value;?>" <?php if($request['status'] == $key_value){echo 'selected';}?>>{$manage_status}</option>
+                    <?php }?>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <div class="input-group-addon">添加人</div>
+                <select name="add_user">
+                    <option value=""></option>
+                    <php>foreach($addUsers as $addUser){</php>
+                    <option value="{$addUser}" <php>if($addUser == $request['add_user'])echo 'selected'</php>>{$addUser}</option>
+                    <php>}</php>
+                </select>
+            </div>
+            <button onclick="searchForm(this)" class="btn btn-primary btn-sm" type="button">搜索</button>
+        </div>
+    </form>
+    <button id="batchControlIntercept" class="btn btn-primary btn-sm" type="button">批量处理拦截</button>
+    <div style="wdidt:100%;height:10px"></div>
+    <table class="table custom-table">
+        <thead>
+            <th width="2%"><input type="checkbox" value="{$v['ebay_id']}" class="checkAll"></th>
+            <th width="8%">订单号</th>
+            <th width="8%">跟踪号</th>
+            <th width="8%">添加人</th>
+            <th width="15%">拦截原因</th>
+            <th width="8%">添加时间</th>
+            <th width="8%">订单状态</th>
+            <th width="8%">处理状态</th>
+            <th width="8%">操作</th>
+        </thead>
+        <php>foreach($list as $v){</php>
+        <tr>
+            <td><input type="checkbox" value="{$v['ebay_id']}" class="checkOne"></td>
+            <td>{$v['ebay_id']}</td>
+            <td>{$v['ebay_tracknumber']}</td>
+            <td>{$v['add_user']}</td>
+            <td>{$v['update_reason']}</td>
+            <td>{$v['add_time']}</td>
+            <td>{$topMenus[$v['ebay_status']]}</td>
+            <td>{$allStatus[$v['status']]}</td>
+            <td>
+                <php>if($v['status'] == 0){</php>
+                <a class="mark_control btn btn-info btn-xs" data-id="{$v['ebay_id']}" href="javascript:void(0);">标记已处理</a>
+                <php>}</php>
+            </td>
+        </tr>
+        <php>}</php>
+    </table>
+    <ul class="pagination">{$show}</ul>
+</div></body>
+<script>
+    $(function () {
+        $('select[name=add_user]').chosen({search_contains: true, width: '100%', allow_single_deselect: true});
+        $('select[name=ebay_status]').chosen({search_contains: true, width: '140px', allow_single_deselect: true});
+        $('select[name=status]').chosen({search_contains: true, width: '140px', allow_single_deselect: true});
+
+        $('.mark_control').on('click', function () {
+            if (confirm('确定标记已处理吗?')) {
+                var id = $(this).data('id');
+                $.post('__URL__/controlIntercept', {ebay_id: id}, function (data) {
+                    if (data.status) {
+                        alert(data.msg);
+                        location.replace(location.href);
+                    } else {
+                        layer.alert(data.msg);
+                    }
+                }, 'json');
+            }
+        });
+
+        //每5分钟刷新一次页面
+        setTimeout(function () {
+            location.reload();
+        }, '300000');
+
+        //选中所有checkbox
+        $('.checkAll').on('click', function () {
+            if($(this).prop('checked') == true){
+                $('.checkOne').prop('checked', true);
+            }else{
+                $('.checkOne').prop('checked', false);
+            }
+        });
+
+        //批量拦截
+        $('#batchControlIntercept').on('click', function () {
+            var ids = $('.checkOne').getCheckBoxVal();
+            if (ids == '') {
+                alert('请选择要处理的订单');
+                return false;
+            }
+            if (confirm('确定标记已处理吗?')) {
+                $.ajax({
+                    url: '__URL__/batchControlIntercept',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {ebay_ids: ids},
+                    sync: false,
+                    success: function (ret) {
+                        var failed = '', success = '';
+                        if ($(ret.failed).length > 0) {
+                            $.each(ret.failed, function (i, item) {
+                                failed += item + '<br>';
+                            });
+                        }
+                        if ($(ret.success).length > 0) {
+                            $.each(ret.success, function (i, item) {
+                                success += item + '<br>';
+                            });
+                        }
+                        failed += success;
+                        layer.alert(
+                            failed,{},function () {
+                                location.replace(location.href);
+                            }
+                        );
+                    }
+                })
+            }
+        });
+    })
+
+    jQuery.fn.extend({
+        getCheckBoxVal: function () {
+            var ids = '';
+            $(this).each(function () {
+                if ($(this).prop('checked') == true) {
+                    var id = $(this).val();
+                    ids = ids + ',' + id;
+                }
+            })
+            //返回并去掉第字符串的开始的逗号
+            return ids = ids.substring(1);
+        }
+    });
+
+    /*
+     * 搜索
+     */
+    function searchForm(obj) {
+        var data = $(obj).closest('form').serialize();
+        data     = data.replace(/(&|^)(\w*?\d*?\-*?_*?)*?=?((?=&)|(?=$))/g, '');
+        data     = data.replace(/^&/g, '');
+        var url = '/t.php?s=/Order/CancelOrderStep/cancelOrderList';
+        if (url.indexOf('?') > 0) {
+            url += '&' + data;
+        } else {
+            url += '?' + data;
+        }
+        location.href = url;
+    }
+
+</script>
+</block>

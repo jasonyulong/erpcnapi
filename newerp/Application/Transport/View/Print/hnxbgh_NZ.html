@@ -1,0 +1,177 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="4" align="left" valign="top">
+                <img src="../themes/Sugar5/images/hrb_logo.jpg" height="45px" width="90px"  style="float: left;"/>
+                <img src="../themes/Sugar5/images/nz_post.png" height="45px" width="90px"  style="float: left;"/>
+                <div style="text-align:center;display:block;height:45px;width:115px;float:left;"><br>
+                    <span class="font8 blod">跟踪小包</span><br>
+                    <span class="ffa font6">TRACKED PACKET</span>
+                </div>
+                <div style="text-align:center;display:block;height:45px;width:70px;float:left;"><br>
+                    <span class="blod" style="font-size:16px;">Economy</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font9">协议客户:44190000221001</td>
+        </tr>
+        <tr>
+            <td  colspan="4" class="ffa">
+                <div style="float:left;width:240px;height:50px;border-right:1px solid black;">FROM:</div>
+                <div style="float:left;width:130px;height:50px;font-weight:bold;text-align:center;line-height:50px;">{$Order['ebay_postcode']}</div>
+            </td>
+        </tr>
+        <tr>
+            <td  colspan="4" class="ffa">
+                <div style="float:left;width:100px;height:90px;font-size:40px;font-weight:bold;text-align:center;line-height:100px;border-right:1px solid black;">A:</div>
+                <div style="float:left;padding-left:5px;width:265px;height:90px;font-size:13px;">
+                    {$Order['ebay_username']}<br/>
+                    {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+                    {$Order['ebay_city']}, {$Order['ebay_state']}<br>
+                    <?php
+                        if($Order['ebay_phone']){
+                            echo $Order['ebay_phone'].'<br>';
+                        }else{
+                            echo $Order['ebay_phone1'].'<br>';
+                        }
+                    ?>
+                    {$Order['ebay_countryname']}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font9">退件地址:东莞邮件处理中心</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font7 ffa height1" align="center">
+                <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" style="width: 60mm" height="37"/><br/>
+                {$Order['ebay_tracknumber']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font7 ffa height1" align="left">
+                {$Order['skustr']}
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;rigth:0px;right: 5px;bottom: 3px;" class="fonts">
+        <span style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<div class="" style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table cellpadding='0' cellspacing='0' width='100%' border='0' class='view'>
+        <tr>
+            <td colspan="6" style="padding:1px;">
+                <div style="width:120px;float:left;font-size:18px;height:35px;text-align:center;line-height:20px;">
+                    航&nbsp;空<br>
+                    BY AIR
+                </div>
+                <div style="width:120px;float:left;font-size:14px;height:35px;text-align:center;line-height:35px;">
+                    SMALL PACKET
+                </div>
+                <div style="width:120px;float:left;font-size:25px;font-weight:bold;height:35px;text-align:center;line-height:35px;">
+                    NZ
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6" style="padding:1px;">
+                <div class="left" style="font-size:10px;height:35px;line-height:35px;margin-left:10px;">报关签条<span class="ffa">(COSTOMS DECLARATION)</span></div>
+                <div class="left" style="height:35px;line-height:16px;margin-left:15px;" >
+                    <b>邮</b><span class="ffa bold">2113</span><br>
+                    <span class="ffa bold">CN22</span>
+                </div>
+                <div class="left" style="height:35px;line-height:20px;margin-left:15px;">可以径行开拆<br><span class="ffa bold">May be opened</span></div>
+            </td>
+        </tr>
+        <tr height="30px" align="center">
+            <td colspan="6">
+                <div style="font-size:8pt;">
+                    <div style="float:left;width:130px;height:55px;border-right:1px solid black;">邮件种类<br>Category of item<br>请在适当的内容前划"√"</div>
+                    <div style="float:left;width:30px;height:55px;">
+                        <div style="width:100%;float:left;height:27px;border-right:1px solid black;border-bottom:1px solid black;">√</div>
+                        <div style="width:100%;float:left;height:27px;border-right:1px solid black;"> </div>
+                    </div>
+                    <div style="float:left;width:80px;height:55px;">
+                        <div style="width:100%;float:left;height:27px;border-right:1px solid black;border-bottom:1px solid black;">礼品<br>Gift</div>
+                        <div style="width:100%;float:left;height:27px;border-right:1px solid black;">文件<br>Documents</div>
+                    </div>
+                    <div style="float:left;width:20px;height:55px;">
+                        <div style="width:100%;float:left;height:27px;border-right:1px solid black;border-bottom:1px solid black;"> </div>
+                        <div style="width:100%;float:left;height:27px;border-right:1px solid black;"> </div>
+                    </div>
+                    <div style="float:left;width:110px;height:55px;">
+                        <div style="width:100%;float:left;height:27px;border-bottom:1px solid black;">商品货样<br>Commercial Sample</div>
+                        <div style="width:100%;float:left;height:27px;">其他<br>Other</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr align="center">
+            <td colspan="6" style="border-bottom:none;">
+                <div style="font-size:8pt;width:100%;float:left;">
+                    <div style="float:left;width:240px;height:30px;border-right:1px solid black;">内件详细名称和数量Quantity and detailed description contents</div>
+                    <div class="newfont8" style="float:left;width:60px;padding-bottom:5px;height:30px;border-right:1px solid black;">
+                        重量(千克)<br>Weight(KG)
+                    </div>
+                    <div class="newfont8" style="float:left;width:60px;padding-bottom:5px;height:30px;">
+                        价值<br>Value
+                    </div>
+                </div>
+                <div style="font-size:8pt;width:100%;float:left;border-top:1px solid black;">
+                    <div style="float:left;width:240px;height:20px;border-right:1px solid black;">7 asparagus grass fork simulation * 2</div>
+                    <div style="float:left;width:60px;height:20px;border-right:1px solid black;">
+                        0.482
+                    </div>
+                    <div style="float:left;width:60px;height:20px;">
+                        7.945
+                    </div>
+                </div>
+                <div style="font-size:8pt;width:100%;float:left;border-top:1px solid black;">
+                    <div style="float:left;width:240px;height:15px;border-right:1px solid black;"> </div>
+                    <div style="float:left;width:60px;height:15px;border-right:1px solid black;">
+
+                    </div>
+                    <div style="float:left;width:60px;height:15px;">
+
+                    </div>
+                </div>
+                <div style="font-size:8pt;width:100%;float:left;border-top:1px solid black;">
+                    <div style="float:left;width:240px;height:40px;line-height:10px;border-right:1px solid black;">协助系统税则号列和货物原产国(只对商品邮件填写)HS tariff number and country of origin of goods(For commercial items only)</div>
+                    <div style="float:left;width:60px;height:40px;line-height:12px;border-right:1px solid black;">
+                        总重量(KG)Total weight(KG)
+                    </div>
+                    <div style="float:left;width:60px;height:40px;line-height:12px;">
+                        总价值 Total Value(USD)
+                    </div>
+                </div>
+                <div style="font-size:8pt;width:100%;float:left;border-top:1px solid black;border-bottom:1px solid black;">
+                    <div style="float:left;width:240px;height:15px;border-right:1px solid black;">CN</div>
+                    <div style="float:left;width:60px;height:15px;border-right:1px solid black;">
+                        0.482
+                    </div>
+                    <div style="float:left;width:60px;height:15px;">
+                        7.945
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6" style="padding: 2px;line-height:12px"><span class="font7">我保证上述申报准确无误，本函件内未装寄法律或邮政和海关规章禁止寄递的任何危险物品</span>
+                <span class="ffa font7">(I the undersigned certify that the particulars given in this declaration are correct and this item does not contain any angerous articles prohi bited by legislation or by postal or customs regulations)</span><br/><span style="display:inline-block;float:right" class="ffa font7">寄件人签字(
+         Sender’s signature(9))：Flake</span><br>
+                <div>C98823&nbsp;<?php echo date('Y-m-d');?></div>
+                    <div style="float:right;font-weight:bold;">CN22</div>
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 45px;bottom: 3px;" class="fonts">
+        <span style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>

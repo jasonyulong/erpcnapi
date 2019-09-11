@@ -1,0 +1,86 @@
+<script src="/newerp/Public/js/plugins/echarts/echarts-all.js"></script>
+<div id="chartmain" style="width:100%; height:780px;"></div>
+<script type="application/javascript">
+    /**
+     * 显示 图表
+     * chart_type: bar 柱状图，line，现状图
+     * x_data: x 轴数据
+     */
+    function show_colomn_chart (chart_type, x_data, y_data, legend_data, y_name, element) {
+        if (typeof echarts == 'undefined') return false;
+
+        element = element || 'chartmain';
+        var myChart = echarts.init(document.getElementById(element));
+
+        var series = [];
+        for (var key in y_data) {
+            var tmp = {type: chart_type, data: y_data[key], name: legend_data[key]};
+            series.push(tmp);
+        }
+        var legend = [];
+        for(var k in legend_data){
+            legend.push(legend_data[k]);
+        }
+        // 基于准备好的dom，初始化echarts实例
+
+        var option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+    //                type: 'cross'
+                    }
+                },
+                grid: {
+                    top: '12%',
+                    left: '1%',
+                    right: '10%',
+                    button:'3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    feature: {
+                        dataView: {show: true, readOnly: false},
+                        restore: {show: true},
+                        saveAsImage: {show: true},
+    //                    magicType : {show: true, type: ['bar','line']}
+                    }
+                },
+                legend: {
+                    data: legend
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        axisTick: {
+                            alignWithLabel: true
+                        },
+                        data: x_data
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: y_name
+                    }
+                ],
+                series: series
+        };
+
+        myChart.setOption(option);
+    };
+
+    var x_data = '{$x_data}';
+    x_data = JSON.parse(x_data);
+    var y_data = '{$y_data}';
+    y_data = JSON.parse(y_data);
+    var x_data_names = '{$x_data_names}';
+    x_data_names = JSON.parse(x_data_names);
+
+    var legend_data = x_data_names;
+    var y_name = '数量';
+    var chart_type = 'line';
+
+    show_colomn_chart(chart_type, x_data, y_data, legend_data, y_name);
+
+</script>

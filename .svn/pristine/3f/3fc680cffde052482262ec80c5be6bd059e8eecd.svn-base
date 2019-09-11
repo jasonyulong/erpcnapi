@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>包裹面单重打</title>
+    <style>
+        body{margin:0;padding:0;}
+        #mark_code{font-size: 30px;height: 40px;}
+    </style>
+    <link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+    <script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+    <script src="/newerp/Public/layer/layer.js"></script>
+</head>
+<body>
+<div class="row" style="margin: 0 auto;padding: 8px 5px;background-color:orange"></div>
+<h2 style="margin-left: 2%">警告:该功能仅用于包裹面单重打</h2>
+<div class="container-fluid" style="margin-left: 2%">
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-sm-5">
+            <input id="mark_code" onkeyup="checkMarkCode(event)" class="form-control" placeholder="扫描包裹编号或跟踪号" value="{$mark_code}" type="text">
+        </div>
+    </div>
+</div>
+<div style="margin-top:30px;margin-left: 30%;">
+    <h1 style="color:red">{$error}</h1>
+    <iframe id="print_iframe" onload="autoPrint()" name="print_iframe" style="width:104.5mm;height:104.5mm;overflow-y:scroll;" src="{$reprint}"></iframe>
+</div>
+</body>
+
+<script>
+    $(function(){
+        $("#mark_code").select().focus();
+    });
+
+    function checkMarkCode(event){
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return '';
+        }
+        var mark_code= $.trim($("#mark_code").val());
+        if(mark_code.length<5){
+            layer.msg("格式不对!", {icon: 2});
+            $("#ebay_id").select().focus();
+            return false;
+        }
+        location.href='t.php?s=/Package/PackageRePrint/packagePrint/mark_code/'+mark_code;
+        return false;
+    }
+
+    function autoPrint(){
+        if($("#print_iframe").attr("src")!=''){
+            window.frames[0].print();
+            return false;
+        }
+    }
+</script>
+</html>

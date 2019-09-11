@@ -1,0 +1,495 @@
+<?php
+/**
+ * @Copyright (C), 2018-2019, 卓士网络科技有限公司, shawn.sean@foxmail.com
+ * @Name CreateSinglePickOrder.class.php
+ * @Author Shawn
+ * @Version v1.0
+ * @Date: 2018/6/4
+ * @Time: 9:24
+ * @Description 单品单货、多货生成拣货单逻辑 copy by OrderGroupController.class.php
+ */
+
+namespace Package\Controller;
+
+use Common\Controller\CommonController;
+use Mid\Model\EbayGlockModel;
+use Order\Model\EbayCarrierModel;
+use Order\Model\EbayConfigModel;
+use Order\Model\EbayOrderModel;
+use Order\Model\OrderTypeModel;
+use Package\Model\CarrierGroupItemModel;
+use Package\Model\CarrierGroupModel;
+use Package\Model\PickOrderDetailModel;
+use Package\Model\PickOrderModel;
+use Package\Service\CreatePickService;
+use Think\Page;
+use Transport\Model\CarrierModel;
+use Think\Cache\Driver\Redis;
+use Package\Service\CreateSingleOrderService;
+use Think\Controller;
+
+/**
+ * @method $this assign($name, $value)
+ * @method display($name = '')
+ * Class OrderGroupController
+ * @package Package\Controller
+ */
+class CreateSinglePickOrderController extends CommonController
+{
+    protected $pageSize = 50;
+    /**
+     * 用于生成拣货单的订单的状态
+     * @var null
+     */
+    protected $pickAbleStatus = null;
+    protected $allowCarriers = null;
+    /**
+     * @var EbayCarrierModel
+     */
+    protected $ebayCarrierModel = null;
+
+    /**
+     * 当前仓库id
+     * @var null
+     */
+    private $currStoreId = null;
+
+    /**
+     *
+     */
+    public function _initialize() {
+        if(!IS_CLI){
+            parent::_initialize();
+        }
+        $this->pageSize = session('pagesize') ? session('pagesize') : 0;
+        ////////////////////////  版本二  /////////////////////////
+        $this->pageSize = session('pagesize') ? session('pagesize') : 100;
+        $allowCarrier = load_config(APP_PATH.'/Transport/Conf/config.php');
+        //debug($allowCarrier);die();
+        $carriers    = array_keys($allowCarrier['CARRIER_TEMPT']);
+        $trueCarrier = [];
+        foreach ($carriers as $val) {
+            $trueCarrier[] = strpos($val, '_') === false ? $val : explode('_', $val)[0];
+        }
+        //debug($carriers);
+        $this->allowCarriers = array_unique($trueCarrier);
+        $this->currStoreId    = C("CURRENT_STORE_ID");
+    }
+
+    /**
+     * 创建拣货单首页
+     *
+     */
+    public function index() {
+        $resultArr   = $this->getGroupCarriers();
+//        dump($this->allowCarriers);die;
+        $orderStatus = $this->getPickOrderStatus();
+        $orderTypeModel = new OrderTypeModel();
+        $pickOrderDetailModel = new PickOrderDetailModel();
+        $orderResult    = $orderTypeModel->alias('a')
+            ->join('inner join erp_ebay_order as b on a.ebay_id = b.ebay_id')
+            ->where([
+                'a.pick_status'      => 1,
+//                'b.ebay_addtime'   => ['egt', 1509958800],
+                'b.ebay_status'      => ['in', $orderStatus],
+                'b.ebay_warehouse'   => $this->currStoreId,
+                'b.ebay_carrier'     => ['in', $this->allowCarriers],
+                'b.ebay_combine'     => ['neq', 1],
+                'b.ebay_tracknumber' => ['neq', ''],
+                'a.type'             =>['lt',3]
+            ])
+            ->field('b.ebay_carrier, count(a.id) as counts')
+            ->group('b.ebay_carrier')
+            ->select();
+        foreach($orderResult as $k => $v){
+            //获取当前订单最后一条拣货详情，判断is_delete 0-已创建 1-已删除
+            $pickDetail =  $pickOrderDetailModel->where(['ebay_id'=>$v['ebay_id']])->order('order_addtime desc')->find();
+            if(!empty($pickDetail) && $pickDetail['is_delete'] != 1 ){
+                unset($orderResult[$k]);
+            }
+        }
+        if(strstr($_SESSION['truename'],'测试人员')&&$_GET['debug']==1){
+            echo $orderTypeModel->_sql();
+        }
+
+        foreach ($resultArr as $key => $value) {
+            $carrierTypes = $value['sub'];
+            foreach ($orderResult as $k => $v) {
+                if (isset($carrierTypes[$v['ebay_carrier']])) {
+                    $resultArr[$key]['sub'][$v['ebay_carrier']] .= '=>' . $v['counts'];
+                    $resultArr[$key]['total'] += $v['counts'];
+                }
+            }
+        }
+        $user = $_SESSION['truename'];
+        if(false !== strrpos($user,'测试人员')){
+            echo '<!--'."\n".$orderTypeModel->_sql()."\n".'-->';
+        }
+//        dump($resultArr);exit;
+        $this->carrierGroupArr = $resultArr;
+        //获取盘点锁定sku
+        $lockModel = new EbayGlockModel('','',C('DB_CONFIG_READ'));
+        $skuCount = $lockModel->count();
+        $CreatePicks=new CreatePickService();
+        $this->assign('DATETIMES',$CreatePicks->builderTime());
+        $this->assign('skuCount',(int)$skuCount);
+        $this->display();
+    }
+
+    /**
+     * @param $carrierId
+     * @param $types
+     */
+    public function getOrderListByCarrier($carrierId, $types) {
+        $pickOrderDetailModel = new \Package\Model\PickOrderDetailModel();
+        $carrierName = (new CarrierModel())
+            ->where(['id' => $carrierId])
+            ->getField('name');
+        $carrierStatusArr = $this->getPickOrderStatus();
+        $map = [
+            'a.ebay_carrier'     => $carrierName,
+//            'a.ebay_addtime'   => ['egt', 1509958800],
+            'a.ebay_status'      => ['in', $carrierStatusArr],
+            'b.pick_status'      => 1,
+            'a.ebay_warehouse'   => $this->currStoreId,
+            'a.ebay_combine'     => ['neq', 1],
+            'a.ebay_tracknumber' => ['neq', ''],
+        ];
+        if (!in_array('0', $types)) {
+            $map['b.type'] = ['in', $types];
+        }
+        //楼层的问题 -------Start-----------
+        $floor = (int)$_REQUEST['floor'];
+        $map['b.floor'] = $floor;
+        //楼层的问题===== END------------------
+
+        /**
+         *测试人员谭 2017-11-17 21:16:37
+         *说明:时间问题
+         */
+        $CreatePicks=new CreatePickService();
+        $DateFilter=$CreatePicks->builderTime();
+        $map['a.ebay_addtime']=['between',[$DateFilter['erp_add_sint'],$DateFilter['erp_add_eint']]];
+        $map['a.w_add_time']=['between',[$DateFilter['wms_add_sint'],$DateFilter['wms_add_eint']]];
+
+
+        $orderModel = new EbayOrderModel();
+        $counts = $orderModel->alias('a')
+            ->join('inner join erp_order_type as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->count();
+        $pageObj = new Page($counts, $this->pageSize);
+        $limit   = $pageObj->firstRow . ',' . $pageObj->listRows;
+        $pageStr = $pageObj->show();
+        // 因为不再使用超链接 所以将其超链接破坏掉
+        $pageStr = str_replace('href', 'data-link', $pageStr);
+        $orderInfo = $orderModel->alias('a')
+            ->join('inner join erp_order_type as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->field('a.ebay_id, a.ebay_username, a.ebay_countryname, a.ebay_addtime, a.orderweight,a.w_add_time')
+            ->limit($limit)
+            ->select();
+        foreach($orderInfo as $k => $v){
+            //获取当前订单最后一条拣货详情，判断is_delete 0-已创建 1-已删除
+            $pickDetail =  $pickOrderDetailModel->where(['ebay_id'=>$v['ebay_id']])->order('order_addtime desc')->find();
+            if(!empty($pickDetail) && $pickDetail['is_delete'] != 1 ){
+                unset($orderInfo[$k]);
+            }
+        }
+//        dump($orderInfo);
+        $this->assign('orderInfo', $orderInfo);
+        $this->assign('pageStr', $pageStr);
+        ob_start(function_exists('ob_gzhandler') ? 'ob_gzhandler' : null);
+        $this->display('tableData');
+        $pageContent = ob_get_clean();
+        echo $pageContent;
+    }
+    /**
+     * @param $groupId
+     * @param $types
+     */
+    public function getOrderListByCompany($groupId = '', $types = '') {
+        $carriers         = (new CarrierGroupItemModel())->getGroupCarriers($groupId);
+        $carrierStatusArr = $this->getPickOrderStatus();
+        $map = [
+            'a.ebay_carrier'     => ['in', $carriers ?: array('')],
+//            'a.ebay_addtime'     => ['egt', 1509958800],
+            'b.pick_status'      => 1,
+            'a.ebay_status'      => ['in', $carrierStatusArr ?: array('')],
+            'a.ebay_combine'     => ['neq', 1],
+            'a.ebay_warehouse'   => $this->currStoreId,
+            'a.ebay_tracknumber' => ['neq', ''],
+        ];
+        if (!in_array('0', $types)) {
+            $map['b.type'] = ['in', $types];
+        }
+        //楼层的问题 -------Start-----------
+        $floor = (int)$_REQUEST['floor'];
+
+        $map['b.floor'] = $floor;
+        //楼层的问题===== END------------------
+
+
+        /**
+        *测试人员谭 2017-11-17 21:16:37
+        *说明:时间问题
+        */
+        $CreatePicks=new CreatePickService();
+        $DateFilter=$CreatePicks->builderTime();
+        $map['a.ebay_addtime']=['between',[$DateFilter['erp_add_sint'],$DateFilter['erp_add_eint']]];
+        $map['a.w_add_time']=['between',[$DateFilter['wms_add_sint'],$DateFilter['wms_add_eint']]];
+
+
+        $orderModel = new EbayOrderModel();
+        $counts = $orderModel->alias('a')
+            ->join('inner join erp_order_type as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->count();
+        $pageObj = new Page($counts, $this->pageSize);
+        $limit   = $pageObj->firstRow . ',' . $pageObj->listRows;
+        $pageStr = $pageObj->show();
+        // 因为不再使用超链接 所以将其超链接破坏掉
+        $pageStr = str_replace('href', 'data-link', $pageStr);
+        $orderInfo = $orderModel->alias('a')
+            ->join('inner join erp_order_type as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->field('a.ebay_id, a.ebay_username, a.ebay_countryname, a.ebay_addtime, a.orderweight,a.w_add_time')
+            ->limit($limit)
+            ->select();
+        $this->assign('orderInfo', $orderInfo);
+        $this->assign('pageStr', $pageStr);
+        ob_start(function_exists('ob_gzhandler') ? 'ob_gzhandler' : null);
+        $this->display('tableData');
+        $pageContent = ob_get_clean();
+        echo $pageContent;
+    }
+
+    /**
+     * 获取运输方式分组先的所有的运输方式
+     * @return array
+     */
+    public function getGroupCarriers() {
+        $carrierGroupModel = new CarrierGroupModel();
+        // 查询出所有的运输方式及其分组信息
+        $carrierGroupItems = $carrierGroupModel->alias('a')
+            ->join('inner join pick_carrier_group_items as b on a.id = b.group_id')
+            ->field('a.id, a.group_name, b.carrier')
+            ->select();
+        // 按照运输方式分组 将查出的运输方式分组
+        $groupedItems = [];
+        foreach ($carrierGroupItems as $item) {
+            $groupedItems[$item['group_name']]['sub_carrier'][$item['carrier']] = $this->getCarrierIdByName($item['carrier']);
+            $groupedItems[$item['group_name']]['id']                            = $item['id'];
+        }
+        $targetFormat = [];
+        foreach ($groupedItems as $groupName => $item) {
+            $targetFormat[] = [
+                'id'       => $item['id'],
+                'sup_name' => $groupName,
+                'sub'      => $item['sub_carrier'],
+            ];
+        }
+        return $targetFormat;
+    }
+
+    /**
+     * 查找货找单可以进行的订单的状态
+     */
+    public function getPickOrderStatus() {
+        if (!$this->pickAbleStatus) {
+            $ebayConfig00 = new EbayConfigModel();
+            $pickStatus   = $ebayConfig00->getField('pick_order_status');
+            $orderStatusArr = explode(',', $pickStatus);
+            unset($ebayConfig00, $pickStatus);
+            foreach ($orderStatusArr as $key => $val) {
+                if (trim($val)) {
+                    $orderStatusArr[$key] = trim($val);
+                }
+            }
+            $this->pickAbleStatus = $orderStatusArr;
+        } else {
+            $orderStatusArr = $this->pickAbleStatus;
+        }
+        return $orderStatusArr;
+    }
+
+    /**
+     * 根据运输方式的名称获取运输方式的Id
+     * @param $name
+     * @return int
+     */
+    public function getCarrierIdByName($name) {
+        if (!$this->ebayCarrierModel) {
+            $this->ebayCarrierModel = new EbayCarrierModel();
+        }
+        return $this->ebayCarrierModel->where(['name' => $name])->getField('id');
+    }
+
+    /**
+     * 生成单品拣货单任务文件
+     * @author Shawn
+     * @date 2018-05-24
+     */
+    public function CreatePickOrder(){
+        $message[1] = '单品/单件';
+        $message[2] = '单品/多件';
+        $message[3] = '多品/多件';
+        $groupId      = I("groupId");
+        $carrier      = I("carrier");
+        $bill         = I("bills");
+        $isallpage    = I("isallpage");
+        $types        = I("types");
+        $floor        = (int)I("floor"); //楼层
+        $key = "pick_order_list_".$this->currStoreId.":type_";
+        if (empty($types) || !isset($types)){
+           $this->ajaxReturn(['status'=>0,'msg'=>'请选择包裹类型']);
+        }
+        if ($carrier) {
+            $groupId = '';
+        }
+        if ($carrier == '' && $groupId == '') {
+            $this->ajaxReturn(['status'=>0,'msg'=>'运输方式或物流公司必须提交一个']);
+        }
+        $data['floor']              = $floor;
+        $data['groupId']            = $groupId;
+        $data['carrier']            = $carrier;
+        $data['bill']               = $bill;
+        $data['isallpage']          = $isallpage;
+        $data['includeType1']       = 0;
+        $data['includeType2']       = 0;
+        $data['includeType3']       = 0;
+        $data['erp_addtime_start']  = I("erp_addtime_start");
+        $data['erp_addtime_end']    = I("erp_addtime_end");
+        if(!isset($data['erp_addtime_start']) || !isset($data['erp_addtime_end'])){
+            $this->ajaxReturn(['status'=>0,'msg'=>'请选择订单进入erp时间']);
+        }
+        $data['wms_addtime_start']  = I("wms_addtime_start");
+        $data['wms_addtime_end']    = I("wms_addtime_end");
+        if(!isset( $data['wms_addtime_start']) || !isset($data['wms_addtime_end'])){
+            $this->ajaxReturn(['status'=>0,'msg'=>'请选择订单进入wms时间']);
+        }
+        $data['username']           = $_SESSION['truename'];
+        //是否开始执行任务
+        $data['is_work'] = 0;
+        //根据选择的类型生成不同任务文件用于判断是否执行完成
+        $redis = new Redis();
+        $info = '';
+        $status = 0;
+        foreach ($types as $value){
+            $redisKey = $key.$value;
+            $taskData = $redis->get($redisKey);
+            if($taskData){
+                $info .= $message[$value]."：上次任务尚未完成，请等待!"."<br/>";
+                continue;
+            }else{
+                $data['includeType'.$value] = 1;
+                $result = $redis->set($redisKey,$data);
+                if(!$result){
+                    $info .= $message[$value]."：添加任务失败,请重试!"."<br/>";
+                }else{
+                    $data['includeType'.$value] = 0;
+                    $status = 1;
+                    $info .= $message[$value]."：添加任务成功，请等待任务执行!"."<br/>";
+                }
+            }
+        }
+        $this->ajaxReturn(['status'=>$status,'msg'=>$info]);
+    }
+
+    /**
+     * 执行生产拣货单任务
+     * @param 任务类型 1单品单货 2单品多货
+     * @author Shawn
+     * @date 2018-05-28
+     * @desc php tcli.php Package/CreateSinglePickOrder/createPickOrders
+     */
+    public function createPickOrderS(){
+        ini_set('memory_limit', '2048M');
+        set_time_limit(0);
+        if(!isset($_SERVER['argv'])){
+            echo "请在cli命令下执行";exit;
+        }
+        $type = $_SERVER['argv'][2];
+        $PickOrder = new CreateSingleOrderService();
+        $data = $PickOrder->CreatePickOrder($type, $this->allowCarriers);
+        echo  $data;exit;
+    }
+
+    /**
+     * 更新下拣货单排序
+     * @return string
+     * @author Shawn
+     * @date 2018/7/6
+     */
+    public function updateSortOrder()
+    {
+        ini_set('memory_limit', '2048M');
+        set_time_limit(0);
+        //找到所有没有完结的单品拣货单
+        $pickOrderModel = new PickOrderModel();
+        $pickOrderDetailModel = new PickOrderDetailModel();
+        $orderModel = new EbayOrderModel();
+        $map['isprint'] = array("lt",3);
+        $map['type'] = array("in",[1,2]);
+        $ordersn = $pickOrderModel->where($map)->getField("ordersn",true);
+        if(empty($ordersn)){
+            echo "没有找到未完结的单品拣货单";exit;
+        }else{
+            //找到所有需要更新的订单
+            $pMap['ordersn'] = array("in",$ordersn);
+            $pMap['is_delete'] = 0;//没有删除的
+            $pMap['sortorder'] = 0;//没有排序的
+            $pMap['is_baled'] = 0;//没有包装的
+            $pickOrderDetail = $pickOrderDetailModel->where($pMap)->field("id,ebay_id")->select();
+            if(empty($pickOrderDetail)){
+                echo "没有找到需要更新的订单";exit;
+            }
+            foreach ($pickOrderDetail as $k=>$v){
+                $ebay_id = $v['ebay_id'];
+                $id = $v['id'];
+                $ebayOrderData = $orderModel->where("ebay_id='$ebay_id'")->field('ebay_addtime,ismodifive')->find();
+                if(empty($ebayOrderData)){
+                    continue;
+                }else{
+                    $sortOrder = $ebayOrderData['ismodifive'] > 0 ? $ebayOrderData['ismodifive'] : $ebayOrderData['ebay_addtime'];
+                    $result = $pickOrderDetailModel->where(['id'=>$id])->save(['sortorder'=>$sortOrder]);
+                    if(!$result){
+                        echo "更新失败，id：".$id;
+                    }
+                }
+
+            }
+        }
+        echo "done";exit;
+
+    }
+
+    /**
+     * 修改数据，测试拣货单程序，运行前请先备份
+     * @author Shawn
+     * @date 2018/7/9
+     */
+    public function createTestData(){
+        if('development' != APP_ENV){
+            die("只允许本地调式代码使用！");
+        }
+        set_time_limit(0);
+        ini_set('memory_limit', '80000M');
+//        $begin = strtotime("2017-04-01");
+//        $end = strtotime("2018-06-01");
+        $begin = strtotime("2018-07-06 17:00:00");
+        $end = strtotime("2018-07-06 18:30:00");
+        $time = "ebay_addtime > '$begin' and ebay_addtime<'$end'";
+        $orderData = M("erp_goods_sale_detail")->select();
+        $date = date("Y-m-d H:i:s");
+        foreach ($orderData as $v){
+            $map['ebay_id'] = $v['ebay_id'];
+            M("erp_ebay_order")->where($map)->save(['ebay_status'=>1723,'ebay_addtime'=>time(),'w_add_time'=>$date]);
+            M("erp_order_type")->where($map)->save(['pick_status'=>1]);
+            M("api_checksku")->where($map)->delete();
+            M("pick_order_detail")->where($map)->delete();
+        }
+        echo "done";
+    }
+
+}

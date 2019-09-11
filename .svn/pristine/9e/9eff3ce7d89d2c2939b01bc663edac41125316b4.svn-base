@@ -1,0 +1,32 @@
+<div style="position: relative; width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <?php if(is_array($Order['pdfimg'])):?>
+    <img style="height:300mm;width:210mm;margin-left:-125px;margin-top:-554px;" class="view" src="{$Order['pdfimg'][0]}"/>
+    <?php else:?>
+    <img style="height:300mm;width:210mm;margin-left:-125px;margin-top:-554px;" class="view" src="{$Order['pdfimg']}"/>
+    <?php endif;?>
+    <div style="position: relative; margin-top: -228px; margin-left: 332px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+    <div style="background: #fff; margin-left: 1mm; width: 38mm; position: relative; z-index: 999998; margin-top: -79mm; height: 22mm; font-size: 11px;">From: FT No.3 two Heng Road, Helong Road, Baiyun District, Guangzhou, Guangdong,China
+    <br>tell:13631272440
+    </div>
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

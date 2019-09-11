@@ -1,0 +1,14 @@
+<css href="/newerp/Public/css/fonts.css" />
+<?php
+$count = $Order['sku_count'];
+for($i=0; $i<=$count; $i++)
+{
+?>
+<div style="position: relative;width:100mm;min-height:200mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <img style="height: 200mm;width: 372px;position: absolute;" class="view" src="{$Order['pdfimg'][$i]}"/>
+    <!--添加拣货代码-->
+    <div style="position: absolute; right:0px;right: 25px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 280px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<?php } ?>

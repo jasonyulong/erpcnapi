@@ -1,0 +1,209 @@
+<?php
+/**
+ * @Copyright (C), 2018-2019, 卓士网络科技有限公司, shawn.sean@foxmail.com
+ * @Name DeliveryController.class.php
+ * @Author Shawn
+ * @Version v1.0
+ * @Date: 2018/8/14
+ * @Time: 9:35
+ * @Description 物流发货
+ */
+namespace Order\Controller;
+use Order\Model\ApiBagsModel;
+use Order\Model\EbayCarrierModel;
+use Package\Model\ApiOrderWeightModel;
+use Think\Controller;
+
+class DeliveryController extends Controller
+{
+    /**
+     * 当前仓库id
+     * @var int
+     */
+    private $currStoreId  = 196;
+
+    public function _initialize() {
+        if (!$_SESSION['truename']) {
+            $this->error('请先登陆', '/login.php');
+        }
+        $currStoreId    = C("CURRENT_STORE_ID");
+        if(!empty($currStoreId)){
+            $this->currStoreId = $currStoreId;
+        }
+
+    }
+
+
+    public function index()
+    {
+        //查找所有物流渠道
+        $carrierModel = new EbayCarrierModel();
+        $map['a.ebay_warehouse'] = $this->currStoreId;
+        $map['a.status'] = 1;
+        $filed = 'b.id,b.sup_abbr,b.sup_code';
+        $carrierData = $carrierModel->alias("a")
+            ->join("inner join ebay_carrier_company as b on a.companyname=b.id")
+            ->where($map)
+            ->field($filed)
+            ->group('b.sup_name')
+            ->order('b.sup_code+0 asc,b.id asc')
+            ->select();
+        $this->assign("carrierData",$carrierData);
+        $this->display();
+    }
+
+    /**
+     * 确认收包操作
+     * @author Shawn
+     * @date 2018/8/14
+     */
+    public function makeDelivery(){
+        $markCode = trim($_POST['markCode']);
+        $id = (int)$_POST['id'];
+        if(empty($markCode)){
+            $this->ajaxReturn(['status'=>0,'msg'=>'请输入需要交运的包裹编号！']);
+        }else{
+            $apiBagModel = M('api_bags');
+            $package = $apiBagModel->field("id, delivery_status")
+                ->where(['mark_code'=>$markCode])
+                ->find();
+            if(empty($package)){
+               $this->ajaxReturn(['status' => 0, 'msg' => '未找到指定的打包包裹.']);
+            }else{
+                if($package['delivery_status'] == 1){
+                    $this->ajaxReturn(['status' => 0, 'msg' => '指定的打包包裹已经标记为 已收包 状态; 无需重复标记.']);
+                }else{
+                    //找到包裹内物流公司
+                    $apiOrderWeightModel = new ApiOrderWeightModel();
+                    $ebayCarrierModel = new EbayCarrierModel();
+                    $carrier = $apiOrderWeightModel->where(['bag_mark'=>$markCode])
+                        ->order("id desc")
+                        ->getField("transport");
+                    $companyId = $ebayCarrierModel->where(['name'=>$carrier,'status'=>1])->getField("companyname");
+                    if($id != $companyId){
+                        $this->ajaxReturn(['status'=>0,'msg'=>'当前扫描的包裹不是该物流公司的包裹！']);
+                    }
+                    $saveData['delivery_status'] = 1;
+                    $saveData['delivery_time'] = time();
+                    $saveData['delivery_user'] = session("truename");
+                    $result = $apiBagModel->where(["id"=>$package['id']])->save($saveData);
+                    if($result){
+                        $data['weight'] = 0;
+                        $data['carrier'] = '';
+                        $data['mark_code'] = $markCode;
+                        $orderWeightData = $apiOrderWeightModel
+                            ->field("SUM(`weight`) as total_weight,transport")
+                            ->where(['bag_mark'=>$markCode])
+                            ->group("transport")
+                            ->select();
+                        $transport = '';
+                        if(!empty($orderWeightData)){
+                            foreach ($orderWeightData as $value){
+                                $data['weight'] += $value['total_weight'];
+                                $data['carrier'] .= ','.$value['transport'];
+                                $transport = $value['transport'];
+                            }
+                            $data['weight'] = number_format($data['weight']/1000,2);
+                            $data['carrier'] = trim($data['carrier'],',');
+                        }
+                        $this->ajaxReturn(['status' => 1, 'msg' => '标记收包成功.','data'=>$data,'transport'=>$transport]);
+                    }else{
+                        $this->ajaxReturn(['status' => 1, 'msg' => '标记收包操作失败.']);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 收包统计
+     * @author Shawn
+     * @date 2018/8/14
+     */
+    public function todayStatisticsCount()
+    {
+        $id = (int)I("id");
+        //当前物流公司所有渠道收包成功数量
+        $data['company_total'] = 0;
+        //当前渠道成功数量
+        $data['total'] = 0;
+        //当天收包总数
+        $data['all_total'] = 0;
+        $apiBagModel = new ApiBagsModel();
+        $orderWeightModel = new ApiOrderWeightModel();
+        $ebayCarrierModel = new EbayCarrierModel();
+        //首先找到今日所有收包的包裹
+        $begin = strtotime(date("Y-m-d")." 00:00:00");
+        $end = strtotime(date("Y-m-d")." 23:59:59");
+        $map['delivery_time'] = array("between",[$begin,$end]);
+        $map['delivery_status'] = 1;
+        $allBags = $apiBagModel->where($map)->getField("mark_code",true);
+        $data['all_total'] = count($allBags);
+        //找到最后一个包裹，用于统计物流渠道数量
+        $lastBag = $apiBagModel->where($map)->order('delivery_time desc')->getField("mark_code");
+        //找到这个物流的公司所有渠道
+        $carrierData = $ebayCarrierModel->where(['companyname'=>$id,'status'=>1,'ebay_warehouse'=>$this->currStoreId])
+                    ->getField("name",true);
+        if(!empty($allBags) && !empty($carrierData)){
+            $oMap['bag_mark'] = array("in",$allBags);
+            $oMap['transport'] = array("in",$carrierData);
+            $bags = $orderWeightModel->where($oMap)->group("bag_mark")->getField("bag_mark",true);
+            $data['company_total'] = count($bags);
+            //找到最后一个包裹里面物流的渠道代码
+            $lastTransport = $orderWeightModel->where(['bag_mark'=>$lastBag])->getField('transport');
+            $sortCode = $ebayCarrierModel->where(['name'=>$lastTransport,'status'=>1,'ebay_warehouse'=>$this->currStoreId])->getField('sorting_code');
+            //找到渠道代码一样的物流名称
+            $carrierName = $ebayCarrierModel->where(['sorting_code'=>$sortCode,'status'=>1,'ebay_warehouse'=>$this->currStoreId])->getField('name',true);
+            $cMap['bag_mark'] = array("in",$allBags);
+            $cMap['transport'] = array("in",$carrierName);
+            $codeBags = $orderWeightModel->where($cMap)->group("bag_mark")->getField("bag_mark",true);
+            $data['total'] = count($codeBags);
+        }
+        $this->ajaxReturn(["status"=>1,'data'=>$data]);
+    }
+
+    /**
+     * 收包列表
+     * @author Shawn
+     * @date 2018/8/14
+     */
+    public function todayStatisticsList()
+    {
+        //找到自己今天已交运的包裹袋子，默认显示最新20个
+        $begin = strtotime(date("Y-m-d")." 00:00:00");
+        $end = strtotime(date("Y-m-d")." 23:59:59");
+        $map['delivery_user'] = session("truename");
+        $map['delivery_time'] = array("between",[$begin,$end]);
+        $map['delivery_status'] = 1;
+        $apiBagModel = M("api_bags");
+        $data = $apiBagModel->where($map)
+            ->order("delivery_time desc")
+            ->field("mark_code")
+            ->select();
+        if(empty($data)){
+            $this->ajaxReturn(["status"=>0,'msg'=>"今日暂无收包记录！"]);
+        }else{
+            $apiOrderWeightModel = new ApiOrderWeightModel();
+            foreach ($data as &$v){
+                $code = $v['mark_code'];
+                $orderWeightData = $apiOrderWeightModel
+                    ->field("SUM(`weight`) as total_weight,transport")
+                    ->where(['bag_mark'=>$code])
+                    ->group("transport")
+                    ->select();
+                $weight = 0;
+                $carrier = '';
+                if(!empty($orderWeightData)){
+                    foreach ($orderWeightData as $value){
+                        $weight += $value['total_weight'];
+                        $carrier .= ','.$value['transport'];
+                    }
+                }
+                $v['weight'] = number_format($weight/1000,2);
+                $v['carrier'] = trim($carrier,',');
+            }
+            $this->ajaxReturn(["status"=>1,'data'=>$data]);
+        }
+
+    }
+}

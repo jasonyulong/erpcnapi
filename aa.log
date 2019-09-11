@@ -1,0 +1,3 @@
+SELECT [-REPLACE-] FROM api_orderweight AS a INNER JOIN api_bags AS b ON a.bag_mark=b.mark_code
+WHERE  b.mark_code in ('18122711-2')
+

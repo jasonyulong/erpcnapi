@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>包装费用</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+<link href="/newerp/Public/css/whouse.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+
+    .content-area-modify .layui-layer-content{
+        height: 55px !important;
+        padding:5px 20px !important;
+    }
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="margin: 10px;padding: 8px 5px;background-color:orange">
+        <div class="col-xs-12">
+            <!--菜单菜单----START-->
+            <div id="whouse_menu">
+                <div class="openDiv">
+                       <span class="childmod">
+                        <b class="b_title">拣货流程</b>
+                            <a href="t.php?s=/Package/OrderGroup" target="_blank">创建拣货单</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/0" target="_blank">等待打印</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/1" target="_blank">已打印待确认</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/2" target="_blank">已确认待包装</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/3" target="_blank">已包装完毕</a>
+                        </span>
+                        <span class="childmod">
+                            <b class="b_title">二次分拣</b>
+                            <a href="t.php?s=/Package/SecondPick/" target="_blank">二次分拣</a>
+                        </span>
+
+                        <span class="childmod">
+                            <b class="b_title">包装流程</b>
+                            <a href="t.php?s=/Package/MakeBale/" target="_blank">包装流程</a>
+                            <a href="t.php?s=/Package/UserPackageFee/showStatistic.html" target="_blank">包装费用统计</a>
+                        </span>
+                        <span class="childmod">
+                            <b class="b_title">基本配置</b>
+                            <a href="/t.php?s=/Package/CarrierGroup/groupList.html" target="_blank">运输方式分组配置</a>
+                        </span>
+                </div>
+            </div>
+
+            <div class="dropdown pull-right" style="display: inline-block;margin-right: 5%">
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row" style="padding: 0 24px">
+        <div class="pageInfo">
+            <ul class="pagination" style="margin: 5px">{$pageStr}</ul>
+        </div>
+
+        <table class="table table-responsive table-hover table-condensed" style="width:300px;">
+            <?php
+            //debug($Data);
+            foreach($Data as $List){
+
+            ?>
+            <tr>
+                <th>{$TypeName[$List['type']]}</th>
+                <th>{$List['name']}</th>
+                <th><input type="text" title="{$TypeName[$List['type']]}-{$List['name']}" style="width:80px;" class="value form-control" id="{$List['id']}" value="{$List['value']}"/></th>
+            </tr>
+            <?php } ?>
+         <tr>
+             <td colspan="3">
+                 <button onclick="saveRule()" class="btn btn-sm btn-primary dropdown-toggle" type="button">保存</button>
+             </td>
+         </tr>
+        </table>
+    </div>
+
+
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript" src="/newerp/Public/plugins/icheck/icheck.min.js"></script>
+<script type="application/javascript">
+    function saveRule(){
+        var str='';
+        var bool=true;
+        $("input.value").each(function(){
+            var val=$(this).val();
+            var title=$(this).attr("title");
+            var id=$(this).attr("id");
+            if(val==0||val<0){
+                alert(title+" 请设置正确的包装价格!");
+                bool=false;
+                return false;
+            }
+
+            str+='@'+id+':'+val;
+
+        });
+
+        if(str==''||!bool){
+            return ;
+        }
+
+        var url    = '{:U("Package/PickFee/saveRule")}';
+        $.post(url,{str:str},function(data){
+            if(data.status==0){
+                layer.msg(data.msg, {icon: 5});
+            }else{
+                layer.msg(data.msg, {icon: 6});
+            }
+        },'json');
+    }
+</script>
+
+</html>

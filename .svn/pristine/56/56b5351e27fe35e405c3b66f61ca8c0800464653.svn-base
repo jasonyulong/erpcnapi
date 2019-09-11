@@ -1,0 +1,52 @@
+body{font-family:"微软雅黑"}
+#topstitle{background:#0F769F;color:#fff;font-size:16px;text-align: center;padding: 13px;}
+#skuinfo{margin:15px;}
+.showListInfo_box h1{background:#0F769F;text-indent:8px;font-size:15px;padding:2px;}
+.platformCategory,.listkeyword,.listtitle,.competitor,.listpoint{border:1px solid #0F769F;margin-bottom: 15px;}
+.listtitleck{height: 160px;overflow-y: auto;padding:6px;border: 1px solid #888;margin-bottom: 10px;}
+#bodyMask{background:url("../images/maskbgs.png")!important;}
+#ModboxContent img{margin:60px auto;display:block;}
+#ModboxContent{overflow-y:scroll;}
+.Modboxtitlebox .btn_close {background:url(../images/icon.gif) 0 3102px  !important;cursor: pointer;display: block;float: right;height: 15px;margin-top: 6px;width: 15px;border:1px solid #fafafa}
+.Modboxtitlebox {background:#0e580c;color: #fff;font-size: 13px;height: 30px;line-height: 30px;padding: 0 8px;}
+/*刊登要素*/
+div.c_list1 {background: none repeat scroll 0 0 #FFFFFF; border: 1px solid #444444;height: auto;margin: 1px 0 0 0px; max-height: 200px; overflow-x: hidden;overflow-y: scroll; padding: 5px 0; position: absolute;width: 498px;}
+div.c_list1 ul{ margin: 0;padding: 0;}
+div.c_list1 ul li {cursor: pointer;list-style: none outside none;margin: 0;text-indent: 5px;}
+div.c_list1 ul li:hover, div.c_list1 ul li.li_hover{background: none repeat scroll 0 0 #79A7D8;}
+div.c_list1 ul li b{font-weight:bold;color:#000}
+#searchCateList{width:700px;}
+
+
+.listkeyword,.listtitle,.platformCategory,.competitor,.listpoint{padding:15px;border:1px solid #0F769F;min-height: 40px;margin:0px 0 20px 0;}
+.showListInfo_box a.addnewList,.showListInfo_box a.addnewSalePoint{text-decoration:none!important;cursor:pointer;background:url('../images/icon.gif') 0 -2762px no-repeat;}
+.showListInfo_box a.modfidescription{text-decoration:none!important;cursor:pointer;background:url('../images/icon.gif') 0 -4004px no-repeat;}
+.erpcate,.smtcate,.DCcate{display:inline-block;margin-right:10px;margin-bottom: 5px;font-size:14px;}
+.nocate{color:#911;}
+.descriptionDiv{background:#cacaba;}
+#searchCateList{width:700px;}
+.keyword_ul,.keyword_ulck{padding:10px;margin:10px;border: 1px solid #888}
+.keyword_ul li,.title_box .title_line,.keyword_ulck li{display:inline-block;width:200px;border:1px solid #ccc;height:30px;line-height:30px;padding:1px 0 0 3px;font-size: 13px;}
+.listpoint .title_line{height:64px;}
+.listpoint .title_line textarea {margin:6px 0px 6px 6px;}
+.listpoint .title_line input{margin-top:-10px;}
+.keyword_ul li,.keyword_ulck li{text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+.keyword_ul li input{width:180px;}
+.keywordkc .keyword_ulck li{height:20px;line-height:20px;width:260px;}
+.keyword_ulck{margin-top:8px;}
+.title_box .title_line{display:block;width:851px;margin: 2px 0 12px 6px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+.listtitle div.title_line:after{
+    content: " (" attr(title) ")"
+}
+b.del_target{cursor: pointer;color:#911;font-weight:normal;}
+input.input_title{width:680px;}
+div.addcompetitor{margin-top:10px;}
+table.list_table_Competitor td .del_target{margin-left:10px;font-size:14px;}
+table.list_table_Competitor td,table.list_table_Competitor th{text-align:left;}
+#dccategory{width:500px!important;}
+input[type='text'],select{font-size: 15px; font-family: "微软雅黑"}
+.indents{text-indent: 2em;font-size:14px!important;}
+#show_msg_addlist div{font-size:14px!important;margin: 10px;}
+.cateck{margin:0 0 10px 10px;}
+p.p_ck{font-weight:bold;font-size: 12px;}
+.titleCk{border: 1px solid #38B1B9;padding:3px;margin: 5px;}

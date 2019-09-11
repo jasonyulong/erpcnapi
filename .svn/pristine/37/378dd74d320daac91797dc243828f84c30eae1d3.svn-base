@@ -1,0 +1,123 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+
+    <?php
+      $blscss='';
+      $blscss2='';
+        if(strstr($Order['ebay_carrier'],'比利时小包挂号')){
+            $blscss = 'margin-left: -6mm;margin-top: -4mm;width: 113mm;height: 113mm';
+            $blscss2 = 'margin-left: -4mm;margin-top: -3mm;width: 108mm;height: 108mm';
+        }elseif(strstr($Order['ebay_carrier'],'欧速通英国专线挂号')){
+            $blscss='height:105mm;width:106mm;margin-left:-3mm;margin-top:-2mm;';
+        }else{
+            $blscss='height:100mm;width:100mm;';
+        }
+      if(in_array($Order['ebay_carrier'], ['Wsh线上EUB-HYD','Wsh线上EUB带电-HYD']))
+      {
+        $tagCss = "position: absolute;right: 25px;bottom: 0px;";
+      }
+      else
+      {
+        $tagCss = "position: absolute;right: 5px;bottom: 0px;";
+      }
+    ?>
+    <img style="{$blscss}" class="view" src="{$Order['pdfimg'][0]}"/>
+    <?php    
+        // 20180119 hank E速宝 添加订单号，方便对比
+        if(strstr($Order['ebay_carrier'],'E速宝')){
+            echo '<div style="position: relative;margin-top:-8px;margin-left:87mm;line-height: 1.2em;font-size:10px;width:110px">'.$Order['ebay_id'].'</div>';
+        }
+    ?>
+    <if condition="$Order['ebay_carrier'] eq '欧速通' || $Order['ebay_carrier'] eq '欧速通（带电）'">
+        <div style="position: absolute;right: 5px;bottom: -5px;">
+            <span class="fonts" >{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="in_array($Order['ebay_carrier'],['wish线上UBI加拿大专线挂号','Wish线上ubi加拿大特惠专线'])" />
+        <div style="position: absolute; right: 70px; bottom: -1px;border: 2px solid #4c4c4c">
+            <span style="margin-right: 0px;font-size: 18px;font-weight: bold;">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="$Order['ebay_carrier'] eq 'wish线上UBI澳邮专线挂号'" />
+        <div style="position: absolute; right: 5px; bottom: 0px;border: 2px solid #4c4c4c">
+            <span style="margin-right: 0px;font-size: 19px;font-weight: bold;">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <else/>
+        <div style="{$tagCss}">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    </if>
+</div>
+
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="{$blscss2}" class="view" src="{$Order['pdfimg'][1]}"/>
+
+    <?php
+       $css='position: relative;margin-top: -34px;margin-left: 15px;line-height: 1.2em';
+       $splice = explode('..', $Order['skustr']);
+       $skuAcounts = isset($splice[1]) ? $splice[1] : $splice[0];
+       if(strstr($Order['ebay_carrier'],'顺丰')){
+            $skuAcounts='';
+       }
+
+       if(strstr($Order['ebay_carrier'],'DHL小包挂号-德国预清关')){
+            $skuAcounts='';
+       }
+       if(strstr($Order['ebay_carrier'],'DHL小包平邮-德国预清关')){
+            $skuAcounts='';
+       }
+       if(strstr($Order['ebay_carrier'],'广州小包挂号')){
+            $skuAcounts='';
+       }
+       if(strstr($Order['ebay_carrier'],'广州小包平邮')){
+            $skuAcounts='';
+       }
+       if(strstr($Order['ebay_carrier'],'DHl小包挂号')){
+            $skuAcounts='';
+       }
+        if(strstr($Order['ebay_carrier'],'线下EUB(加拿大)鼎立')){
+            $css='position: relative;margin-top:-84px;width:200px;word-wrap:break-word;margin-left: 45px;line-height: 1.2em;font-size:9px;';
+           // $skuAcounts='';
+        }
+        if(strstr($Order['ebay_carrier'],'华中小包挂号-八国')){
+            $css='position: relative;margin-top:-17px;width:200px;word-wrap:break-word;margin-left: 45px;line-height: 1.2em;font-size:9px;';
+            // $skuAcounts='';
+        }
+        if(strstr($Order['ebay_carrier'],'速卖通线上小包云途挂号')){
+            $css='position: relative;margin-top:-12px;width:200px;word-wrap:break-word;margin-left: 45px;line-height: 1.2em;font-size:9px;';
+            // $skuAcounts='';
+        }
+
+    if(strstr($Order['ebay_carrier'],'线下EUB广州')){
+        $css='position: relative;margin-top:-142px;width:200px;word-wrap:break-word;margin-left: 45px;line-height: 1.2em;font-size:9px;';
+        // $skuAcounts='';
+    }
+
+         if(in_array($Order['ebay_carrier'],['线下EUB广州-YLD','线下EUB广州(带电)-YLD'])){
+            $skuAcounts='';
+       }
+        echo '<div style="'.$css.'">'.$skuAcounts.'</div>';
+
+
+    ?>
+<if condition="in_array($Order['ebay_carrier'],['Wsh线上EUB-HYD','Wsh线上EUB带电-HYD']) ">
+    <div style="background: #fff; margin-left: 3mm; width: 59mm; position: relative;margin-top: -52mm; height: 4.2mm; font-size: 10px;line-height: 11px;">
+        收寄单位：速递广东深圳市香港中快揽投部
+    </div>
+</if>
+
+<!--添加拣货代码-->
+
+<if condition="$Order['ebay_carrier'] eq '美国专线-DHL' ">
+    <div style="position: absolute;right: 5px;bottom: 0px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+<elseif condition="in_array($Order['ebay_carrier'],['wish线上UBI加拿大专线挂号','wish线上UBI澳邮专线挂号','Wish线上ubi加拿大特惠专线'])" />
+    <div style="position: absolute; right: 5px; bottom: 0px;border: 2px solid #4c4c4c">
+        <span style="margin-right: 0px;font-size: 18px;font-weight: bold;">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+ <else/>
+    <div style="{$tagCss}">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</if>
+
+</div>

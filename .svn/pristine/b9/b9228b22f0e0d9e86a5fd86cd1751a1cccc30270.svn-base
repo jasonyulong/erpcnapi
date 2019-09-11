@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>ERP</title>
+<link rel="stylesheet" type="text/css" href="cache/themes/Sugar5/css/style.css" />
+<link rel="stylesheet" type="text/css" href="themes/Sugar5/css/navs.css" />
+</head>
+<body>
+<div id="header" class="no-print">
+    <div id="companyLogo"></div>
+    <?php
+    $sql="select count(id) as count from ebay_inner_msg where reguser like '%,".$_SESSION['id'].",%' and readid not like '%,".$_SESSION['id'].",%'";
+    $sql=$dbcon->execute($sql);
+    $sql=$dbcon->getResultArray($sql);
+
+    ?>
+    <div id="welcome" >
+        <?php echo $_SESSION['truename']; ?>(工号:<?php echo $_SESSION['id']; ?>)
+        [ <a href='handle.php?action=Logout' class='utilsLink'>Log Out</a> ]
+    </div>
+    <h1 style="color:#911;padding: 20px;font-size: 20px;margin:0">1号仓</h1>
+
+    <div class="clear"></div>
+    <span id='sm_holder'></span>
+    <div class="clear"></div>
+    <div id="moduleList">
+        <ul>
+            <li class="noBorder">&nbsp;</li>
+            <?php
+            $module = $_REQUEST['module'];
+            $action = $_REQUEST['action'];
+            $user = $_SESSION['user'];
+            if($module=='goods'){
+                $auditted = $_REQUEST['auditted']?$_REQUEST['auditted']:0;
+            }else{
+                $auditted=-1;
+            }
+            /* 检查用户权限*/
+            $cpower = explode(",", $_SESSION['power']); //D($cpower);
+            ?>
+
+            <?php if (in_array("report", $cpower)) { ?>
+                <li class="notCurrentTabLeft haveChild">
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <span class="<?php if ($module == 'report')echo 'currentTab'; else echo 'notCurrentTab'; ?>">
+                        <a href="/t.php?s=/Order/Order/index" id="moduleTab_Opportunities">订单管理</a>
+                    </span>
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <div class="openDiv">
+                        <span class="lineMask"></span>
+                        <span class="childmod">
+                        <b class="b_title">订单管理</b>
+                            <a href="/t.php?s=/Order/Order/index&ebay_status=1723,1745,1724,2009&deliver_goods=1">订单首页</a>
+                            <a href="/orderindex.php?module=orders&ostatus=0&action=未付款">订单首页(old)</a>
+                            <a href="/t.php?s=/Order/CancelOrderStep/cancelOrderList" target="_blank">订单拦截列表</a>
+                            <a href="/t.php?s=/Order/Order/pickingList&types=1723&print_time_start=24&mtype=1" target="_blank">订单拣货列表</a>
+                            <?php if(in_array('picking_abnormality_sku',$cpower)){ ?>
+                                <a href="/t.php?s=/Order/PickingAbnormalitySku/index" target="_blank">拣货异常sku扫描</a>
+                            <?php }?>
+                            <a href="/t.php?s=/Order/Trace/index">仓库异常处理</a>
+
+                        <!--    <a href="/t.php?s=/Order/Order/hadInspection" target="_blank">已包装/验货未出库</a>
+                            <a href="/t.php?s=/Order/Order/abnormal" target="_blank">特殊库位订单</a>
+                            <a href="/t.php?s=/Order/Order/statusList" target="_blank">ERP和WMS状态查询</a>-->
+                            <a href="/t.php?s=/Order/Scan/skuCheck" target="_blank">烟雾弹检测</a>
+                              <a href="/t.php?s=/Report/ComingWmsOrderQty/index" target="_blank">连续七天订单量</a>
+                        </span>
+
+                        <span class="childmod">
+                        <b class="b_title">任务看板</b>
+                            <a href="/t.php?s=/Report/ReportOrderBoard/index" target="_blank">订单完成看板</a>
+                            <a href="/t.php?s=/Report/ReportOrderBoard/index2" target="_blank">订单完成看板2</a>
+                        </span>
+                    </div>
+                </li>
+            <?php } ?>
+
+            <?php if (in_array("orders", $cpower)) { ?>
+                <li class="haveChild">
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <span class="<?php if ($module == 'orders') echo 'currentTab'; else echo 'notCurrentTab'; ?>">
+                     <a href="#">发货管理</a>
+                    </span>
+                    <span class="notCurrentTabRight">&nbsp;</span>
+                    <div class="openDiv">
+                        <span class="lineMask"></span>
+                       <span class="childmod">
+                        <b class="b_title">拣货流程</b>
+                            <a href="t.php?s=/Package/CreateSinglePickOrder/index" target="_blank">创建拣货单（单品）</a>
+                            <a href="t.php?s=/Package/OrderGroup/index" target="_blank">创建拣货单（多品）</a>
+                            <a href="t.php?s=/Package/OrderCross" style="color:#911" target="_blank">跨仓拣货单</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/0" target="_blank">拣货单-待打印</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/2" target="_blank">拣货单-待包装</a>
+                            <!--<a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/2" target="_blank">已确认待包装</a>-->
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/3" target="_blank">已包装完毕</a>
+                            <!--<a href="/t.php?s=Order/Scan" target="_blank">已出库待称重</a>-->
+                          <!--  <a href="t.php?s=/Package/PickCheck/CheckOrders" target="_blank">异常查看</a>
+                           <a href="t.php?s=/Order/CancelOrderStep/cancelOrderList" target="_blank">异常订单拦截列表</a>-->
+                           <a href="t.php?s=/Package/PickBack/PickBackList" target="_blank">捡货打回</a>
+                        </span>
+                        <span class="childmod">
+                            <b class="b_title">二次分拣</b>
+                            <a href="t.php?s=/Package/SecondPick/" target="_blank">二次分拣</a>
+                            <a href="t.php?s=/Package/SecondPick/thirdTime" target="_blank">三次分拣</a>
+                            <a href="t.php?s=/Package/OrderCrossSorting" target="_blank">跨仓二次分拣</a>
+                            <a href="t.php?s=/Package/OrderCrossStockList" target="_blank">跨仓异常区看板</a>
+                            <a href="t.php?s=/Package/OrderCrossStockList/scanskuintoListByordersn" target="_blank">跨仓异常区扫入</a>
+                            <a href="t.php?s=/Package/OrderCurrentStockList" target="_blank">本仓异常区看板</a>
+                        </span>
+                    </div>
+                </li>
+            <?php } ?>
+
+            <?php if (in_array("orders", $cpower)) { ?>
+            <li class="notCurrentTabLeft haveChild">
+                <span class="notCurrentTabLeft">&nbsp;</span>
+                    <span class="<?php if ($module == 'orde')echo 'currentTab'; else echo 'notCurrentTab'; ?>">
+                        <a href="#" id="moduleTab_Opportunities">出库流程</a>
+                    </span>
+                <span class="notCurrentTabLeft">&nbsp;</span>
+                <div class="openDiv">
+                    <span class="lineMask"></span>
+                    <span class="childmod">
+                        <b class="b_title">出库流程</b>
+                        <a href="t.php?s=/Package/MakeBale/newWorkbench" target="_blank">包装流程（单品单件）</a>
+                        <a href="t.php?s=/Package/MakeBale/newWorkbenchMore" target="_blank">包装流程（单品多件）</a>
+                        <a href="t.php?s=/Package/MakeBale/newWorkbenchMoreSKU" target="_blank">包装流程（多品多件）</a>
+                        <a href="t.php?s=/Package/inspectionScanning/index" target="_blank">核对扫描</a>
+                        <a href="/t.php?s=Order/Scan/" target="_blank">称重</a>
+                        <a href="t.php?s=/Package/OrderSku/" target="_blank">SKU扫不出</a>
+                        <a href="t.php?s=/Package/OrderSku/StockList" target="_blank">出库队列</a>
+                      <!--   <a href="/s_auditorder.php?module=orders&action=Loading%20Orders" target="_blank">出库扫描</a> -->
+                        <a href="t.php?s=/Order/RePrint/getEbayidByTracknumber" target="_blank">白单重打</a>
+                        <a href="http://erp.spocoo.com/t.php?s=/Transport/Test/regetpdfView" target="_blank">物流商面单异常</a>
+                    </span>
+                </div>
+            </li>
+            <?php } ?>
+
+            <?php if (in_array("orders", $cpower)) { ?>
+                <li class="notCurrentTabLeft haveChild">
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <span class="<?php if ($module == 'orde')echo 'currentTab'; else echo 'notCurrentTab'; ?>">
+                        <a href="#" id="moduleTab_Opportunities">物流发货</a>
+                    </span>
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <div class="openDiv">
+                        <span class="lineMask"></span>
+                    <span class="childmod">
+                        <b class="b_title">物流发货</b>
+                        <a href="t.php?s=/Order/Delivery/index" target="_blank">发货</a>
+                        <a href="/inBagList.php" target="_blank">包裹列表</a>
+                        <a href="t.php?s=/Package/PackageRePrint/packagePrint" target="_blank">包裹面单重打</a>
+                    </span>
+                    </div>
+                </li>
+            <?php } ?>
+
+            <?php if (in_array("report", $cpower)) { ?>
+                <li class="notCurrentTabLeft haveChild">
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <span class="<?php if ($module == 'report')echo 'currentTab'; else echo 'notCurrentTab'; ?>">
+                        <a href="#" id="moduleTab_Opportunities">统计报表</a>
+                    </span>
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <div class="openDiv">
+                        <span class="lineMask"></span>
+
+                        <span class="childmod">
+                        <b class="b_title">统计报表</b>
+                            <a href="t.php?s=/Package/TwoPickCount/index.html" target="_blank">二次分拣统计</a>
+                            <!--<a href="t.php?s=/Package/UserPackageFee/showStatistic.html" target="_blank">包装费用统计</a>-->
+                            <a href="t.php?s=/Package/Statistics/showPackerStatistics" target="_blank">包装统计【新】</a>
+<!--                            <a href="t.php?s=/Package/UserPackageFee/pickerStatistic.html" target="_blank">拣货统计</a>-->
+                            <a href="t.php?s=/Package/Statistics/showPickerStatistics" target="_blank">拣货统计【新】</a>
+                            <a href="/scanorder_baoiao.php" target="_blank">订单扫描统计</a>
+<!--                            <a href="t.php?s=/Package/PickFee/ZreoFeeSKU.html" target="_blank">包装费用为0</a>-->
+                            <a href="t.php?s=/Package/Statistics/showPackSubsidyStatistics" target="_blank">包装补贴统计</a>
+                            <a href="t.php?s=/Package/Statistics/showPickingAbnormalityStatistics" target="_blank">拣货异常sku统计</a>
+                            <?php if (in_array("orderOutStoreStatistics", $cpower)) { ?>
+                            <a href="t.php?s=/Package/Statistics/orderOutStoreStatistics" target="_blank">订单出库报表</a>
+                            <?php } ?>
+                            <?php if (in_array("skuOutStoreStatistics", $cpower)) { ?>
+                            <a href="t.php?s=/Package/Statistics/skuOutStoreStatistics" target="_blank">sku出库报表</a>
+                            <?php } ?>
+                            <?php if (in_array("orderBaseAnalysisStatistics", $cpower)) { ?>
+                                <a href="t.php?s=/Package/Statistics/orderBaseAnalysis" target="_blank">订单基数分析报表</a>
+                            <?php } ?>
+                            <?php if (in_array("weightFailureStatistics", $cpower)) { ?>
+                                <a href="t.php?s=/Package/Statistics/weightFailureIndex" target="_blank">称重失败统计表</a>
+                            <?php } ?>
+                            <?php if (in_array("abnormalOrderStatistics", $cpower)) { ?>
+                                <a href="t.php?s=/Package/Statistics/abnormalOrderIndex" target="_blank">异常订单报表</a>
+                            <?php } ?>
+                        </span>
+
+<!--                        <span class="childmod">-->
+<!--                        <b class="b_title">其他数据</b>-->
+<!--                            <a href="#" target="_blank">预留</a>-->
+<!--                        </span>-->
+                    </div>
+                </li>
+            <?php } ?>
+
+            <?php if (in_array("orders", $cpower)) { ?>
+                <li class="notCurrentTabLeft haveChild">
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <span class="<?php if ($module == 'orde')echo 'currentTab'; else echo 'notCurrentTab'; ?>">
+                        <a href="#" id="moduleTab_Opportunities">基本配置</a>
+                    </span>
+                    <span class="notCurrentTabLeft">&nbsp;</span>
+                    <div class="openDiv">
+                        <span class="lineMask"></span>
+                        <span class="childmod">
+                            <b class="b_title">基本配置</b>
+                            <?php if (in_array('view_pick_carrier_group', $cpower)) {?>
+                                <a href="/t.php?s=/Package/CarrierGroup/groupList.html" target="_blank">运输方式分组配置</a>
+                                <a href="/t.php?s=/Package/PickFee/index.html" target="_blank">包装费用</a>
+                                <!--<a href="/t.php?s=/Package/Author/index.html" target="_blank">异常订单授权</a>-->
+                            <?php }?>
+                            <?php if(in_array('out_weight_rule_set',$cpower)){ ?>
+                                <a href="/t.php?s=/Package/WeighSystem/ruleIndex" target="_blank">出库称重规则设置</a>
+                                <a href="/t.php?s=/Package/WeighSystem/weightingIndex" target="_blank">出库称重加权设置</a>
+                            <?php }?>
+                            <a href="/t.php?s=/Package/Belt/index" target="_blank">传送带层物流</a>
+                        </span>
+                    </div>
+                </li>
+            <?php } ?>
+        </ul>
+    </div>
+    <div id="top_menu" style="margin-top:13px;text-align: left;padding-left:20px;">
+        <?php
+        $ss = "select id,name from ebay_topmenu order by ordernumber";
+        $ss = $dbcon->getResultArrayBySql($ss);
+        if($_REQUEST['module']!='orders'){
+            $ss = [];
+        }
+
+        for ($i = 0; $i < count($ss); $i++) {
+            $ssid = $ss[$i]['id'];
+            $ssname = $ss[$i]['name'];
+            if (($i + 1) % 12 == 0) {
+                echo '<br><br><b style="white-space:nowrap;"></b>';
+            }
+            if ($ssid != 1731) {
+                echo '<a href="/orderindex.php?module=orders&ostatus=' . $ssid . '&action=' . $ssname . '&sortstatus=0">&nbsp;' . $ssname . '</a>';
+                /* $sql  = "select count(ebay_id) as cc from ebay_order as a where ($ebayacc) and a.ebay_status='$ssid' $ebaystoreview and a.ebay_combine!='1'";
+        //echo $sql.'<br>';
+        $sqla = $dbcon->execute($sql);
+        $sql  = $dbcon->getResultArray($sqla);*/
+                echo '<span data="' . $ssid . '" class="getRealCount">(<b>0+</b>)</span>&nbsp;';
+            } else {
+                echo '<a href="/orderindex.php?module=orders&ostatus=' . $ssid . '&action=' . $ssname . '&sortstatus=0">&nbsp;<span>' . $ssname . '</span></a>';
+            }
+        }
+        if (in_array('0', $vieworderstatusArr)) {
+            echo '<a href="/orderindex.php?module=orders&ostatus=2&action=已经发货">&nbsp;<span>已经发货</span></a>';
+        }
+        ?>
+    </div>
+</div>

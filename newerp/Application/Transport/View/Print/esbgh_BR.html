@@ -1,0 +1,140 @@
+<?php $countrycode = strtoupper(trim($Order['countrycode']));?>
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="left" class="font7">
+                FROM:<br>
+                RM.25-26, BLK B 2/F,FOCAL<br>
+                INDUSTRIAL CENTER,<br>
+                21 MAN LOK ST KLN HongKong
+            </td>
+            <td align="center" class="font8" colspan="3">
+                <img src="../themes/Sugar5/images/fr_post1.png" height="60" width="80">
+                <img src="../themes/Sugar5/images/esb_br.png" height="60" width="80">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <div style="width: 64mm;float: left;height:30mm;">
+                    <p>
+                        <b>To: <br>{$Order['ebay_username']}<br>
+                            {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+                            {$Order['ebay_city']}, {$Order['ebay_state']}<br>
+                            {$Order['ebay_countryname']}({$Order['countrycn']}), {$Order['ebay_postcode']}<br>
+                            PHONE: {$Order['ebay_phone']},tel:{$Order['ebay_phone1']}<br>
+                            {$countrycode}
+                        </b>
+                    </p>
+                </div>
+                <div style="width: 34mm;float: left;height:34mm;text-align:center">
+                    <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="90%" height="60"/><br>
+                    {$Order['ebay_postcode']}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <p style="text-align: center;">
+                    <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="90%" height="50"/>
+                </p>
+                <p style="text-align: center;">
+                    <b>{$Order['ebay_tracknumber']}&nbsp;&nbsp;&nbsp;&nbsp;{$countrycode}({$Order['esbzonecode']})</b>
+                </p>
+                <div style="width:98mm;height:6mm;margin-top:2mm;">
+                    <div style="width:30mm;float:left">
+                        {$Order['skustr']}
+                    </div>
+                    <div style="width:30mm;float:right">订单号：{$Order['ebay_id']}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="tab">
+        <tr>
+            <td colspan="7" align="left">
+                <p style="text-align: left;width:70mm;float:left;">
+                    <b>Customs Declaration</b><br>
+                    The item/package may be opened officially
+                </p>
+                <p style="text-align: center;width:28mm;float:left;">
+                    <b>HONG KONG<br>PORT PAYE</b>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+                <p style="float: left;width: 38mm;text-align: left"><b>Package Type:</b></p>
+                <p style="float: left;width: 60mm;text-align: left;">
+                    Online transaction number.<br>
+                    (to be provided by the sender):
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7" align="center">
+                <div style="float: left;width: 38mm;">
+                    <div style="float: left;width: 38mm;text-align: left">
+                        <p>√ Gift</p>
+                        <p> □ Commercial sample</p>
+                        <p> □ Merchandise</p>
+                        <p> □ Returned Goods</p>
+                        <p> □ Documents</p>
+                        <p> □ Other</p>
+                    </div>
+                </div>
+                <div style="float: left;width: 60mm;text-align: left;">
+                    <p style="width: 60mm;text-align: left;">
+                        Remarks: This online transaction number is
+                        the reference number used between the sender
+                        and addressee for online transaction. It is not
+                        the item tracking number provided by
+                        Hongkong Post and it cannot be used for
+                        Hongkong Post's mail tracking purpose.
+                    </p>
+                </div>
+            </td>
+        </tr>
+        <tr style="font-size:10px">
+            <td>No</td>
+            <td>Qty</td>
+            <td>Itemized Contents</td>
+            <td>Kg</td>
+            <td>Value (USD)</td>
+            <td>Origin</td>
+            <td rowspan="2">
+                <p style="border-bottom: 1px solid #000;">Gross Packet Weight(Kg): {$Order['orderweight2']/1000}</p>
+                <p style="border-bottom: 1px solid #000;">Fees: Insured Amount (HKD):0.00</p>
+                <p>Total Value: (USD) {$Order['sbjz']}</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="font8">1</td>
+            <td class="font8">1</td>
+            <td class="font8">{$Order['yingwen']}{$Order['zhongwen']}</td>
+            <td class="font8">{$Order['orderweight2']/1000}</td>
+            <td class="font8">{$Order['sbjz']}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font7">
+                I certify, that the custom's
+                declaration is correct and that the
+                contents are not contraband nor
+                prohibited items as per
+                legislation, or Postal regulations
+                or by product items & conditions.
+            </td>
+            <td class="font7">
+                Licence Number(s)
+            </td>
+            <td class="font7">
+                Certificate Number(s):
+            </td>
+            <td class="font7">
+                Invoice Number:
+            </td>
+        </tr>
+    </table>
+</div>

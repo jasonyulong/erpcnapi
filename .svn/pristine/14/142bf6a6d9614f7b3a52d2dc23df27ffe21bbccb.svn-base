@@ -1,0 +1,225 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <?php
+        $show = '';
+        $show1 = 'display:none';
+        $country_code = strtoupper(trim($Order['countrycode']));
+        if(in_array($country_code,['BY'])){
+            $show = 'display:none';
+            $show1 = '';
+        }
+    ?>
+    <table width="100%" cellpadding="0" cellspacing="0" style="{$show}">
+        <tr>
+            <td colspan="2" align="left" valign="top">
+                Mailing address:
+                Airplanner Laos Sole Co Ltd
+                Saylom road 1000,PO Box 8879
+                Vientiane Lao PDR
+            </td>
+            <td>
+                PP 0001
+                Enterprise des
+                Postes Lao
+            </td>
+            <td>
+                <img src="../themes/Sugar5/images/tongyou.png"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="ffa font9 line_break" style="word-break:break-all;word-wrap:break-word;width:60mm;"  colspan="3">
+                To:{$Order['ebay_username']}<br>
+                {$Order['ebay_street']} ,{$Order['ebay_street1']}
+                {$Order['ebay_city']} ,{$Order['ebay_state']}&nbsp;Zip:{$Order['ebay_postcode']}<br/>
+                Tel:&nbsp;{$Order['ebay_phone']},{$Order['ebay_phone1']}&nbsp;
+                {$Order['ebay_countryname']} {$Order['countrycode']}
+            </td>
+            <td class="font8">
+                Customer order reference:{$Order['ebay_id']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" class="font8">
+                CUSTOMS DECLARATION CN22
+                (May be opened officially)
+                Postal administration
+            </td>
+            <td colspan="1" align="center" valign="middle">
+                CN22
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="font8">
+                □ Gift&nbsp;□ Commercial sample
+            </td>
+            <td colspan="2" class="font8">
+                □ Documents&nbsp;√ Others
+            </td>
+        </tr>
+        <tr>
+            <td class="font8" align="center">Description of contents</td>
+            <td class="font8" align="center">Qty</td>
+            <td class="font8" align="center">Weight(kg)</td>
+            <td class="font8" align="center">Value</td>
+        </tr>
+        <?php
+                $weight = rand(1,5)/10;
+                $value = rand(6,10)/10;
+                $shenbao = mb_substr($Order['shenbao'], 0, 70);
+            ?>
+        <tr>
+            <td class="font8"  style="word-break:break-all;word-wrap:break-word">{$shenbao}...</td>
+            <td class="font8"  align="center">1</td>
+            <td class="font8"  align="center">{$weight}</td>
+            <td class="font8"  align="center">{$value}</td>
+        </tr>
+        <tr>
+            <td colspan="2" align="left" class="font8">
+                For commercial items only know,HS Tariff number and country of origin of goods
+            </td>
+            <td class="font8" align="center">
+                Total Weight<br/>
+                (kg)<br/>
+                {$weight}
+            </td>
+            <td class="font8" align="center">
+                Total Value<br/>
+                {$value}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font13 ffa" align="center">
+                <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" width="90%" height="47"/><br/>
+                {$Order['ebay_tracknumber']}
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="{$show1}">
+        <tr>
+            <td colspan="3" align="left" valign="top">
+                If undeliverable return to:
+                Solomon Island Postal Corporation
+                PO Box 6923,Kavo Koasa Solomon Islands
+            </td>
+            <td>
+                POSTAGE
+                PAID
+            </td>
+        </tr>
+        <tr>
+            <td class="ffa font11" colspan="4">
+                To:{$Order['ebay_username']}
+                {$Order['ebay_street']} ,{$Order['ebay_street1']}
+                {$Order['ebay_city']} ,{$Order['ebay_state']}
+                Zip:{$Order['ebay_postcode']} Tel:&nbsp;{$Order['ebay_phone']},{$Order['ebay_phone1']}
+                {$Order['ebay_countryname']} {$Order['countrycode']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                CUSTOMES DECLARATION CN23
+                May be opened officialiy
+            </td>
+            <td align="center" class="font8">
+                Total Wt.<br>
+                {$weight}
+            </td>
+            <td align="center" class="font8">
+                Total Value<br>
+                {$value}
+            </td>
+        </tr>
+        <?php
+                $weight = rand(1,5)/10;
+                $value = rand(6,10)/10;
+            ?>
+        <tr>
+            <td  colspan="4">
+                √ Gift □ Documents □ Commercial sample □ ReturnItem □ Other
+            </td>
+        </tr>
+        <tr>
+            <td align="center" class="font8">Description of contents</td>
+            <td align="center" class="font8">Quantity</td>
+            <td align="center" class="font8">Weight(kg)</td>
+            <td align="center" class="font8">Value</td>
+        </tr>
+        <tr>
+            <td>{$Order['shenbao']}</td>
+            <td align="center">1</td>
+            <td align="center">{$weight}</td>
+            <td align="center">{$value}</td>
+        </tr>
+        <tr>
+            <td colspan="2">For commercial items only</td>
+            <td colspan="2">License No:</td>
+        </tr>
+        <tr>
+            <td rowspan="2" colspan="2">
+                HS Tariff NO:
+            </td>
+            <td>
+                Country of
+            </td>
+            <td>
+                Certificate No:
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Solomon
+            </td>
+            <td>
+                Invoice No:
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                Importer's ref(tax
+                code/VAT no)if any
+            </td>
+            <td>Postage Fees:</td>
+            <td>
+                Office of origin/Date of
+                posting:
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font13 ffa" align="center">
+                <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" width="90%" height="47"/><br/>
+                {$Order['ebay_tracknumber']}
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 5px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:78mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>
+
+
+
+

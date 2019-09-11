@@ -1,0 +1,50 @@
+<?php
+    $countrycode  = strtoupper(trim($Order['countrycode']));
+    if($countrycode == 'US')
+    {
+        $imgcss = "height: 107mm;width: 104mm;margin-left: -7px;margin-top: -9px;position: absolute;";
+        $returnCompanyCss = "background: rgb(255, 255, 255) none repeat scroll 0% 0%;margin-left: 9.5mm;width: 32mm;position: relative;z-index: 999998;font-size: 9px;line-height: 15px;margin-top: 44mm;";
+        $barcodeCss = "margin-top: 7px;position: relative;margin-left: 87px;background-color: #fff;width: 75mm;height: 13mm;text-align: center;font-weight: bold;";
+    }
+    else
+    {
+        $imgcss = "height: 119mm;width: 104mm;margin-left: -7px;margin-top: -9px;position: absolute;";
+        $returnCompanyCss = "background: rgb(255, 255, 255) none repeat scroll 0% 0%; margin-left: 20mm; width: 38mm; position: relative; z-index: 999998; font-size: 11px; line-height: 17px; margin-top: 57mm;";
+        $barcodeCss = "margin-top: -76px;position: relative;margin-left: 87px;background-color: #fff;width: 75mm;height: 13mm;text-align: center;font-weight: bold;";
+    }
+?>
+
+<div style="position: relative; width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+        <?php if(is_array($Order['pdfimg']) && isset($Order['pdfimg'][0])):?>
+        <img style="{$imgcss}" class="view" src="{$Order['pdfimg'][0]}"/>
+        <?php else:?>
+        <img style="{$imgcss}" class="view" src="{$Order['pdfimg']}"/>
+        <?php endif;?>
+        <div style="position: absolute;right: 5px;bottom: -2px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+        <div style="{$returnCompanyCss}">郑州市五里堡产业园
+        </div>
+        <div style="{$barcodeCss}">
+            <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" style="width:70mm;height: 41px;"><br>{$Order['ebay_tracknumber']}
+        </div>
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

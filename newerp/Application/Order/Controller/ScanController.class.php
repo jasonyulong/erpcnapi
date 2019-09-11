@@ -1,0 +1,433 @@
+<?php
+
+namespace Order\Controller;
+
+
+use Common\Model\CarrierModel;
+use Common\Model\GoodsSaleDetailModel;
+use Common\Model\InternalStoreSkuModel;
+use Common\Model\OrderModel;
+use Order\Model\ApiBagsModel;
+use Order\Model\EbayCarrierModel;
+use Order\Service\ScanService;
+use Package\Model\ApiOrderWeightModel;
+use Package\Model\TopMenuModel;
+use Think\Cache\Driver\Redis;
+use Think\Controller;
+
+class ScanController extends Controller{
+
+    public function index(){
+        /**
+        *测试人员谭 2018-05-04 22:10:47
+        *说明:运输方式的干活
+        */
+        $CarrierModel=new CarrierModel();
+
+        $Carriers=$CarrierModel->getNameForScan();
+
+        $whousename = C('STORE_NAMES')[C('CURRENT_STORE_ID')];
+
+        $this->assign('whousename',$whousename);
+        $this->assign('Carriers',$Carriers);
+
+        $this->display();
+    }
+
+
+    /**
+    *测试人员谭 2018-05-07 17:04:06
+    *说明:一枪扫描
+    */
+    public function saveWeight(){
+        $ScanService=new ScanService();
+        $trackNo=trim($_POST['ebayid']);
+        $weight=trim($_POST['currentweight']);
+        $curr=urldecode(trim($_POST['curr']));
+        $Rs=$ScanService->SaveWeight($trackNo,$weight,$curr);
+        echo json_encode($Rs);
+    }
+
+    /**
+     * sku检查（烟雾弹检测）
+     * @author Shawn
+     * @date 2018/7/27
+     */
+    public function skuCheck(){
+        //扫描面单
+        $scanNumber = I('scanNumber');
+        $msgInfo['msg'] = '包裹正常';
+        $msgInfo['status'] = '0';
+        if(empty($scanNumber)){
+            $msgInfo['status'] = 1;
+            $msgInfo['msg'] = '请扫描面单';
+            $this->assign("msgInfo",$msgInfo);
+            $this->display();exit();
+        }
+        $number = '';
+        //找到跟踪号
+        $ebayOrderModel = new OrderModel();
+        $map['ebay_tracknumber'] = $scanNumber;
+        $trackNumber = $ebayOrderModel->where($map)->getField("ebay_tracknumber");
+        if(empty($trackNumber)){
+            unset($map['ebay_tracknumber']);
+            $map['pxorderid'] = $scanNumber;
+            $trackNumber = $ebayOrderModel->where($map)->getField("ebay_tracknumber");
+            if(!empty($trackNumber)){
+                $number = $trackNumber;
+            }else{
+                $number = $scanNumber;
+            }
+
+        }else{
+            $number = $trackNumber;
+        }
+        if($number == ""){
+            $msgInfo['msg'] = '扫描面单异常，无法找到跟踪号';
+        }else{
+
+            $map['ebay_tracknumber'] = $number;
+            $ebayId = $ebayOrderModel->where($map)->getField('ebay_id');
+            if(empty($ebayId)){
+                $msgInfo['msg'] = '查找订单失败';
+            }else{
+                $goodsModel = new GoodsSaleDetailModel();
+                //查出会爆炸的sku
+                $bombsku = include dirname(dirname(THINK_PATH)).'/newerp/Application/Package/Conf/bombsku.php';
+                $boMap['sku'] = ['in',$bombsku];
+                $boMap['ebay_id'] = $ebayId;
+                $rs = $goodsModel->where($boMap)->field('sku')->find();
+                if($rs){
+                    $msgInfo['msg'] = '该包裹包含危险爆炸品，请联系主管处理!';
+                }else{
+                    $msgInfo['status'] = 1;
+                }
+            }
+        }
+        $this->assign("msgInfo",$msgInfo);
+        $this->display();
+    }
+
+    /**
+     * 称重界面（新加的页面方面测试）
+     * @author Shawn
+     * @date 2018/8/10
+     */
+    public function weightPage(){
+        if (!$_SESSION['truename']) {
+            $this->error('请先登陆', '/login.php');
+        }
+        $CarrierModel = new CarrierModel();
+        $Carriers = $CarrierModel->getCarrierCache();
+        $whousename = C('STORE_NAMES')[C('CURRENT_STORE_ID')];;
+        //首先查找自己有没有未完成的袋子
+        $map['create_by'] = session("truename");
+        $map['delivery_status'] = 0;
+        $map['bag_status'] = 1;
+        $bagData = M("api_bags")->where($map)->find();
+        if(!empty($bagData)){
+            $apiOrderWeightModel = new ApiOrderWeightModel();
+            $bagData['transport'] = $apiOrderWeightModel->where(['bag_mark'=>$bagData['mark_code']])->getField("transport");
+        }
+        $this->assign('whousename',$whousename);
+        $this->assign('Carriers',$Carriers);
+        $this->assign('bagData',$bagData);
+
+        $this->display();
+    }
+
+    /**
+     * 获取自己当天称重列表数据
+     * @author Shawn
+     * @date 2018/8/8
+     */
+    public function getScanOrderList(){
+        $begin = strtotime(date("Y-m-d")." 00:00:00");
+        $end = strtotime(date("Y-m-d")." 23:59:59");
+        $apiOrderWeightModel = new ApiOrderWeightModel();
+        $orderModel = new OrderModel();
+        $userName = session("truename");
+        $map['scan_user'] = $userName;
+        $map['scantime'] = array("between",[$begin,$end]);
+        $page = isset($_POST['page']) ? (int)$_POST['page'] : 20;
+        //找到自己扫描的订单,默认取最近20条
+        $count = $apiOrderWeightModel->where($map)->count();
+        $data = $apiOrderWeightModel->where($map)
+            ->field("ebay_id,weight,transport")
+            ->order("id desc")
+            ->limit($page)
+            ->select();
+      if(empty($data)){
+          $this->ajaxReturn(['status'=>0,'msg'=>'暂无称重记录']);
+      }else{
+          foreach ($data as &$v){
+              $ebay_id = $v['ebay_id'];
+              $trackNumber = $orderModel->where(["ebay_id"=>$ebay_id])->getField("ebay_tracknumber");
+              $v['ebay_tracknumber'] = $trackNumber;
+              $v['weight'] = $v['weight']/1000;
+          }
+          $this->ajaxReturn(['status'=>1,'msg'=>'获取称重记录成功','data'=>$data,'count'=>$count]);
+      }
+    }
+
+    /**
+     * 获取用户当前渠道称重统计数据
+     * @author Shawn
+     * @date 2018/8/9
+     */
+    public function getUserCurrentCarrierCounts(){
+        $number = trim(I('currentBagNumber'));
+        $data['average'] = 0;
+        $data['counts'] = 0;
+        $data['total'] = 0;
+        $data['currentTotalWeight'] = 0;
+        if(!empty($number)){
+            $apiOrderWeightModel = new ApiOrderWeightModel();
+            $userName = session("truename");
+            $map['scan_user'] = $userName;
+            $map['bag_mark'] = $number;
+            $data = $apiOrderWeightModel->where($map)
+                ->field("count('id') as counts,SUM(`weight`) as total")
+                ->find();
+            $data['average'] = number_format($data['total']/$data['counts'],2);
+            $data['counts'] = (int)$data['counts'];
+            $data['currentTotalWeight'] = $data['total'];
+            $data['total'] = number_format($data['total']/1000,2);
+        }
+        $this->ajaxReturn(['status'=>1,'data'=>$data]);
+    }
+
+    /**
+     * 获取今日装袋列表（默认显示最近20条）
+     * @author Shawn
+     * @date 2018/8/9
+     */
+    public function getUserBagList(){
+        //页码
+        $pageList = 20;
+        $begin = strtotime(date("Y-m-d")." 00:00:00");
+        $end = strtotime(date("Y-m-d")." 23:59:59");
+        $userName = session("truename");
+        $map['a.create_at'] = array("between",[$begin,$end]);
+        $map['a.create_by'] = $userName;
+        $data = M("api_bags")->alias('a')
+            ->where($map)
+            ->join("inner join api_orderweight as b on a.mark_code=b.bag_mark")
+            ->field("sum(b.weight) as calc_weight,count(b.id) as counts,a.mark_code,a.id,a.weight")
+            ->group("a.id")
+            ->order("a.id desc")
+            ->limit($pageList)
+            ->select();
+        if(empty($data)){
+            $this->ajaxReturn(['status'=>0,'msg'=>'今日暂无装袋数据']);
+        }else{
+            foreach ($data as &$value){
+                $number = explode("-",$value['mark_code']);
+                $value['number']        = $number[1];
+                $value['calc_weight']   = number_format($value['calc_weight']/1000,2);
+            }
+            $this->ajaxReturn(['status'=>1,'data'=>$data]);
+        }
+    }
+
+    /**
+     * @desc 称重界面修改包裹重量
+     * @author Shawn
+     * @date 2019/3/26
+     */
+    public function editWeight()
+    {
+        $weight = trim(I("weight"));
+        $code   = trim(I("code"));
+        if(empty($code)){
+            $this->ajaxReturn(['status'=>0,'msg'=>"缺少包裹号"]);
+        }
+        if(empty($weight)){
+            $this->ajaxReturn(['status'=>0,'msg'=>"请填写重量"]);
+        }
+        $bagModel =  new ApiBagsModel();
+        $bagData = $bagModel->where(["mark_code"=>$code])->find();
+        if(empty($bagData)){
+            $this->ajaxReturn(['status'=>0,'msg'=>"未找到当前包裹"]);
+        }
+        $addUser = $_SESSION['truename'];
+        $logNote = "{$addUser} 修改了包裹重量为 {$weight}kg，修改前是 {$bagData['weight']}kg。";
+        $result = $bagModel->where(["id"=>$bagData['id']])->save(['weight'=>$weight]);
+        if($result !== false){
+            $logData['bags_id'] = $code;
+            $logData['note']    = $logNote;
+            $logData['user']    = $addUser;
+            M("bags_log")->add($logData);
+            $this->ajaxReturn(['status'=>1,'msg'=>"修改成功","weight"=>$weight]);
+        }else{
+            $this->ajaxReturn(['status'=>0,'msg'=>"修改失败"]);
+        }
+
+    }
+
+    /**
+     * 打印装袋包裹信息
+     * @author Shawn
+     * @date 2018/8/10
+     */
+    public function printBag(){
+        include ROOT_PATH."/include/functions.php";
+        $id = trim(I("id"));
+        if(empty($id)){
+            $this->error("没有找到打包好的袋子");
+        }
+        //获取配置仓库
+//        $store_id = C("CURRENT_STORE_ID");
+        $fields =  "a.mark_code,a.create_at, a.create_by, b.transport,count(b.id) as counts, b.scan_user,sum(b.weight) as calc_weight,a.bag_status";
+        $bagData = M("api_bags")->alias('a')
+            ->join("inner join api_orderweight as b on a.mark_code=b.bag_mark")
+            ->where(["a.mark_code"=>$id])
+            ->field($fields)
+            ->group("a.id")
+            ->find();
+        if(empty($bagData)){
+            $this->error("没有找到打包好的袋子");
+        }
+        //打印需要把袋子关掉
+        if($bagData['bag_status'] == 1){
+            $result = M("api_bags")->where(["mark_code"=>$id])->save(["bag_status"=>0]);
+            if($result){
+                $logPath = dirname(dirname(THINK_PATH)).'/log/scanweight/'.date('Ymd').'_printbag.txt';
+                $log = '['.date("Y-m-d H:i:s").']'."操作人：".session('truename').",打印了包裹：".$bagData['mark_code']."修改状态成功\r\n";
+                writeFile($logPath,$log);
+            }else{
+                $this->error("袋子更新状态出错了，请重试！");
+            }
+        }
+        //物流渠道
+        $transport = $bagData['transport'];
+        //订单数
+        $orderCount = $bagData['counts'];
+        //总重量
+        $totalWeight = number_format($bagData['calc_weight']/1000,2);
+        //称重人
+        $scan_user= M("api_orderweight")->where(["bag_mark"=>$id])->order("id desc")->getField("scan_user");
+        //袋子编号
+        $markCode = $bagData['mark_code'];
+        //查找分拣代
+        $ebayCarrierModel = new EbayCarrierModel();
+        $carrierData = $ebayCarrierModel->alias("a")
+            ->field("a.sorting_code,a.CompanyName as companyname,b.sup_code,a.is_show_name")
+            ->join("JOIN ebay_carrier_company as b on a.CompanyName=b.id")
+            ->where(["a.name"=>$transport])
+            ->order("a.status desc")
+            ->find();
+        $sorting_code = isset($carrierData['sorting_code']) ? $carrierData['sorting_code'] : '';
+        $sup_code = isset($carrierData['sup_code']) ? $carrierData['sup_code'] : $carrierData['sup_code'] ;
+        $is_show_name = $carrierData['is_show_name'];
+        list($barcode,$_) = str2barcode($markCode);
+        $store = C('CURRENT_STORE_ID');
+        $store_mb = M('ebay_store')->where("id='$store'")->getField('store_sn');
+        $number = explode('-',$markCode)[1];
+        $ab = getCountryAb($transport);
+        $this->assign("transport",$transport);
+        $this->assign("is_show_name",$is_show_name);
+        $this->assign("sup_code",$sup_code);
+        $this->assign("sorting_code",$sorting_code);
+        $this->assign("ab",$ab);
+        $this->assign("orderCount",$orderCount);
+        $this->assign("scan_user",$scan_user);
+        $this->assign("totalWeight",$totalWeight);
+        $this->assign("number",$number);
+        $this->assign("store_mb",$store_mb);
+        $this->assign("barcode",htmlspecialchars($barcode));
+        $this->assign("markCode",$markCode);
+        $this->display();
+    }
+
+    /**
+     * 检查继续扫描的袋子编号
+     * @author Shawn
+     * @date 2018/8/10
+     */
+    public function checkScanBagNumber(){
+        $logPath = dirname(dirname(THINK_PATH)).'/log/scanweight/'.date('Ymd').'_scan.txt';
+        $number = I("number");
+        if(empty($number)){
+            $this->ajaxReturn(["status"=>0,'msg'=>'请输入需要继续扫描的包裹编号']);
+        }else{
+            //看下有没有未装完的袋子
+            $userName = session("truename");
+            $map['create_by'] = $userName;
+            $map['delivery_status'] = 0;
+            $map['bag_status'] = 1;
+            $code = M("api_bags")->where($map)->getField("mark_code");
+            if(!empty($code) && $code != $number){
+                $this->ajaxReturn(["status"=>0,'msg'=>'系统检测你有未完成的包裹，请先将包裹'.$code.'完成']);
+            }else{
+                $bagData = M("api_bags")->where(['mark_code'=>$number])->field("id,mark_code,bag_status,delivery_status,create_by")->find();
+                if(empty($bagData)){
+                    $this->ajaxReturn(["status"=>0,'msg'=>'没有找到该包裹，请确保输入自己的包裹编号正确！']);
+                }else{
+                    if($bagData['delivery_status'] == 1 ){
+                        $this->ajaxReturn(["status"=>0,'msg'=>'该包裹已经交运了，不能再扫描了！']);
+                    }
+//                    if($bagData['create_by'] != $userName){
+//                        $this->ajaxReturn(["status"=>0,'msg'=>'该包裹不属于你，不允许操作！']);
+//                    }
+                    //将袋子重新打开
+                    if($bagData['bag_status'] == 0){
+                        $result = M("api_bags")->where(['id'=>$bagData['id']])->save(['bag_status'=>1,'create_by'=>$userName]);
+                        $log = '['.date("Y-m-d H:i:s").']'."操作人：".$bagData['create_by']."修改为：".$userName.",重新打开了包裹：".$number."修改状态".$result."\r\n";
+                        writeFile($logPath,$log);
+                    }else{
+                        if($bagData['create_by'] != $userName){
+                            $this->ajaxReturn(["status"=>0,'msg'=>'该包裹正处于打开状态，禁止操作']);
+                        }
+                    }
+                    $this->ajaxReturn(["status"=>1,'data'=>$bagData]);
+                }
+            }
+
+        }
+    }
+
+    /**
+     * 保存称重数据（新）
+     * @author Shawn
+     * @date 2018/8/10
+     */
+    public function saveWeightNew(){
+        $ScanService = new ScanService();
+        $trackNo = trim($_POST['ebayid']);//跟踪号
+        $weight = trim($_POST['currentweight']);//重量
+        $curr = urldecode(trim($_POST['curr']));//物流
+        $number = trim($_POST['currentBagNumber']);//当前包裹编号
+        $Rs = $ScanService->SaveWeightNew($trackNo,$weight,$curr,$number);
+        echo json_encode($Rs);;exit;
+    }
+
+    /**
+     * 清除失败，重置一下相同重量限制
+     * @author Shawn
+     * @date 2018/8/27
+     */
+    public function deleteCheckData(){
+        $logPath = dirname(dirname(THINK_PATH)).'/log/scanweight/'.date('Ymd').'_scan.txt';
+        $userName = trim(session('truename'));
+        $redis = new Redis();
+        $key = 'check_scan_weight:'.session('id');
+        $redisData = $redis->get($key);
+        if($redisData){
+            //重置一下
+            $data['check_weight'] = 0;
+            $data['check_count'] = 0;
+            $result = $redis->set($key,$data,86400);
+            $log = '['.date("Y-m-d H:i:s").']'."操作人：".$userName.",清除了失败：重量".$redisData['check_weight']."次数".$redisData['check_count'];
+            if($result){
+                $log.= "操作成功\r\n";
+            }else{
+                $log.= "操作失败\r\n";
+            }
+            writeFile($logPath,$log);
+        }
+        $this->ajaxReturn(['status'=>1,'msg'=>'成功']);
+    }
+
+
+}

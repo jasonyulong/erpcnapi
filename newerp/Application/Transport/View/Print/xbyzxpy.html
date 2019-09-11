@@ -1,0 +1,65 @@
+
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="4" align="left" valign="top">
+                <div style="text-align:left;font-size:12px;padding-left:10px;height:60px;line-height:15px;float:left;">
+                    C/ Villafranca Del Bierzo 59,<br>Pol. Ind. Colo Calleja,<br>28947 Fuenlabrada,<br>Madrid, Spain
+                </div>
+                <div style="float:right;height:60px;">
+                    <img style="width:30mm;height:60px;" src="/themes/Sugar5/images/sp_post.gif" />
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" align="left" valign="top">
+                <div style="text-align:left;font-size:12px;padding-left:10px;height:90px;letter-spacing:-1px;line-height:13px;width:100%;float:left;">
+                    {$Order['ebay_username']}<br/>
+                    {$Order['ebay_street']} ,{$Order['ebay_street1']}<br/>
+                    {$Order['ebay_postcode']}<br/>
+                    {$Order['ebay_city']}<br>
+                    {$Order['ebay_state']}<br/>
+                    {$Order['ebay_phone']},{$Order['ebay_phone1']}
+                </div>
+                <div style="text-align:left;height:200px;width:200px;float:left;">
+                    <div style="float:left;width:100%;height:20px;">
+                        <div style="font-size:20px;font-weight:bold;padding-left:30px;">{$Order['fenqu']}</div>
+                    </div>
+                    <div style="float:left;width:100%;height:140px;text-align:center;margin-top:5px;font-size:18px;font-weight:bold;">
+                        <img src="/barcode128.class.php?data={$Order['ebay_postcode']}90060" alt="" width="220" style="height: 30mm"/><br/>
+                        {$Order['ebay_postcode']}90060
+                    </div>
+                </div>
+                <div style="float:left;height:100px;width:170px;margin-top:50px;transform:rotate(-90deg);text-align:center;">
+                    ENVíO ORDINARIO<br>
+                    <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="250" height="70"/><br/>
+                    {$Order['ebay_tracknumber']}
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+
+</div>
+

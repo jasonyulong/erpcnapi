@@ -1,0 +1,32 @@
+<?php
+namespace Order\Model;
+
+use Think\Model;
+
+class EbayCarrierModel extends Model
+{
+	protected $tableName = 'ebay_carrier';
+
+	/**
+	 * 获取国内仓物流方式
+	 */
+	public function getInlandCarrier($user){
+		$condition = array();
+		$condition['status'] = 1;
+		$condition['ebay_user'] = 'vipadmin';
+		$condition['ebay_warehouse'] = 196;
+		return $this->where($condition)->order('name asc')->getField('name', true);
+	}
+
+	/**
+	 * 获取海外仓物流方式
+	 */
+	public function getForeignCarrier($user){
+		$condition = array();
+		$condition['status'] = 1;
+		$condition['ebay_user'] = 'vipadmin';
+		$condition['ebay_warehouse'] = array('neq', 196);
+		return $this->where($condition)->order('name asc')->getField('name', true);
+	}
+
+}

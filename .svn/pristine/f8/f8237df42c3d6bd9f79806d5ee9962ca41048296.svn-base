@@ -1,0 +1,134 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;font-family:Arial;height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid black;">
+        <tr>
+            <td>
+                <div>
+                    <div style="float:left;padding-left:10px;">
+                        <img style="width:30mm;" src="/themes/Sugar5/images/LWE_logo.gif" />
+                    </div>
+                    <div style="float:left;font-size:15;font-weight:bold;height:80px;line-height:20px;width:240px;padding-top:10px;padding-left:5px;">
+                        <div style="float:left;height:50px;line-height:50px;">
+                            <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" width="240" height="35" alt="">
+                        </div>
+                        <div style="float:left;font-size:16px;font-weight:bold;padding-left:30px;height:30px;line-height:30px;">
+                            *{$Order['ebay_tracknumber']}*
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="float:left;padding-left:10px;height:115px;font-size:11px;word-spacing:1px;font-weight:bold;width:220px;line-height: 1.1em">
+                    From: .<br>
+                    No.4, (Block B) Lorong SS 13/6C<br>
+                    Subang Jaya Industrial Estate<br>
+                    Subang<br>
+                    47500 &nbsp;&nbsp;&nbsp;&nbsp;Selangor Darul Ehsan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                    Malaysia<br>
+                    Tel.
+                </div>
+                <div style="float:left;height:55px;font-size:15px;font-weight:bold;height:30px;line-height:15px;">
+                    POS LAJU ACC #<br>
+                    8800400431
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="border-top:1px solid black;height:135px;padding-left:10px;font-weight:bold;width:97%;">
+                    <div style="float:left;width:80%;height:55px;line-height: 1.1em">
+                        TO: {$Order['ebay_username']}<br>
+                        {$Order['ebay_street']},{$Order['ebay_street1']}<br>
+                        {$Order['ebay_city']}<br>
+                        {$Order['ebay_postcode']}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {$Order['ebay_state']}<br>
+                        MALAYSIA
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {$Order['ebay_id']}&nbsp;&nbsp;&nbsp;{$Order['recordnumber']}
+                        Tel:{$Order['ebay_phone']}, {$Order['ebay_phone1']}
+                    </div>
+                    <div style="float:left;width:15%;height:40px;border:3px solid black;line-height:40px;font-size:35px;text-align:center;margin-top:50px;">MY</div>
+                </div>
+            </td>
+        </tr>
+
+        <php>
+            $Weight = round((0.08+mt_rand()/mt_getrandmax()*(0.33-0.01)),2);
+        </php>
+
+
+
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;rigth:0px;right: 5px;bottom: 3px;">
+        <span style="margin-right: 5px;font-size: 15px;">1/2</span>
+    </div>
+</div>
+
+
+<div style="position: relative;width:100mm;min-height:100mm;font-family:Arial;height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr>
+            <td>
+                <div style="height:370px;padding-left:10px;width:97%;">
+                    <div style="float:left;width:100%;height:100px;">
+                        <div style="float:left;width:45%;">
+                            Item Information<br>
+                            Date: {:date("d/m/Y H:i:s A")}<br>
+                            Weight: {$Weight}<br>
+                            Actual: {$Weight}<br>
+                            Volumetrio: {$Weight}<br>
+                        </div>
+                        <div style="float:left;width:55%;">
+                            Transaction Ref: {$Order['recordnumber']}<br><br>
+                            Product: COURIER CHARGES - DOMESTIC<br>
+                            Type: MERCHANDISE
+                        </div>
+                    </div>
+                    <div style="float:left;width:100%;height:110px;line-height:35px;">
+                        <div style="float:left;width:60%;">
+                            <div style="float:left;font-size: 20px;margin-top: 2px">
+                                <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" width="240" height="40" alt="">
+                            </div>
+                            <div style="float:left;font-size:14px;padding-left:35px;height:15px;line-height:30px;">
+                                *{$Order['ebay_tracknumber']}*
+                            </div>
+                        </div>
+                        <div style="width:100%;line-height:14px;float:left;margin-top:10px;">
+                            Please use the number above to track the shipment status through Customer Service Center (Posline) 1-300-300-300 or Pos Malaysia web at www.pos.com.my Note: Liability of PosLaju for any delay, damage or lost be limited to and subject to the terms and conditions as stated behind the consignment note (PL1A)
+                        </div>
+
+                    </div>
+                    <div style="width:94mm;max-height:210px;padding:2px;font-size:11px; margin:1px;overflow:hidden;">
+                        <div style="margin-top: 14mm;">
+                            {$Order['skustr']}
+                        </div>
+                        <div>
+                            订单号:{$Order['ebay_id']}&nbsp;&nbsp;&nbsp;&nbsp;跟踪号:{$Order['ebay_tracknumber']}
+                        </div>
+                        <div style="margin-top:5px;margin-left:5px">
+                            <div> 捡货用&nbsp;&nbsp;打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+                        </div>
+                    </div>
+
+                </div>
+            </td>
+        </tr>
+
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;rigth:0px;right: 5px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 35px">{$countriest[$Order['ebay_carrier']]}</span>
+        <span style="margin-right: 5px;font-size: 15px;">2/2</span>
+
+    </div>
+
+
+</div>
+
+

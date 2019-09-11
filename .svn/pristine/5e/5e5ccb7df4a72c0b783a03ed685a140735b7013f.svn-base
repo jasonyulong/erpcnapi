@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+    <link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="container-fluid">
+
+    <div class="row" style="margin-bottom: 250px;margin-top: 15px">
+        <div class="col-xs-12">
+            <table class="table table-responsive table-hover table-condensed">
+                <tr>
+                    <th>SKU</th>
+                    <th>数量</th>
+                    <th>库位</th>
+                    <th>品名</th>
+                    <th>图片</th>
+                </tr>
+
+                <foreach name="orderSku" item="sku">
+
+                    <tr>
+                        <td style="vertical-align: middle">{$sku.sku}</td>
+                        <td style="vertical-align: middle">{$sku.counts}</td>
+                        <td style="vertical-align: middle;">{$sku.location}</td>
+                        <td style="vertical-align: middle;width: 40%;word-break: break-all">{$sku.goods_name}</td>
+                        <td style="width: 90px;height: 90px;vertical-align: middle">
+                            <img class="img-responsive {$sku.sku}" data-val="{$sku.sku}" src="{:C('ONLINE_PIC_URL')}/images/{$sku.pic}"/>
+                        </td>
+                    </tr>
+
+                </foreach>
+
+
+            </table>
+            <div class="pageInfo">
+                <ul class="pagination" style="margin: 5px">{$pageString}</ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<script type="application/javascript">
+    var tipsIndex = null;
+    $('img.img-responsive').on('mouseover', function() {
+
+        var html = $(this).clone().css({width:'290px', height:'290px'})[0].outerHTML;
+        var sku    = $(this).attr('data-val');
+
+        tipsIndex = layer.tips(html, '.'+sku, {
+            tips: [2, '#929292'],
+            area: ['300px', '300px']
+        });
+
+    }).on('mouseout', function() {
+        layer.close(tipsIndex);
+    });
+
+</script>
+
+</html>

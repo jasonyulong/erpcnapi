@@ -1,0 +1,78 @@
+<?php
+namespace Common\Model;
+
+use Think\Cache\Driver\Redis;
+use Think\Model;
+
+/**
+ * Class OrderModel
+ * @package Common\Model
+ *  运输方式一些 共用的一些操作   by  谭联星
+ */
+class CarrierModel extends Model {
+    protected $tableName = 'ebay_carrier';
+    protected $redis_key = 'all_carrier_data_for_scan';
+
+
+    function getStnamesCode($carrier){
+        $map['name']=$carrier;
+        $map['status'] = 1;
+        $rr=$this->where($map)->getField('stnames',1);
+        return $rr;
+    }
+
+    /**
+    *测试人员谭 2018-05-04 22:12:49
+    *说明:扫描界面
+    */
+    function getNameForScan(){
+        $map['ebay_warehouse']=196;
+        $map['status']=1;
+        $filed='name,weightmin,weightmax,sorting_code';
+        return $this->where($map)->field($filed)->group('name')->order('name asc')->select();
+    }
+
+    /**
+     * 将物流渠道和代码存入缓存
+     * @return array|mixed
+     * @author Shawn
+     * @date 2018/8/10
+     */
+    public function getCarrierCache(){
+        $redis = new Redis();
+        $data = $redis->get($this->redis_key);
+        if(!empty($data)){
+            return $data;
+        }else{
+            $carrierData = [];
+            $map['ebay_warehouse'] = 196;
+            $map['status'] = 1;
+            $filed ='name,weightmin,weightmax,sorting_code';
+            $data = $this->where($map)->field($filed)->group('name')->order('name asc')->select();
+            if(!empty($data)){
+                foreach ($data as $val){
+                    $name = trim($val['name']);
+                    $val['code'] = empty($val['sorting_code']) ? '' : '('.$val['sorting_code'].')';
+                    $val['weightmin'] = (int)$val['weightmin'];
+                    $val['weightmax'] = (int)$val['weightmax'];
+                    $val['sorting_code'] = trim($val['sorting_code']);
+                    $carrierData[$name] = $val;
+                }
+                $redis->set($this->redis_key,$carrierData,3600);
+            }
+            return $carrierData;
+        }
+
+    }
+
+    /**
+     * 删除物流渠道缓存
+     * @return bool
+     * @author Shawn
+     * @date 2018/8/10
+     */
+    public function deleteCarrierCache(){
+        $redis = new Redis();
+        return $redis->rm($this->redis_key);
+    }
+}

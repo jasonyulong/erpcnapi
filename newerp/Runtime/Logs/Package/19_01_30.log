@@ -1,0 +1,407 @@
+[ 2019-01-30T11:27:30+08:00 ] 192.168.9.157 /t.php?s=/Package/CarrierGroup/groupList.html
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000017s ]
+INFO: [ app_init ] --END-- [ RunTime:0.001642s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.003022s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.003089s ]
+SQL: SHOW COLUMNS FROM `pick_carrier_group` [ RunTime:0.0007s ]
+SQL: SELECT COUNT(*) AS tp_count FROM `pick_carrier_group` LIMIT 1   [ RunTime:0.0005s ]
+SQL: SELECT `id`,`group_name`,`create_by`,`create_at`,`memo` FROM `pick_carrier_group` LIMIT 0,100   [ RunTime:0.0009s ]
+INFO: [ view_parse ] --START--
+INFO: [ template_filter ] --START--
+INFO: Run Behavior\ContentReplaceBehavior [ RunTime:0.000054s ]
+INFO: [ template_filter ] --END-- [ RunTime:0.000120s ]
+NOTIC: [8] A session had already been started - ignoring session_start() /opt/web/erpcnapi/include/config.php 第 2 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 20 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 21 行.
+NOTIC: [8192] Assigning the return value of new by reference is deprecated /opt/web/erpcnapi/include/xmlhandle.php 第 3 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 65 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 66 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 67 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 68 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 69 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 70 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 71 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 72 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 73 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 74 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 75 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 76 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 77 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 78 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 79 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 80 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 81 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 82 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 83 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 84 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 85 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 86 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 87 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 88 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 31 行.
+NOTIC: [8] Undefined index: action /opt/web/erpcnapi/top.php 第 32 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 237 行.
+NOTIC: [8] Undefined variable: vieworderstatusArr /opt/web/erpcnapi/top.php 第 258 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/top.php 第 258 行.
+INFO: Run Behavior\ParseTemplateBehavior [ RunTime:0.111478s ]
+INFO: [ view_parse ] --END-- [ RunTime:0.111602s ]
+INFO: [ view_filter ] --START--
+INFO: Run Behavior\WriteHtmlCacheBehavior [ RunTime:0.003110s ]
+INFO: [ view_filter ] --END-- [ RunTime:0.003154s ]
+INFO: [ app_end ] --START--
+INFO: Run Behavior\ShowPageTraceBehavior [ RunTime:0.002954s ]
+INFO: [ app_end ] --END-- [ RunTime:0.003008s ]
+
+[ 2019-01-30T11:47:31+08:00 ] 192.168.0.122 /t.php?s=/Package/TwoPickCount/index.html
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000016s ]
+INFO: [ app_init ] --END-- [ RunTime:0.002444s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.003137s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.003188s ]
+NOTIC: [8] Undefined index: timeArea_start /opt/web/erpcnapi/newerp/Application/Package/Controller/TwoPickCountController.class.php 第 34 行.
+NOTIC: [8] Undefined index: timeArea_end /opt/web/erpcnapi/newerp/Application/Package/Controller/TwoPickCountController.class.php 第 41 行.
+SQL: SHOW COLUMNS FROM `syn_two_pick` [ RunTime:0.0006s ]
+SQL: SELECT from_unixtime(scantime,'%Y-%m-%d') as time_date,sum(qty) as count,`username` FROM `syn_two_pick` WHERE `scantime` BETWEEN 1547481600 AND 1548820051 GROUP BY username,time_date  [ RunTime:0.1191s ]
+SQL: SELECT from_unixtime(scantime,'%Y-%m-%d') as time_date,sum(qty) as count,`username` FROM `syn_two_pick` WHERE `scantime` BETWEEN 1547481600 AND 1548820051 GROUP BY time_date  [ RunTime:0.0125s ]
+SQL: SHOW COLUMNS FROM `erp_ebay_user` [ RunTime:0.0011s ]
+INFO: [ view_parse ] --START--
+INFO: [ template_filter ] --START--
+INFO: Run Behavior\ContentReplaceBehavior [ RunTime:0.000093s ]
+INFO: [ template_filter ] --END-- [ RunTime:0.000154s ]
+NOTIC: [8] A session had already been started - ignoring session_start() /opt/web/erpcnapi/include/config.php 第 2 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 20 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 21 行.
+NOTIC: [8192] Assigning the return value of new by reference is deprecated /opt/web/erpcnapi/include/xmlhandle.php 第 3 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 65 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 66 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 67 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 68 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 69 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 70 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 71 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 72 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 73 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 74 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 75 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 76 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 77 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 78 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 79 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 80 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 81 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 82 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 83 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 84 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 85 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 86 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 87 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 88 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 31 行.
+NOTIC: [8] Undefined index: action /opt/web/erpcnapi/top.php 第 32 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 237 行.
+NOTIC: [8] Undefined variable: vieworderstatusArr /opt/web/erpcnapi/top.php 第 258 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/top.php 第 258 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [8] Undefined index: arr /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] array_keys() expects parameter 1 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/newerp/Runtime/Cache/Package/8f5f111a3fe241bf5172186b46c15148.php 第 226 行.
+INFO: Run Behavior\ParseTemplateBehavior [ RunTime:0.102152s ]
+INFO: [ view_parse ] --END-- [ RunTime:0.102285s ]
+INFO: [ view_filter ] --START--
+INFO: Run Behavior\WriteHtmlCacheBehavior [ RunTime:0.003188s ]
+INFO: [ view_filter ] --END-- [ RunTime:0.003243s ]
+INFO: [ app_end ] --START--
+INFO: Run Behavior\ShowPageTraceBehavior [ RunTime:0.003361s ]
+INFO: [ app_end ] --END-- [ RunTime:0.003409s ]
+
+[ 2019-01-30T13:44:37+08:00 ] 192.168.0.122 /t.php?s=/Package/CarrierGroup/groupList.html
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000062s ]
+INFO: [ app_init ] --END-- [ RunTime:0.002449s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.003952s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.004079s ]
+SQL: SHOW COLUMNS FROM `pick_carrier_group` [ RunTime:0.0007s ]
+SQL: SELECT COUNT(*) AS tp_count FROM `pick_carrier_group` LIMIT 1   [ RunTime:0.0004s ]
+SQL: SELECT `id`,`group_name`,`create_by`,`create_at`,`memo` FROM `pick_carrier_group` LIMIT 0,100   [ RunTime:0.0008s ]
+INFO: [ view_parse ] --START--
+INFO: [ template_filter ] --START--
+INFO: Run Behavior\ContentReplaceBehavior [ RunTime:0.000119s ]
+INFO: [ template_filter ] --END-- [ RunTime:0.000219s ]
+NOTIC: [8] A session had already been started - ignoring session_start() /opt/web/erpcnapi/include/config.php 第 2 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 20 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 21 行.
+NOTIC: [8192] Assigning the return value of new by reference is deprecated /opt/web/erpcnapi/include/xmlhandle.php 第 3 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 65 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 66 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 67 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 68 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 69 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 70 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 71 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 72 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 73 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 74 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 75 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 76 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 77 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 78 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 79 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 80 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 81 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 82 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 83 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 84 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 85 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 86 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 87 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 88 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 31 行.
+NOTIC: [8] Undefined index: action /opt/web/erpcnapi/top.php 第 32 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 237 行.
+NOTIC: [8] Undefined variable: vieworderstatusArr /opt/web/erpcnapi/top.php 第 258 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/top.php 第 258 行.
+INFO: Run Behavior\ParseTemplateBehavior [ RunTime:0.105645s ]
+INFO: [ view_parse ] --END-- [ RunTime:0.105818s ]
+INFO: [ view_filter ] --START--
+INFO: Run Behavior\WriteHtmlCacheBehavior [ RunTime:0.005083s ]
+INFO: [ view_filter ] --END-- [ RunTime:0.005167s ]
+INFO: [ app_end ] --START--
+INFO: Run Behavior\ShowPageTraceBehavior [ RunTime:0.003588s ]
+INFO: [ app_end ] --END-- [ RunTime:0.003712s ]
+
+[ 2019-01-30T13:44:40+08:00 ] 192.168.0.122 /t.php?s=/Package/PickFee/index.html
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000019s ]
+INFO: [ app_init ] --END-- [ RunTime:0.001784s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.003855s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.003936s ]
+
+[ 2019-01-30T13:44:44+08:00 ] 192.168.0.122 /t.php?s=/Package/WeighSystem/ruleIndex
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000026s ]
+INFO: [ app_init ] --END-- [ RunTime:0.003090s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.004041s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.004148s ]
+SQL: SHOW COLUMNS FROM `weigh_rule` [ RunTime:0.0009s ]
+SQL: SELECT `id`,`weight_begin`,`weight_end`,`allow_dif` FROM `weigh_rule` ORDER BY weight_begin asc  [ RunTime:0.0009s ]
+SQL: SHOW COLUMNS FROM `ebay_config00` [ RunTime:0.0011s ]
+SQL: SELECT `id`,`limit_weight_status` FROM `ebay_config00` LIMIT 1   [ RunTime:0.0473s ]
+INFO: [ view_parse ] --START--
+INFO: [ template_filter ] --START--
+INFO: Run Behavior\ContentReplaceBehavior [ RunTime:0.000065s ]
+INFO: [ template_filter ] --END-- [ RunTime:0.000190s ]
+NOTIC: [8] A session had already been started - ignoring session_start() /opt/web/erpcnapi/include/config.php 第 2 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 20 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 21 行.
+NOTIC: [8192] Assigning the return value of new by reference is deprecated /opt/web/erpcnapi/include/xmlhandle.php 第 3 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 65 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 66 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 67 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 68 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 69 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 70 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 71 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 72 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 73 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 74 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 75 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 76 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 77 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 78 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 79 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 80 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 81 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 82 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 83 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 84 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 85 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 86 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 87 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 88 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 31 行.
+NOTIC: [8] Undefined index: action /opt/web/erpcnapi/top.php 第 32 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 237 行.
+NOTIC: [8] Undefined variable: vieworderstatusArr /opt/web/erpcnapi/top.php 第 258 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/top.php 第 258 行.
+INFO: Run Behavior\ParseTemplateBehavior [ RunTime:0.161485s ]
+INFO: [ view_parse ] --END-- [ RunTime:0.161623s ]
+INFO: [ view_filter ] --START--
+INFO: Run Behavior\WriteHtmlCacheBehavior [ RunTime:0.004473s ]
+INFO: [ view_filter ] --END-- [ RunTime:0.004557s ]
+INFO: [ app_end ] --START--
+INFO: Run Behavior\ShowPageTraceBehavior [ RunTime:0.004109s ]
+INFO: [ app_end ] --END-- [ RunTime:0.004175s ]
+
+[ 2019-01-30T13:44:48+08:00 ] 192.168.0.122 /t.php?s=/Package/WeighSystem/weightingIndex
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000016s ]
+INFO: [ app_init ] --END-- [ RunTime:0.001616s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.003265s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.003321s ]
+SQL: SHOW COLUMNS FROM `weighting_keyword` [ RunTime:0.0006s ]
+SQL: SELECT * FROM `weighting_keyword` ORDER BY sort asc,id asc  [ RunTime:0.0005s ]
+INFO: [ view_parse ] --START--
+INFO: [ template_filter ] --START--
+INFO: Run Behavior\ContentReplaceBehavior [ RunTime:0.000045s ]
+INFO: [ template_filter ] --END-- [ RunTime:0.000138s ]
+NOTIC: [8] A session had already been started - ignoring session_start() /opt/web/erpcnapi/include/config.php 第 2 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 20 行.
+NOTIC: [8] Undefined variable: appKey /opt/web/erpcnapi/include/config.php 第 21 行.
+NOTIC: [8192] Assigning the return value of new by reference is deprecated /opt/web/erpcnapi/include/xmlhandle.php 第 3 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 65 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 66 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 67 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 68 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 69 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 70 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 71 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 72 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 73 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 74 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 75 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 76 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 77 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 78 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 79 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 80 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 81 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 82 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 83 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 84 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 85 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 86 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 87 行.
+NOTIC: [8] Undefined offset: 0 /opt/web/erpcnapi/include/config.php 第 88 行.
+NOTIC: [2] mysql_fetch_assoc() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 115 行.
+NOTIC: [2] mysql_free_result() expects parameter 1 to be resource, boolean given /opt/web/erpcnapi/include/dbconnect.php 第 120 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 31 行.
+NOTIC: [8] Undefined index: action /opt/web/erpcnapi/top.php 第 32 行.
+NOTIC: [8] Undefined index: module /opt/web/erpcnapi/top.php 第 237 行.
+NOTIC: [8] Undefined variable: vieworderstatusArr /opt/web/erpcnapi/top.php 第 258 行.
+NOTIC: [2] in_array() expects parameter 2 to be array, null given /opt/web/erpcnapi/top.php 第 258 行.
+INFO: Run Behavior\ParseTemplateBehavior [ RunTime:0.093951s ]
+INFO: [ view_parse ] --END-- [ RunTime:0.094010s ]
+INFO: [ view_filter ] --START--
+INFO: Run Behavior\WriteHtmlCacheBehavior [ RunTime:0.003199s ]
+INFO: [ view_filter ] --END-- [ RunTime:0.003238s ]
+INFO: [ app_end ] --START--
+INFO: Run Behavior\ShowPageTraceBehavior [ RunTime:0.002757s ]
+INFO: [ app_end ] --END-- [ RunTime:0.002823s ]
+
+[ 2019-01-30T13:44:51+08:00 ] 192.168.0.122 /t.php?s=/Package/Belt/index
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000019s ]
+INFO: [ app_init ] --END-- [ RunTime:0.001645s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.003004s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.003065s ]
+SQL: SHOW COLUMNS FROM `belt_layer` [ RunTime:0.0007s ]
+SQL: SELECT `id`,`carrier` FROM `belt_layer` ORDER BY id desc  [ RunTime:0.0005s ]
+SQL: SHOW COLUMNS FROM `ebay_carrier` [ RunTime:0.0013s ]
+SQL: SELECT `name` FROM `ebay_carrier` WHERE `status` = 1 AND `ebay_user` = 'vipadmin' AND `ebay_warehouse` = 196 ORDER BY name asc  [ RunTime:0.0019s ]
+INFO: [ view_parse ] --START--
+INFO: [ template_filter ] --START--
+INFO: Run Behavior\ContentReplaceBehavior [ RunTime:0.000035s ]
+INFO: [ template_filter ] --END-- [ RunTime:0.000087s ]
+INFO: Run Behavior\ParseTemplateBehavior [ RunTime:0.036957s ]
+INFO: [ view_parse ] --END-- [ RunTime:0.037017s ]
+INFO: [ view_filter ] --START--
+INFO: Run Behavior\WriteHtmlCacheBehavior [ RunTime:0.003049s ]
+INFO: [ view_filter ] --END-- [ RunTime:0.003092s ]
+INFO: [ app_end ] --START--
+INFO: Run Behavior\ShowPageTraceBehavior [ RunTime:0.003199s ]
+INFO: [ app_end ] --END-- [ RunTime:0.003248s ]
+
+[ 2019-01-30T13:45:55+08:00 ] 192.168.0.122 /t.php?s=/Package/Belt/index
+INFO: [ app_init ] --START--
+INFO: Run Behavior\BuildLiteBehavior [ RunTime:0.000047s ]
+INFO: [ app_init ] --END-- [ RunTime:0.003210s ]
+INFO: [ app_begin ] --START--
+INFO: Run Behavior\ReadHtmlCacheBehavior [ RunTime:0.006239s ]
+INFO: [ app_begin ] --END-- [ RunTime:0.006331s ]
+SQL: SHOW COLUMNS FROM `belt_layer` [ RunTime:0.0028s ]
+SQL: SELECT `id`,`carrier` FROM `belt_layer` ORDER BY id desc  [ RunTime:0.0007s ]
+SQL: SHOW COLUMNS FROM `ebay_carrier` [ RunTime:0.0014s ]
+SQL: SELECT `name` FROM `ebay_carrier` WHERE `status` = 1 AND `ebay_user` = 'vipadmin' AND `ebay_warehouse` = 196 ORDER BY name asc  [ RunTime:0.0010s ]
+INFO: [ view_parse ] --START--
+INFO: [ template_filter ] --START--
+INFO: Run Behavior\ContentReplaceBehavior [ RunTime:0.000048s ]
+INFO: [ template_filter ] --END-- [ RunTime:0.000130s ]
+INFO: Run Behavior\ParseTemplateBehavior [ RunTime:0.046785s ]
+INFO: [ view_parse ] --END-- [ RunTime:0.046915s ]
+INFO: [ view_filter ] --START--
+INFO: Run Behavior\WriteHtmlCacheBehavior [ RunTime:0.005047s ]
+INFO: [ view_filter ] --END-- [ RunTime:0.005188s ]
+INFO: [ app_end ] --START--
+INFO: Run Behavior\ShowPageTraceBehavior [ RunTime:0.005398s ]
+INFO: [ app_end ] --END-- [ RunTime:0.005501s ]
+

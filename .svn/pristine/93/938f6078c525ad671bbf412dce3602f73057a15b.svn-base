@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>抽奖</title>
+    <script src="jquery.js"></script>
+    <script src="config.js"></script>
+    <style type="text/css">
+        body {text-align:center;padding-top:50px;}
+        #result {border:3px solid #449AE8;margin:0 auto;text-align:center;width:400px;padding:50px 0;background:#efe;height:80px;}
+        #resultNum {font-size:24pt;font-family:Verdana;}
+        #button {margin:50px 0 50px 0;}
+        #button input {font-size:40px;padding:0 50px;}
+        .team{border:1px solid #449AE8; float:left;margin:0px 5px 0px 0px;text-align:center;}
+        .user{margin:0 auto;text-align:center;width:400px;}
+    </style>
+    <script type='text/javascript'>
+        <!--
+        var g_Interval = 10;
+        var g_Timer;
+        var running = false;
+        var index = 0 ;
+
+        function beginRndNum(trigger){
+
+            var selectItem = $("#selectTeam").val();
+            var itemLength = $("#team"+selectItem).children("li").length;
+            if (user == null || user.length ==0){
+                alert('没有数据');
+                return false;
+            }
+
+            if(running){
+                running = false;
+                clearTimeout(g_Timer);
+                $('#resultNum').html(user[index].id+ ":"+ user[index].userName + ":" + user[index].teamName);
+                $("#team"+selectItem).append( "<li>"+ user[index].id+ ":"+ user[index].userName +"</li>");
+                $("#num"+selectItem).html($("#team" + selectItem).children("li").length);
+
+                //在数组中去掉已经得奖的用户
+                user = user.slice(0, index).concat(user.slice(index + 1, user.length)); //
+                //console.log(user.length);
+                $(trigger).val("开始");
+                $('#resultNum').css('color','red');
+            }
+            else{
+                running = true;
+                $('#resultNum').css('color','black');
+                $(trigger).val("停止");
+                beginTimer();
+            }
+        }
+
+        function updateRndNum(){
+            if (user.length == 0 ){
+                return false;
+            }
+            index  = Math.floor(Math.random()*user.length);
+            var obj = user[index];
+            var num = obj.id;
+            $('#resultNum').html(num);
+        }
+
+        function beginTimer(){
+            g_Timer = setTimeout(beat, g_Interval);
+        }
+
+        function beat() {
+            g_Timer = setTimeout(beat, g_Interval);
+            updateRndNum();
+        }
+
+        function loadData(){
+            user = new Array();
+            user[0] = {id:1,userName:'张三',teamName:'业务部'};
+            user[1] = {id:2,userName:'李四',teamName:'仓库'};
+            user[2] = {id:3,userName:'王五',teamName:'仓库'};
+            //user在这里可以ajax从后台获取。
+            $("#load").hide();
+            $(".start").show();
+        }
+        //-->
+    </script>
+</head>
+<body>
+<h1>抽奖</h1>
+<div id="result">
+    <span id="resultNum"></span>
+</div>
+<div id="button">
+    <input type='button' value='加载' onclick='loadData()' id="load" />
+    <select name="selectTeam" id="selectTeam" style="display: none" class="start">
+        <option value="1">一等奖</option>
+        <option value="2">二等奖</option>
+        <option value="3">三等奖</option>
+    </select>
+    <input name="status" id="status" value="0" style="display: none" />
+    <input type='button' id="start" value='开始' onclick='beginRndNum(this)'  style="display: none" class="start"/>
+</div>
+
+
+<div class="user">
+    <div class="team">
+        <span>一等奖</span>
+        <span id="num1">0</span>
+        <ul id="team1" >
+
+        </ul>
+    </div>
+
+    <div class="team">
+        <span>二等奖</span>
+        <span id="num2">0</span>
+        <ul id="team2" >
+        </ul>
+    </div>
+
+    <div class="team">
+        <span>三等奖</span>
+        <span id="num3">0</span>
+        <ul id="team3" >
+
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>

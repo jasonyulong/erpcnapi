@@ -1,0 +1,854 @@
+<?php
+include "include/config.php";
+include "include/dbconf.php";
+include "include/dbmysqli.php";
+include "include/GetOrder.php";
+unset($dbcon);
+echo '<meta charset="utf-8">功能已经移除!';
+die();
+$dbconLocal=new DBMysqli($LOCAL);
+//$dbcon=new DBMysqli($ERPCONF);
+
+# 扫描登录的过期时间常量
+defined('SCAN_EXPIRE_TIME') ? : define('SCAN_EXPIRE_TIME', 600);
+
+if($_SESSION['changeBigImgShow']===''){
+    $_SESSION['changeBigImgShow']=1;
+}
+
+$value		    = trim($_REQUEST['value']);
+
+$packinguser    = trim($_REQUEST['auditUser']);
+$packagingstaff = trim($_REQUEST['baozhuangUser']);
+//$value		= str_replace('WT','',$value);
+
+if($_POST['doaction']=='ajaxgetnext'){
+    $ebayid		=	$_POST['ebayid'];
+    $time		=	time();
+    $notes		=	$truename.'将'.$ebayid.'点击NEXT,直接核对通过';
+    $sql		=	"insert into ebay_orderslog(operationuser,operationtime,notes,types)values('$truename',$time,'$notes',12)";
+    if($dbconLocal->execute($sql)){
+        echo 2;
+    }else{
+        echo -2;
+    }
+    die();
+}
+
+
+//  重新登录的情况，将扫描的一系列session 置空
+if ($_REQUEST['doaction'] == 'switchScanner') {
+    $_SESSION['scan_username'] = '';
+    $_SESSION['scan_user_station'] = '';
+    $_SESSION['scan_login_time'] = '';
+}
+
+
+
+//    //  是否需要去除原有包装的检测
+//    if ($_POST['doaction'] == 'ajaxCheck') {
+//        $sku = $_POST['sku'];
+//        $sql = "select isnopackaging from ebay_goods where goods_sn='{$sku}' limit 1";
+//
+//        $re = $dbcon -> getResultArrayBySql($sql);
+//        if ($re && $re[0]['isnopackaging'] == 1) {
+//            echo json_encode(['status'=>true,'message'=>'请拆掉外包装']);
+//            return ;
+//        }
+//        echo json_encode(['status'=>false,'message'=>'']);
+//        return ;
+//    }
+
+
+if($_POST['doaction']=='ajaxsetover'){
+    $ebayid		=	$_POST['ebayid'];
+    $auditUser	=	$_POST['auditUser'];
+    $baozhuangUser=	$_POST['baozhuangUser'];
+    updatePackUser($ebayid,$auditUser,$baozhuangUser); // 扫描人，打包捡货
+    die();
+}
+
+
+if($_POST['doaction']=='ajaxChangeBigImgShow'){
+    $value		=	$_POST['value'];
+    $_SESSION['changeBigImgShow']=$value;
+    die();
+}
+
+
+/**
+ * 根据扫描的用户的工牌编号获取用户的岗位名称及用户名
+ */
+/**
+ *测试人员谭 2017-11-07 12:41:30
+ *说明: 没有住址架构表了
+ */
+if ($_POST['doaction'] == 'getUserMsg') {
+    $userCode = $_POST['PostCode'];
+
+    $select_sql = <<<HereDoc
+select username,id from erp_ebay_user where id='$userCode' limit 1
+HereDoc;
+    //file_put_contents('aa.log', $select_sql);
+    $result = $dbconLocal -> getResultArrayBySql($select_sql);
+    // file_put_contents('aa.log', print_r($result, true), FILE_APPEND);
+
+    # 用户为找到的情况
+    if (!$result) {
+        echo json_encode(['status' => false, 'message' => "未查到编号为:{$userCode} 的用户的信息." ]);
+        return ;
+    }
+
+    # 找到用户
+    echo json_encode(['status' => true, 'username' => $result[0]['username'], 'user_station' => $result[0]['username']]);
+
+    # 存储到session 中
+    $_SESSION['scan_login_time'] = time();
+    $_SESSION['scan_username'] = $result[0]['username'];
+    $_SESSION['scan_user_station'] = $result[0]['username'];
+    return 0;
+}
+
+//echo $_SESSION['scan_username'];
+//echo $_SESSION['scan_user_station'];
+//==================================================================================
+//==================================================================================
+//==================================================================================
+//==================================================================================
+function getStoreUsers(){
+    global $dbconLocal;
+    $sql="select username from erp_ebay_user where truename like '%仓库%'";
+    $sql=$dbconLocal->getResultArrayBySql($sql);
+    return $sql;
+}
+
+
+function updatePackUser($ebay_id,$packinguser,$packagingstaff){
+    global $dbconLocal;
+    if($ebay_id==''){
+        return false;
+    }
+    $ss="select id from api_checksku where ebay_id='$ebay_id' limit 1";
+    $ss=$dbconLocal->getResultArrayBySql($ss);
+    if(count($ss)==1){
+        return true;
+    }
+    $t=time();
+    $in="INSERT INTO `api_checksku` (`ebay_id`,`packinguser`,`packagingstaff`,`addtime`)";
+    $in.=" VALUES ( '$ebay_id', '$packinguser', '$packagingstaff', '$t');";
+    $dbconLocal->execute($in);
+
+    addorderslog($ebay_id,$_SESSION['truename'].',验货扫描成功!',12);
+}
+
+
+/* 记录订单操作日志 */
+function addorderslog($ebayid,$notes,$types=99){
+    global $dbconLocal;
+    $mctime=time();
+    $user=$_SESSION['truename'];
+    $vv		= "insert into orderslog (operationuser,operationtime,notes,ebay_id,types) values('$user','$mctime','$notes','$ebayid','$types')";
+    $dbconLocal->execute($vv);
+}
+
+
+function ResolveCom($goods_sn_b,$c){ //分解组合
+    global $dbconLocal, $user;
+    $arr=array();//if($goods_sn_b==''){die();}
+    $rr			= "select goods_sncombine from erp_ebay_productscombine where goods_sn='$goods_sn_b' limit 1";//不在goods表 是否在组合表
+    $rr			= $dbconLocal->execute($rr);
+    $rr 	 	    = $dbconLocal->getResultArray($rr);
+
+    if(count($rr)>0){
+        $goods_sncombine	= $rr[0]['goods_sncombine'];
+        $goods_sncombine    = explode(',',$goods_sncombine);
+        foreach($goods_sncombine as $v){
+            $pline			= explode('*',$v);
+            $goods_sn		= $pline[0];
+            $goods_number	= $pline[1];
+            $fromGoods     = "SELECT goods_name,goods_sn,goods_id,goods_location,goods_pic,isnopackaging FROM erp_ebay_goods where goods_sn='$goods_sn' limit 1";
+            $fromGoods		= $dbconLocal->execute($fromGoods);
+            $fromGoods		= $dbconLocal->getResultArray($fromGoods);//D($bb);
+            $cc=$goods_number*$c;
+            $goods_name=$fromGoods[0]['goods_name'];
+            $goods_pic  = $fromGoods[0]['goods_pic'];
+            $isnopackaging = $fromGoods[0]['isnopackaging'];
+            $arr[]=array($goods_sn,$cc,$goods_name,$goods_pic,$isnopackaging);
+        }
+    }
+    return $arr;
+}
+function OrderResolve($ebay_ordersn){//分解订单为单个的sku
+    global $dbconLocal, $user;
+    $arr=array();
+    $sql3="select sku,ebay_amount as c from erp_ebay_order_detail where ebay_ordersn='$ebay_ordersn' ";
+    $sql3=$dbconLocal->execute($sql3);
+    $sql3=$dbconLocal->getResultArray($sql3);
+    foreach($sql3 as $v){
+        $goods_sn   =$v['sku']; //sku
+        $c          =$v['c'];   //数量
+        $fromGoods  ="SELECT goods_sn,goods_pic,goods_name,isnopackaging FROM erp_ebay_goods where goods_sn='$goods_sn' limit 1";
+        $fromGoods	 = $dbconLocal->execute($fromGoods);
+        $fromGoods	 = $dbconLocal->getResultArray($fromGoods);//D($bb);
+        $goods_pic  = $fromGoods[0]['goods_pic'];
+        $goods_name = $fromGoods[0]['goods_name'];
+        $isnopackaging = $fromGoods[0]['isnopackaging'];
+        if(count($fromGoods)>0){
+            $arr[]=array($goods_sn,$c,$goods_name,$goods_pic,$isnopackaging);
+        }else{
+            if($goods_sn!=''){
+                $a=ResolveCom($goods_sn,$c);
+                $arr=array_merge_recursive($arr,$a);
+            }
+        }
+    }
+
+    $data		=	array();
+    foreach($arr as $v){
+        $k		=	trim($v[0]);
+        $num    =   $v[1];
+        if(is_array($data[$k])){
+            $num	=	$data[$k][1]+$num;
+            $data[$k] = array($k,$num,$v[2],$v[3],$v[4]);
+        }else{
+            $data[$k] = array($k,$v[1],$v[2],$v[3],$v[4]);
+        }
+
+    }
+    return $data;
+    //return $arr;
+}
+
+//==============================================================
+//==============================================================
+//==============================================================
+
+
+?>
+<html>
+<!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>ERP 订单核对</title>
+    <style type="text/css">
+        <!--
+        body {
+            margin-left: 0px;
+            margin-top: 0px;
+            margin-right: 0px;
+            margin-bottom: 0px;
+            background-color: #F8F9FA;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
+        input[type='text'],select{
+            border:1px solid #3f6bc3;
+        }
+
+        .peel_message_box{
+            position: absolute;
+            left:82.4%;
+            top:0;
+            background-color: rgba(255,0,0,1);
+            width:200px;
+            height:40px;
+            text-align: center;
+            border-radius: 2px;
+            font-family: 微软雅黑;
+            vertical-align: middle;
+            font-size:25px;
+            font-weight: bold;
+            color: #fff;
+            padding:10px 20px;
+            letter-spacing: 2px;
+            /*visibility:hidden;*/
+        }
+
+        -->
+    </style>
+    <script language="javascript" type="text/javascript" src="js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="js/mytips.js"></script>
+    <style type="text/css">
+        <!--
+        .STYLE1 {font-size: 12px;}
+        #mytips_show_hide_for_action h1{margin-top: 0;font-size:12px;}
+        -->
+    </style>
+</head>
+<body>
+<?php
+$cpower = explode(",", $_SESSION['power']); //D($cpower);
+if(!in_array('newchecksku',$cpower)){
+    echo '<div style="color:#911;font-size:18px;">您没有【验货并出库的权限】</div>';
+    return ;
+}
+
+
+function usePxorderidReturnTrackNo($scanNumber){
+    if($scanNumber==''){
+        return '';
+    }
+
+    global $dbconLocal;
+    $ss="select ebay_id,ebay_tracknumber from erp_ebay_order where ebay_tracknumber='$scanNumber' and ebay_status=1724 limit 1";
+    $ss=$dbconLocal->getResultArrayBySql($ss);
+
+    if(empty($ss)){
+        $ss="select ebay_id,ebay_tracknumber from erp_ebay_order where pxorderid='$scanNumber' and ebay_status=1724 limit 1";
+        $ss=$dbconLocal->getResultArrayBySql($ss);
+        if($ss[0]['ebay_tracknumber']!=''){
+            return $ss[0]['ebay_tracknumber'];
+        }
+
+        return $scanNumber;
+    }
+
+    return $scanNumber;
+
+    // 顺丰/瑞典小包 的几个 用px 做条码的 垃圾运输方式
+    if(preg_match("/^Q[0-9A-Z]+X$/",$scanNumber)){
+        return true;
+    }
+
+    // 顺友 通挂号
+    if(preg_match("/^RN[0-9]{9}MY$/",$scanNumber)){
+        return true;
+    }
+
+    /**
+     *测试人员谭 2017-09-19 16:53:27
+     *说明: 这个垃圾居然又要恢复
+
+    顺友 通挂号
+    if(preg_match("/^RQ[0-9]{9}MY$/",$scanNumber)){
+    return true;
+    }
+
+    // 顺邮宝 挂号
+    if(preg_match("/^RS[0-9]{9}MV$/",$scanNumber)){
+    return true;
+    }
+
+    // 顺邮宝 挂号
+    if(preg_match("/^RC[0-9]{9}MY$/",$scanNumber)){
+    return true;
+    }
+
+    // 顺邮宝 挂号
+    if(preg_match("/^RR[0-9]{9}KG$/",$scanNumber)){
+    return true;
+    }
+     */
+
+    // 顺友 通平邮
+    if(preg_match("/^SY[A-Z]{3}[0-9]{8}$/",$scanNumber)){
+        return true;
+    }
+
+    // PMS
+    if(preg_match("/^PMS[0-9]{8}$/",$scanNumber)){
+        return true;
+    }
+
+    /**
+     *测试人员谭 2017-09-18 14:51:04
+     *说明: 万欧的垃圾玩意 居然也是这个德行
+     */
+    if(preg_match("/^WNBAA\w+$/",$scanNumber)){
+        return true;
+    }
+
+    /**
+     *测试人员谭 2017-10-30 17:42:34
+     *说明: 老挝的垃圾玩意
+     */
+    if(preg_match("/^LAO[A-Z]\w+YQ$/",$scanNumber)){
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ *测试人员谭 2017-05-15 09:56:28
+ *说明: get 这个 这个订单的状态
+ */
+
+function getTopMenu(){
+    global $dbconLocal;
+    $Arr=[];
+    //    if(in_array($ebay_status,[0,1,2])){
+    $ss="select id,name from ebay_topmenu ";
+    $ss=$dbconLocal->getResultArrayBySql($ss);
+    foreach($ss as $List){
+        $Arr[$List['id']]=$List['name'];
+    }
+    $Arr[0]='未付款';
+    $Arr[1]='等待处理';
+    $Arr[2]='已经发货';
+    return $Arr;
+}
+
+/**
+ * 实时获取 erp 中的订单状态
+ * @author Simon 2017/11/10
+ */
+function getErpOrderEbayStatus($ebay_id){
+    $getOrder = new GetOrder();
+    $result = $getOrder->getOrderByEbayId($ebay_id);
+    return $result;
+}
+
+$TopMenu=getTopMenu();
+# 判断登录的扫描用户是否过期，过期的话需要重新扫描工牌编号重新登录
+if ($_SESSION['scan_login_time']) {  # 表示有登陆过
+//    echo time() - $_SESSION['scan_login_time'].'  ==  '.SCAN_EXPIRE_TIME;
+    if (time() - $_SESSION['scan_login_time'] > SCAN_EXPIRE_TIME) {
+        $_SESSION['scan_username']     = '';
+        $_SESSION['scan_user_station'] = '';
+        $_SESSION['scan_login_time']   = '';
+    } else {  # 没有过期的话更新登录时间
+        $_SESSION['scan_login_time']   = time();
+        $value=usePxorderidReturnTrackNo($value);
+
+        // 跟踪号
+        $sql = "select ebay_id,ebay_ordersn,ebay_userid,ebay_carrier,ebay_tracknumber,ebay_noteb,ebay_status from erp_ebay_order where  ebay_tracknumber ='$value' and ebay_status>0 limit 1 ";
+
+        if($value==''){
+            $sql='';
+        }
+
+        if(is_numeric($value)&&strlen($value)<8){
+            // $sql = "select ebay_id,ebay_ordersn,ebay_userid,ebay_carrier,ebay_tracknumber,ebay_noteb,ebay_status from erp_ebay_order where  ebay_id ='$value' and ebay_status>0 limit 1 ";
+        }
+        /**
+         *测试人员谭 2017-02-07 10:16:55
+         *说明: // 顺丰/瑞典小包 的几个 用px 做条码的 垃圾运输方式 又恢复了
+         *测试人员谭 2017-03-25 15:15:48
+         *说明: 顺友家的 四个方式 也同上
+         */
+        $ispxorder=false;
+
+        //if(usePxorderidReturnTrackNo($value)){
+            //  $sql	=	"select ebay_id,ebay_ordersn,ebay_userid,ebay_carrier,ebay_tracknumber,ebay_noteb,ebay_status from erp_ebay_order where  pxorderid ='$value' and ebay_status='1724' limit 1 ";
+            // $ispxorder=true;
+        //}
+
+
+        $sql	=	$dbconLocal->getResultArrayBySql($sql);
+        $ebay_id=   $sql[0]['ebay_id'];
+
+        $repeat=false;
+        if($ebay_id){
+            $ebay_status=$sql[0]['ebay_status'];
+            $ccname=$TopMenu[$ebay_status];
+
+            $sqlLocal="select id from api_checksku where ebay_id='$ebay_id' limit 1";
+            $sqlLocal=$dbconLocal->getResultArrayBySql($sqlLocal);
+            if(count($sqlLocal)>0){
+                echo '<div style="font-size:40px;color:#911">已经验过货了!订单现在在【'.$ccname.'】</div>';
+                unset($sql);
+                $repeat=true;
+            }
+        }else{
+            if($ispxorder){
+                echo '<div style="font-size:40px;color:#911">等待扫描找不到订单，注意订单条码是左边的Pxid!</div>';
+                unset($sql);
+                $repeat=true;
+            }else{
+                echo '<div style="font-size:40px;color:#911">所有订单状态都找不到订单，注意订单条码是跟踪号!</div>';
+                unset($sql);
+                $repeat=true;
+            }
+        }
+    }
+}
+?>
+<input name="hiddenuserid" type="hidden" value="" id="hiddenuserid" />
+<div id="succ" style="text-align:center"></div>
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td width="17" height="71" valign="middle">&nbsp;</td>
+        <td width="1138" valign="top" bgcolor="#F7F8F9"><table width="100%" height="138" border="0" cellpadding="0" cellspacing="0">
+
+                <tr>
+                    <td valign="top"><table width="98%" border="0" align="center" cellpadding="0" cellspacing="0">
+
+
+
+                            <tr>
+                                <td><table width="100%" height="31" border="0" cellpadding="0" cellspacing="0" class="nowtable">
+                                        <tr>
+                                            <td class="left_bt2">订单号/物品编号：
+                                                <input name="order" type="text" id="order" onKeyPress="check(event)" value=""/>
+                                                <input name="ebay_id" id="ebay_id" value="<?php echo $ebay_id;?>" type="hidden">
+                                                <!--核对人--> 岗位名称:
+                                                <input style="width:90px;padding: 2px 5px; color:#08ca77;font-weight: bold" type="text" readonly="readonly" id="scan_user_station" value="<?php echo $_SESSION['scan_user_station']?>">
+
+                                                <input type="button" onclick="switchScanner()" value="切换扫描员"/>
+
+                                                <input style="width:90px;" type="hidden" readonly="readonly" id="auditUser" value="<?php echo $_SESSION['scan_username'];?>">
+                                                <input style="width:90px;" type="hidden" readonly="readonly" id="baozhuangUser" value="<?php echo $truename;?>">
+
+                                                <select id="showImgOff" onchange="changeBigImgShow(this)">
+                                                    <option value="1" <?php if($_SESSION['changeBigImgShow']==1){echo 'selected="selected"';}?>>放大图片开启</option>
+                                                    <option value="-1" <?php if($_SESSION['changeBigImgShow']==-1){echo 'selected="selected"';}?>>放大图片关闭</option>
+                                                </select>
+                                                <input type="button" onclick="reloadurl()" value="终止本订单验货"/>
+                                                <?php echo $errorstatus;?></td>
+                                        </tr>
+                                    </table></td>
+                            </tr>
+                            <tr>
+                                <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                        <td width="100%"><table width="100%" border="1" cellpadding="0" cellspacing="0">
+                                                <tr>
+                                                    <td colspan="5" valign="top"><div class="titlebt">
+                                                            <table width="100%" border="1" cellpadding="0" cellspacing="0">
+                                                                <?php
+                                                                $notinstatus=false;
+                                                                $ebay_status=$sql[0]['ebay_status'];
+
+                                                                //$allowauditorderstatus
+
+                                                                if($ebay_status!=1724&&isset($sql[0]['ebay_status'])){
+                                                                    $data = getErpOrderEbayStatus($sql[0]['ebay_id']);
+                                                                    if($data['status'] && $data['data']['ebay_status'] == 1724){
+                                                                        $updateOrder = "update erp_ebay_order set ebay_status = 1724 where ebay_id = {$data['data']['ebay_id']}";
+                                                                        $dbconLocal->execute($updateOrder);
+                                                                    }else{
+                                                                        $ccname=$TopMenu[$ebay_status];
+                                                                        $ebay_noteb=$sql[0]['ebay_noteb'];
+                                                                        echo '<tr><td><h1 style="color:#911">警告: 该订单不在等待扫描! 在'.$ccname.' 中!</h1></td></tr>';
+                                                                        echo '<tr><td><h3 style="color:#911">备注: '.$ebay_noteb.'</h3></td></tr>';
+                                                                        $notinstatus=true;
+                                                                        $sql=array();
+                                                                    }
+                                                                }
+                                                                ?>
+                                                                <tr>
+                                                                    <td colspan="6" valign="top">
+                                                                        <?php
+                                                                        if($sql[0]['ebay_noteb']!=''){
+                                                                            echo '订单备注:<font color="#d2691e">'.$sql[0]['ebay_noteb'].'</font>';
+                                                                        }else{
+                                                                            echo '&nbsp';
+                                                                        }
+                                                                        ?>
+                                                                    </td>
+                                                                </tr>
+                                                                </tr>
+                                                                <td>物品编号</td>
+                                                                <td><div align="center">图片</div></td>
+                                                                <td>物品名称</td>
+                                                                <td>等待核对数量</td>
+                                                                <td>剩余扫描数量</td>
+                                                                <td>是否扫描</td>
+                                                                </tr>
+                                                                <?php
+
+                                                                if(count($sql)==0){
+                                                                    $arr	=	array();
+                                                                }else{
+                                                                    $ordersn=   $sql[0]['ebay_ordersn'];
+                                                                    $ebay_ID=   $sql[0]['ebay_id'];
+                                                                    $arr	=   OrderResolve($ordersn);
+                                                                }
+                                                                $skustr	 =	'';
+                                                                $countstr=  '';
+
+                                                                foreach($arr as $v){
+                                                                    $skustr.= strtoupper(trim($v[0])).',';
+                                                                    $countstr.=$v[1].',';
+                                                                    $isnopackagingstr .= ','.$v[4];
+
+                                                                    ?>
+
+                                                                    <tr>
+                                                                        <td><?php echo strtoupper($v[0]);?>&nbsp;</td>
+                                                                        <td><div align="center"> <img id="showimg<?php echo strtoupper($v[0]);?>" src="http://47.89.27.165/images/<?php echo $v[3]; ?>" width="120" height="120" onclick="funsTool.showImg(this)"> </div></td>
+                                                                        <td><a href="http://cgi.ebay.com/ws/eBayISAPI.dll?ViewItem&item=<?php echo $qitemid; ?>" target="_blank"><?php echo $v[2];?></a>&nbsp;</td>
+                                                                        <td><h1> <font id="<?php echo strtoupper($v[0]);?>"  size="888px"><?php echo $v[1];?></font> &nbsp;</h1></td>
+                                                                        <td><h1 style="color: #0099CC" id="sacn<?php echo strtoupper($v[0]);?>" class="readyscan"><?php echo $v[1];?></h1></td>
+                                                                        <td><input style="color:red" disabled="true"  type="text" id="scan<?php echo  strtoupper($v[0]);?>" value="NO"/></td>
+                                                                    </tr>
+                                                                <?php }
+                                                                $isnopackagingstr = trim($isnopackagingstr,',');
+                                                                //                           file_put_contents('aa.log', "[".date('Y-m-d H:i:s')."] ".__LINE__.":".print_r($skustr,true)."||".print_r($countstr,true), FILE_APPEND);
+                                                                ?>
+                                                            </table>
+                                                        </div></td>
+                                                </tr>
+                                            </table>
+                                            <tr>
+                                                <td width="80%" height="17" colspan="4" align="right" >&nbsp;</td>
+                                            </tr>
+
+                                    </table></td>
+                            </tr>
+                        </table>          </td>
+                </tr>
+            </table></td>
+        <td width="21">&nbsp;</td>
+    </tr>
+    <tr>
+        <td valign="middle">&nbsp;</td>
+        <td height="17" valign="top">&nbsp;</td>
+        <td ></td>
+    </tr>
+
+</table>
+
+<div class="peel_message_box">
+
+</div>
+
+<audio src="capi/number/2.mp3"  preload="auto">
+
+</audio>
+<audio  id="10" autoplay="autoplay">
+    <source src='' type='audio/mp3'>
+</audio>
+<audio id="failSound" >
+    <source src='' type='audio/mp3'>
+</audio>
+<audio id="scanSound" >
+    <source src='' type='audio/mp3'>
+</audio>
+<script language="javascript" src="js/jquery.js"></script>
+<script language="javascript">
+
+var skustr = '<?php echo $skustr;?>';
+skustr = skustr.substring (0, skustr.length - 1);
+var strs = new Array (); //定义一数组
+strs = skustr.split (","); //字符分割
+var countstr = '<?php echo $countstr;?>';
+countstr = countstr.substring (0, countstr.length - 1);
+var countstrs = new Array (); //定义一数组
+countstrs = countstr.split (","); //字符分割
+var sacncount = new Array ();
+sacncount = countstr.split (","); //字符分割
+var isnopackaging_str = "<?php echo $isnopackagingstr;?>";
+var isnopackaging_arr = isnopackaging_str.split(",");
+
+$('.peel_message_box').hide();
+
+
+
+/**
+ * 扫描工牌时获取扫描的内容并发送后台获取相应的用户名及岗位名称
+ */
+function scanCardBarcode(event, that)
+{
+    if (event.keyCode != 13) {
+        return null;
+    }
+
+    if (!$(that).val()) {
+        return null;
+    }
+
+    $.post(
+        's_auditorder.php',
+        {doaction:'getUserMsg', PostCode:$(that).val()},
+        function(re) {
+            if (re.status) {
+                $("#scan_user_station").val(re.user_station);
+                $('#scan_username').val(re.username);
+                funsTool.deleteModBox();
+                location.href = 's_auditorder.php';
+            } else {
+                funsTool.insertModBox('<div style="font-family: 微软雅黑;font-size: 20px; text-align: center;color: red">' + re.message + '</div>');
+            }
+        },'json'
+    );
+
+}
+
+/**
+ * 如果岗位名称不存在的话弹窗提示扫描牌号获取岗位名称
+ */
+if (!$('#scan_user_station').val()) {
+    var htmlForm = "<div class='form' style='margin:30px auto;text-align: center'> <span> 扫描工牌条码: </span> " +
+        "<input type='text' name='scanCode' value='' onkeyup='scanCardBarcode(event ,this)' autofocus style='padding:3px 5px'/></div>";
+    funsTool.showModbox('<div style="background-color: #C0C0C0;padding: 3px 5px;font-family: 微软雅黑">请先扫描工牌条码</div>', 150, 400,function(){});
+    funsTool.insertModBox(htmlForm, true);
+}
+
+
+/**
+ * 切换扫描员
+ */
+function switchScanner()
+{
+    location.href = 's_auditorder.php?doaction=switchScanner';
+}
+
+
+
+function changeBigImgShow(that){
+    var val=$(that).val();
+    $.post(
+        "s_auditorder.php",
+        {value:val,doaction:"ajaxChangeBigImgShow"},
+        function(data){
+
+        }
+    )
+}
+
+
+function reloadurl(){
+    location.href='s_auditorder.php?module=orders&value=';
+    return false;
+}
+
+function playm(id){
+    var video=null;
+    if(id=="fail"){
+        video	=	document.getElementById("failSound");
+        video.src="capi/number/error.mp3";
+        video.play();
+    }else {
+        video	=	document.getElementById("10");
+        video.src="capi/number/"+id+".mp3";
+        video.play();
+    }
+}
+
+function check(event){
+
+    var order	= $.trim($("#order").val());
+    var isie = (document.all) ? true : false;//判断是IE内核还是Mozilla
+    var keyCode;
+    if(isie){
+        keyCode = window.event.keyCode;//IE使用windows.event事件
+    }else {
+        keyCode = event.which;//3个按键函数有一个默认的隐藏变量，这里用e来传递。e
+    }
+
+    if (keyCode == 13) {
+
+        var order	= $.trim($("#order").val());
+        order		= order.toUpperCase();
+        var auditUser		= document.getElementById('auditUser').value;
+        var baozhuangUser	= document.getElementById('baozhuangUser').value;
+        if(auditUser==''){
+            alert("您登录系统信息有误，请重新登录!");return false;
+        }
+
+        if(baozhuangUser==''){
+            alert("请选择包装/捡货人员!");return false;
+        }
+
+        document.getElementById('order').select();
+        document.getElementById('order').focus();
+
+        if (skustr == '') { // 首次请求
+            location.href='s_auditorder.php?module=orders&value='+order;
+            return false;
+        }
+
+        var isSKU		=	false;
+
+        for(var i=0;i<strs.length;i++){
+            if(order==strs[i]){
+                isSKU   =   true;
+                check_peel_packaging(isnopackaging_arr[i]);
+                var  num  = $("#"+order).html();
+                countstrs[i]='over';
+                var scannum    =   $("#sacn"+order).html();
+                scannum--;
+                if(scannum<0){
+                    playm('dy');return;
+                    scannum=0;
+                }
+                $("#sacn"+order).html(scannum);
+
+                if($("#showImgOff").val()==1){// 网速不好 要关掉
+                    funsTool.showImg($("#showimg"+order));
+                }
+
+                if(scannum==0){
+                    $("#scan"+order).val("YES");
+                    $("#scan"+order).attr("style","color:#66CC00");
+                }
+                playm(scannum)
+            }
+        }
+
+        var v       =   0;
+
+        $(".readyscan").each(function(){
+            if($(this).html()==0){
+                v++;
+            }
+        });
+
+        if(v==countstrs.length&&isSKU){
+            ajaxsetover($("#ebay_id").val(),baozhuangUser,auditUser);
+            $("#succ").html('<font color="green" size="9">SUCCESS</font>');
+        }
+
+        if(isSKU==false){
+            if(v==countstrs.length){//新的订单
+                location.href = 's_auditorder.php?value='+order;
+            }else{
+                playm('fail');
+            }
+        }
+
+
+    }
+
+
+} // end function checkked
+
+function ajaxsetover(ebayid,baozhuangUser,auditUser){
+    $.ajax({
+        type : "post",
+        url : "s_auditorder.php",
+        data : "doaction=ajaxsetover&ebayid="+ebayid+"&baozhuangUser="+baozhuangUser+"&auditUser="+auditUser,
+        async : false,
+        success : function(data){
+
+        }
+    });
+}
+
+
+/**
+ * 判断是否去除原有包装，并展示信息
+ * @param is_peel
+ */
+function check_peel_packaging(is_peel)
+{
+    var message_box = $('.peel_message_box');
+    if (is_peel == 1) {
+        message_box.show('fast');
+        message_box.html('请拆掉外包装');
+    } else {
+        message_box.hide('fast');
+        message_box.html('');
+    }
+}
+
+
+
+document.getElementById('order').select();
+document.getElementById('order').focus();
+
+
+
+<?php
+    if($notinstatus||$repeat){
+       echo 'playm("fail");';
+    }
+
+?>
+
+</script>
+
+</body>
+</html>

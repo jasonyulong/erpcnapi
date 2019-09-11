@@ -1,0 +1,28 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative; width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <?php if(is_array($Order['pdfimg'])):?>
+    	<img src="{$Order['pdfimg'][0]}" style="width:106mm;margin-top: -10px;margin-left: -10px;" />
+    <?php else:?>
+    	<img src="{$Order['pdfimg']}" style="width:106mm;margin-top: -10px;margin-left: -10px;"/>
+    <?php endif;?>
+</div>
+    <!--添加拣货代码-->
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+    	<tbody>
+    		<tr class="">
+	            <td>
+	                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">{$Order['skustr']}</div>
+	                <div class="font14">{$Order['ebay_carrier']}</div>
+	                <div class="font14">{$Order['ebay_id']}</div>
+	                <div class="font14">{$Order['ebay_tracknumber']}</div>
+	                <div class="font14 blod">请勿粘贴</div>
+	            </td>
+        	</tr>
+        </tbody>
+    </table>
+    <div style="margin-top:10px;margin-left:5px">
+                <div>订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

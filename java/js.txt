@@ -1,0 +1,3 @@
+<applet id="appReadScale" name="appReadScale" code="B.class" archive="comm.jar" codebase="${CONTEXT_PATH}java" height="100" width="300">
+	       	 你的浏览器不支持Java
+	    </applet>

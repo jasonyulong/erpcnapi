@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>白单重打</title>
+    <style>
+        body{margin:0;padding:0;}
+        #ebay_id{font-size: 30px;height: 40px;}
+    </style>
+    <link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+</head>
+<body>
+<div class="row" style="margin: 0 auto;padding: 8px 5px;background-color:orange"></div>
+<h2>警告:该功能仅用于白单重打</h2>
+<div class="container-fluid">
+
+    <div class="row" style="margin-top:20px;margin-left:-20px">
+
+    </div>
+
+
+    <div class="row alert-row">
+
+    </div>
+
+
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-sm-5">
+            <input id="ebay_id" onkeyup="checkTracknumber(event)" class="form-control" placeholder="扫描单号" value="" type="text">
+        </div>
+    </div>
+
+</div>
+<div style="margin:30px;">
+
+    <script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+    <script src="/newerp/Public/layer/layer.js"></script>
+    <script>
+
+        function ajaxsetover(ebayid){
+            var ordersn='{$ordersn}';
+
+            var baozhuangUser="<?php $_SESSION['truename'];?>";
+            var auditUser="<?php $_SESSION['truename'];?>";
+
+            var white_order_mark=$("#print_iframe").contents().find("#white_order_mark").html();
+
+            if(white_order_mark){
+                return ;
+            }
+
+
+
+            $.ajax({
+                type : "post",
+                url : "t.php?s=/Package/MakeBale/updatePackUser",
+                data : "ebayid="+ebayid+"&baozhuangUser="+baozhuangUser+"&auditUser="+auditUser+"&ordersn="+ordersn,
+                async : false,
+                success : function(data){
+                    //TODO 出单 出单
+                     $("#succ").html('<font color="green" size="9">校验成功! 请注意打印机是否出单!</font>');
+                }
+            });
+        }
+
+
+        function autoPrint(){
+            if($("#print_iframe").attr("src")!=''){
+                window.frames[0].print();
+                return false;
+            }
+
+
+
+        }
+    </script>
+    <h1 style="color:red">{$error}</h1>
+    <iframe id="print_iframe" onload="autoPrint()" name="print_iframe" style="width:116mm;height:116mm;overflow-y:scroll;" src="{$reprint}"></iframe>
+
+</div>
+</body>
+
+<script>
+    $(function(){
+        $("#ebay_id").select().focus();
+    });
+
+    function checkTracknumber(event){
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return '';
+        }
+
+        var ebay_id= $.trim($("#ebay_id").val());
+
+
+        if(ebay_id.length<7){
+            layer.msg("跟踪号格式不对!", {icon: 2});
+            $("#ebay_id").select().focus();
+            return false;
+        }
+
+        location.href='t.php?s=/Order/RePrint/getEbayidByTracknumber/tracknumber/'+ebay_id;
+        return false;
+    }
+</script>
+</html>

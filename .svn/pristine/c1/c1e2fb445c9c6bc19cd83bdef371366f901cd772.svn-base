@@ -1,0 +1,95 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td rowspan="2" style="width:35mm;">if undelivrable.please return to:<br>
+                RM.25-26, BLK B 2/F,FOCAL INDUSTRIAL CENTER,21 MAN LOK ST KLN HongKong</td>
+            <td class="font12" align="center"><b>z-15</b></td>
+            <td style="font-size: 25px;color: red;"><if condition="$Order['countrycn'] eq '俄罗斯'"> <else/>新</if> </td>
+            <td style="text-align: center;font-weight: bold;font-size: 44px;">e</td>
+            <td class="font12"><b>cn22</b></td>
+        </tr>
+        <tr>
+            <td align="center" class="font12" style="padding-top: 4mm;"><b>E</b></td>
+            <td align="center" class="font8" colspan="2" style="word-break:break-all;"><b>POSTAGE PAID<br> HONG KONG PORT PAYE</b></td>
+            <td align="center" class="font8" ><b>PERMIT<br>NO.4405</b></td>
+        </tr>
+        <tr>
+            <td>From:</td>
+            <td colspan="4">To:</td>
+        </tr>
+        <tr>
+            <td rowspan="2" style="text-align: center;vertical-align:middle;">Xu zuo wang</td>
+            <td colspan="4">
+                {$Order['ebay_username']}<br>
+                {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+                {$Order['ebay_city']}, {$Order['ebay_state']}<br>
+                {$Order['ebay_countryname']}({$Order['countrycn']})
+            </td>
+        </tr>
+        <tr>
+            <td>zip</td>
+            <td>{$Order['ebay_postcode']}</td>
+            <td>TEL：</td>
+            <td><?=$Order['ebay_phone1'] != '' ? $Order['ebay_phone1'] : $Order['ebay_phone']?></td>
+        </tr>
+        <tr>
+            <td colspan="5">(I the undersigned certify that the particulars given in this desclaration are correct and this items does not contain any angerous articles rohi bited by legislation or by postal or customs regulations)</td>
+        </tr>
+        <tr>
+            <td colspan="5">
+                <p style="text-align: center;">
+                    <b>No Tracking</b>
+                </p>
+                <p style="text-align: center;">
+                    <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="90%" height="50"/>
+                </p>
+                <p style="text-align: center;">
+                    <b>{$Order['ebay_tracknumber']}</b>
+                </p>
+                <div style="width:98mm;height:6mm;margin-top:2mm;">
+                    <div style="width:30mm;float:left">
+                        SMT-GSGJ223-10
+                    </div>
+                    <div style="width:34mm;float:right">WH180325009910-P21</div>
+                </div>
+                
+            </td>
+        </tr>
+        
+    </table>
+    <div class="fonts" style="margin-top: -7mm;margin-left: 40mm;">
+        <span style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<div class="mod_second_lables" style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="tab">
+        <tr>
+            <td >Quantity and detailed description of contents</td>
+            <td>Weight(kg)</td>
+            <td>Val(USD)</td>
+            <td>Hs tariff number and country of origin of goods(For commercial items only)</td>
+        </tr>
+        <tr>
+            <td >{$Order['yingwen']}</td>
+            <td>0.65</td>
+            <td>{$Order['sbjz']}</td>
+            <td>CHINA</td>
+        </tr>
+        <tr>
+            <td>Total Gross Weight(Kg)</td>
+            <td>0.65</td>
+            <td>{$Order['sbjz']}</td>
+            <td></td>
+        </tr>
+        
+    </table>
+    <!--添加拣货代码-->
+    <div style="width:98mm;height:6mm;margin-top:2mm;">
+        <div style="width:30mm;float:left">
+            {$Order['skustr']}
+        </div>
+        <div style="width:30mm;float:right">订单号：{$Order['ebay_id']}</div>
+    </div>
+    <div class="fonts"><span style="margin-right: 5px;padding-top: 50px;position:absolute;">请勿粘贴包裹</span></div>
+</div>

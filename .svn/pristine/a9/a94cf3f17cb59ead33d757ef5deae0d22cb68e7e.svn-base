@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+    <style>
+        body{margin:0;padding:0;}
+        #ebay_id{font-size: 30px;height: 40px;}
+    </style>
+    <link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+</head>
+<body>
+<div class="row" style="margin: 0 auto;padding: 8px 5px;background-color:orange">
+    <h4>Wish邮东莞平邮2018-07-23异常单</h4>
+</div>
+<div class="container-fluid">
+
+    <div class="row" style="margin-top:20px;margin-left:-20px">
+
+    </div>
+
+
+    <div class="row alert-row">
+
+    </div>
+
+
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-sm-5">
+            <input id="ebay_id" onkeyup="checkTracknumber(event)" class="form-control" placeholder="扫描单号" value="" type="text">
+        </div>
+    </div>
+
+</div>
+<div style="margin:30px;">
+
+    <script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+    <script src="/newerp/Public/layer/layer.js"></script>
+    <script>
+        function autoPrint(){
+            if($("#print_iframe").attr("src")!=''){
+                window.frames[0].print();
+                return false;
+            }
+
+        }
+    </script>
+    <h1 style="color:red">{$error}</h1>
+    <iframe id="print_iframe" onload="autoPrint()" name="print_iframe" style="width:116mm;height:116mm;overflow-y:scroll;" src="{$reprint}"></iframe>
+
+</div>
+</body>
+
+<script>
+    $(function(){
+        $("#ebay_id").select().focus();
+    });
+
+    function checkTracknumber(event){
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return '';
+        }
+
+        var ebay_id= $.trim($("#ebay_id").val());
+
+
+        if(ebay_id.length<7){
+            layer.msg("跟踪号格式不对!", {icon: 2});
+            $("#ebay_id").select().focus();
+            return false;
+        }
+
+        location.href='t.php?s=/Order/RePrint/viewReLable/tracknumber/'+ebay_id;
+        return false;
+    }
+</script>
+</html>

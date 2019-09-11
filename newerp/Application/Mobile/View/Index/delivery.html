@@ -1,0 +1,84 @@
+<include file="Public/header" />
+
+    <audio id="successSound" src="capi/number/cg.mp3" preload="auto"></audio>
+    <audio id="failSound" src="capi/number/error.mp3" preload="auto"></audio>
+    <div id="mob-content">
+        <h5 class="mob-title">请选择物流公司</h5>
+        <select name="company" id="company" onchange="chooseCompany()">
+            <volist name="companyData" id="item">
+                <?php $item['code'] = empty($item['sup_code']) ? '' : '('.$item['sup_code'].')'; ?>
+                <option value="{$item.id}">{$item.sup_abbr}{$item['code']}</option>
+            </volist>
+        </select>
+        <h5 class="mob-title">扫描包裹编号</h5>
+        <div class="pure-form pure-form-stacked">
+            <input type="text" name="scan_code" autocomplete="off" id="bag_code" placeholder="请扫描包裹编号" onkeyup="makeDelivery(event)"/>
+        </div>
+        <div class="show_msg">
+
+        </div>
+    </div>
+<include file="Public/footer" />
+<script src="newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script>
+    function chooseCompany() {
+        $("#bag_code").focus();
+        document.getElementById("bag_code").focus();
+        $ ('#bag_code').focus ().select ();
+    }
+    /**
+     * 扫描收包
+     * @author Shawn
+     * @param event
+     * @returns {string}
+     */
+    function makeDelivery(event) {
+
+        var company_id = $.trim ($("#company").val());
+        var code = $.trim ($("input[name='scan_code']").val());
+        if (code == "") return;
+        var keyCode = event.keyCode;
+        if (keyCode !== 13) {
+            return '';
+        }
+        var url = '{:U("Mobile/Index/makeDelivery")}';
+        $.ajax ({
+            url:      url,
+            type:     'post',
+            data:{markCode:code,company_id:company_id},
+            dataType: 'json'
+        }).done (function (re) {
+            if(re.status == 1){
+                audioAutoPlay(true);
+                var msg = '<b style="color: green">'+re.msg+'</b>';
+                $(".show_msg").html(msg);
+                $ ('#bag_code').focus ().select ();
+            }else{
+                audioAutoPlay(false);
+                var msg = '<b style="color: red">'+re.msg+'</b>';
+                $(".show_msg").html(msg);
+                $ ('#bag_code').focus ().select ();
+            }
+        }).fail (function () {
+            audioAutoPlay(false);
+            var msg = '<b style="color: red">网络出错了！</b>';
+            $(".show_msg").html(msg);
+            $ ('#bag_code').focus ().select ();
+        })
+    }
+
+    /**
+     * 声音提示
+     * @param bool
+     */
+    function audioAutoPlay(bol) {
+        if(bol){
+            var audio = document.getElementById ("successSound");
+        }else{
+            var audio = document.getElementById ("failSound");
+        }
+        audio.play();
+        return;
+    }
+
+</script>

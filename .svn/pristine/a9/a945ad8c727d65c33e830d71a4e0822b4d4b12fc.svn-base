@@ -1,0 +1,135 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="4" align="left" valign="top">
+                <img src="../themes/Sugar5/images/hrb_logo.jpg" height="30" width="105"  style="float: left;"/>
+                <div style="text-align:center;display:block;float:left;margin:0 40px;">
+                    <span class="font8 blod">航空</span><br>
+                    <span class="ffa font8 blod"">Small Packet</span><br>
+                    <span class="ffa font8 blod"">BY AIR</span>
+                </div>
+                <div style="float:left;font-size:12pt;margin:5pt 0 0 40px" class="ffa blod">{$Order['countrycode']}</div>
+            </td>
+        </tr>
+        <tr>
+            <td width="20%" class="noright font9"><p style="width:60">协议客户:</p></td>
+            <td  width="80%" colspan="3" class="ffa">福建华丽贸易公司（35010102179000）</td>
+        </tr>
+        <tr>
+            <td width="20%" class="noright nobottom ffa">FROM:</td>
+            <td  width="80%" class="nobottom font8 ffa" colspan="3">
+                4th.Laoguang Building Shangxiadian RoadCangshan DistricFuZhou CityChina.
+            </td>
+        </tr>
+        <tr>
+            <td width="10%" class="noright ffa">Zip:</td>
+            <td width="80%" colspan="3">350011&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tel: {$Order['tel']}</td>
+        </tr>
+        <tr>
+            <td width="20%" class="noright ffa nobottom">
+                <br/>To:</td>
+            <td width="80%" class="ffa font11 blod nobottom" style="line-height: 10pt;" colspan="3">
+                <img src="../barcode128.class.php?data={$Order['ebay_id']}" alt="" style="width:140px;" height="37"/>
+                <span style="display:inline-block;margin-left:20px;margin-top:5px;">{$Order['ebay_id']}</span><br/>
+                {$Order['ebay_username']}<br/>
+                {$Order['ebay_street']} ,{$Order['ebay_street1']}<br/>
+                {$Order['ebay_city']} ,{$Order['ebay_state']}<br/>
+                {$Order['ebay_countryname']}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font style="font-size:11pt;font-weight:bold;line-height:16px;">{$Order['countrycn']}</font>
+            </td>
+        </tr>
+        <tr>
+            <td width="20%" class="noright ffa">Zip:</td>
+            <td width="80%" colspan="3" class="ffa">{$Order['ebay_postcode']}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Phone:{$Order['ebay_phone']}, {$Order['ebay_phone1']}&nbsp;&nbsp</td>
+        </tr>
+        <tr>
+            <td class="font9 noright">退件单位:</td>
+            <td colspan="3" class="font9">福州市国际小包收寄处理中心（35000512）</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font7 ffa height1" align="center">
+                <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" style="width:70mm;"  height="37"/><br/>
+                {$Order['ebay_tracknumber']}
+            </td>
+
+        </tr>
+        <tr>
+            <td colspan="3" width="68%" class="font8 noright"><p class="line_break"  style="width:64mm;">
+			{$Order['skustr']}<br/>{$Order['zhongwen']}
+			</p></td>
+            <td class="font8" width="15%"><p>C44723&nbsp;{:date('Y-m-d')}</p></td>
+        </tr>
+
+    </table>
+
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right:0px;bottom: 20px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]} </span>
+    </div>
+</div>
+<div class="" style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table cellpadding='0' cellspacing='0' width='100%' border='0' class='view'>
+        <tr>
+            <td colspan="6" style="padding:1px;">
+                <div class="left"><img height="30" width="105" src="../themes/Sugar5/images/hrb_logo.jpg"/></div>
+                <div class="left" style="margin-left: 10px"><b>报关签条</b><br><span class="ffa bold">COSTOMS DECLARATION</span></div>
+                <div class="left" style="margin-left: 50px">
+                    <b>邮</b><span class="ffa bold">2113</span><br>
+                    <span class="ffa bold">CN22</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6"  valign="middle" width="100%" style="padding:2px;line-height: 1em"><span class="font8">可以径行开拆</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; May be opened officially</td>
+        </tr>
+        <tr height="30px" align="center">
+            <td colspan="2" class="font7 nobottom" width="35%">邮件种类 Category of item</td>
+            <td width="5%" align="center">&nbsp;√</td>
+            <td class="font8">礼品<br/>Gift</td>
+            <td width="5%" align="center">&nbsp;</td>
+            <td class="font8">商品货样<br/>Commercial Sample</td>
+        </tr>
+        <tr height="30px" align="center">
+            <td class="font8" colspan="2">(在适当的文字前划√)</td>
+            <td  align="center">&nbsp;</td>
+            <td class="font8">文件<br/>Documents</td>
+            <td  align="center" class="font8">&nbsp;</td>
+            <td class="font8">其他<br/>Other</td>
+        </tr>
+        <tr height="30px" align="center">
+            <td colspan="3"><span class="font8">内件详细名称和数量</span><span class="ffa font7">Quantity and detailed description of contents</span></td>
+            <td  colspan="2"class="font8"> 重量<br/>Weight(KG)</td>
+            <td class="font8">价值<br/>Value(USD)</td>
+        </tr>
+
+        <php>
+            $roundnum = round((3.00+mt_rand()/mt_getrandmax()*(7.00-0.01)),2);
+            $Value = $roundnum;
+            $Weight = round((0.08+mt_rand()/mt_getrandmax()*(0.33-0.01)),2);
+        </php>
+
+        <tr align="center">
+            <td colspan="3" class="font8" style="line-height: 1em">{$Order['shenbao']}</td>
+            <td colspan="2">{$Weight}</td>
+            <td>{$Value}</td>
+        </tr>
+        <tr height="30px" align="center">
+            <td colspan="3" style="line-height:12px; line-height: 1em"><span class="font7">协助系统税则号列和货物原产国(只对商品邮件填写)</span><span class="ffa font7">HS tariff number and country of origin of goods(For commercial items only)</span></td>
+            <td  colspan="2"class="font8" style="line-height:12px;">总重量(KG)Total weight(KG)<br/>{$Weight}</td>
+            <td class="font8" style="line-height:12px;">总价值 Total Value(USD)<br/>{$Value}</td>
+        </tr>
+        <tr>
+            <td colspan="6" style="padding: 2px;line-height:12px"><span class="font7">我保证上述申报准确无误，本函件内未装寄法律或邮政和海关规章禁止寄递的任何危险物品</span>
+                <span class="ffa font7">(I the undersigned certify that the particulars given in this declaration are correct and this item does not contain any angerous articles prohi bited by legislation or by postal or customs regulations)</span><br/><span style="display:inline-block;float:right" class="ffa font7">寄件人签字(
+         Sender’s signature(9))：Flake</span>
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right:0px;bottom: 0px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]} </span>
+    </div>
+</div>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>捡货退回处理</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+<link href="/newerp/Public/css/whouse.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+
+    .content-area-modify .layui-layer-content{
+        height: 55px !important;
+        padding:5px 20px !important;
+    }
+    #ebay_id,#ebay_addtime_s,#ebay_addtime_e{
+        height:35px;width:100%;
+    }
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="margin:10px;padding: 8px 0px;background-color:orange">
+        <div class="col-xs-12">
+            <!--菜单菜单----END-->
+            <div class="col-xs-1">捡货退回</div>
+
+            <?php
+                $request_ststus=$_REQUEST['status'];
+            ?>
+
+            <div class="col-xs-3">
+                <select id="ebay_status">
+                    <option value="">--wms状态--</option>
+                    <option <?php if($request_ststus==1723){echo 'selected="selected" ';}?> value="1723">可打印</option>
+                    <option <?php if($request_ststus==1745){echo 'selected="selected" ';}?> value="1745">等待打印</option>
+                    <option <?php if($request_ststus==1724){echo 'selected="selected" ';}?> value="1724">等待扫描</option>
+                </select>
+            </div>
+
+            <div class="col-xs-3">
+                <select id="ebay_carrier"  multiple="">
+                    <option value="">--运输方式--</option>
+                    <?php
+                foreach($Carrier as $list){
+                    $s='';
+                    if(in_array($list['name'],$request_carrier)){
+                    $s='selected="selected" ';
+                    }
+
+                    echo '<option '.$s.' value="'.$list['name'].'">'.$list['name'].'</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="col-xs-1">
+                <button class="btn btn-sm btn-success" type="button" onclick="searchs();">
+                    查询
+                </button>
+            </div>
+
+            <div class="col-xs-4">
+                <button class="btn btn-sm btn-success" type="button" onclick="setPickStstus()" >
+                    再次捡货
+                </button>
+                <button class="btn btn-sm btn-success" type="button" onclick="PrintMod(1,'{$currStoreId}')" >
+                    打印10
+                </button>
+                <button class="btn btn-sm btn-success" type="button" onclick="PrintMod(2,'{$currStoreId}')" >
+                    打印15
+                </button>
+
+                <button class="btn btn-sm btn-success" type="button" onclick="exportMod()" >
+                    搜索结果导出
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="row" style="margin:10px;padding: 8px 0px;background-color:orange">
+        <div class="col-xs-12">
+            <div class="col-xs-1">订单号:</div>
+            <?php
+            $ebay_addtime_s = $_REQUEST['ebay_addtime_s'];
+            $ebay_addtime_e = $_REQUEST['ebay_addtime_e'];
+            $request_ebayid = $_REQUEST['ebay_id'];
+            $mod            = $_REQUEST['label_type'];
+            $floor          = $_REQUEST['floor'];
+
+
+            ?>
+            <div class="col-xs-3"><input type="text" id="ebay_id" value="{$request_ebayid}" placeholder="订单号,多个逗号隔开"></div>
+            <div class="col-xs-2"><input onclick="laydate()" type="text" id="ebay_addtime_s" placeholder="进erp时间" value="{$ebay_addtime_s}"></div>
+            <div class="col-xs-2"><input onclick="laydate()" type="text" id="ebay_addtime_e" placeholder="进erp时间" value="{$ebay_addtime_e}"></div>
+            <div  class="col-xs-2">
+                <select id="label_type">
+                    <option value="">--模板类型--</option>
+                    <option <?php if($mod==1){echo 'selected="selected"';}?> value="1">10×10</option>
+                    <option <?php if($mod==2){echo 'selected="selected"';}?> value="2">10×15</option>
+                </select>
+            </div>
+            <div  class="col-xs-2">
+                <select id="floor">
+                    <option value="">--楼层--</option>
+                    <option <?php if($floor==5){echo 'selected="selected"';}?> value="5">5楼</option>
+                    <option <?php if($floor==3){echo 'selected="selected"';}?> value="3">3楼</option>
+                    <option <?php if($floor==1){echo 'selected="selected"';}?> value="1">跨仓</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" style="padding: 0 24px">
+        <div class="pageInfo">
+            <ul class="pagination" style="margin: 5px">{$pageStr}</ul>
+        </div>
+
+        <table class="table table-responsive table-hover table-condensed">
+            <tr>
+                <th>
+                    <label><input type="checkbox" name="checkAll" class="checkAllBox" onclick="checkAll(this)"> 全选</label>
+                </th>
+                <th>订单号</th>
+                <th>WMS状态</th>
+                <th>备注</th>
+                <th>物流方式</th>
+                <th>进入WMS时间</th>
+                <th>进入erp时间</th>
+                <th>操作人</th>
+            </tr>
+
+
+            <?php
+
+
+            //b.ebay_addtime,b.ebay_id,b.ebay_noteb,b.w_add_time,b.ebay_carrier,b.ebay_status
+                foreach($OrderData as $List){
+                    $ebay_id=$List['ebay_id'];
+                    $ebay_addtime=date('Y-m-d H:i:s',$List['ebay_addtime']);
+                    $w_add_time=$List['w_add_time'];
+                    $ebay_noteb=$List['ebay_noteb'];
+                    $ebay_carrier=$List['ebay_carrier'];
+                    $ebay_status=$List['ebay_status'];
+                    $status_name=$TopMenuArr[$ebay_status];
+                    $action_user=$LogUser[$ebay_id];
+            ?>
+
+            <tr>
+                <td><input type="checkbox" value="{$ebay_id}" name="ordersn" class="ordersn"/></td>
+                <td>{$ebay_id}</td>
+                <td>{$status_name}</td>
+                <td>{$ebay_noteb}</td>
+                <td>{$ebay_carrier}</td>
+                <td>{$w_add_time}</td>
+                <td>{$ebay_addtime}</td>
+                <td>{$action_user}</td>
+            </tr>
+
+
+            <?php  } ?>
+
+        </table>
+
+        <div class="pageInfo">
+            <ul class="pagination" style="margin: 5px">{$pageStr}</ul>
+        </div>
+    </div>
+
+
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+<script type="application/javascript" src="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.jquery.js"></script>
+<script type="application/javascript">
+
+    $(function(){
+        $('#ebay_status').chosen({search_contains: true, width: '100%', allow_single_deselect: true});
+        $('#ebay_carrier').chosen({search_contains: true, width: '100%', allow_single_deselect: true});
+        $('#label_type').chosen({search_contains: true, width: '100%', allow_single_deselect: true});
+        $('#floor').chosen({search_contains: true, width: '100%', allow_single_deselect: true});
+    });
+
+    function searchs(){
+        var url='t.php?s=/Package/PickBack/PickBackList';
+        var status=$("#ebay_status").val();
+        var carrier=$("#ebay_carrier").val();
+        var ebay_id=$("#ebay_id").val();
+        var ebay_addtime_s=$("#ebay_addtime_s").val();
+        var ebay_addtime_e=$("#ebay_addtime_e").val();
+        var label_type=$("#label_type").val();
+        var floor=$("#floor").val();
+
+        if(ebay_id){
+            url+="&ebay_id="+ebay_id
+        }
+        if(ebay_addtime_s){
+            url+="&ebay_addtime_s="+ebay_addtime_s
+        }
+
+        if(ebay_addtime_e){
+            url+="&ebay_addtime_e="+ebay_addtime_e
+        }
+
+        if(status){
+            url+="&status="+status
+        }
+
+
+        if(carrier){
+            url+="&carrier="+carrier
+        }
+        if(label_type){
+            url+="&label_type="+label_type
+        }
+        if(floor){
+            url+="&floor="+floor
+        }
+        location.href=url;
+    }
+
+    function checkAll(that){
+        var bool=$(that).prop("checked");
+        $("input.ordersn").prop("checked",bool);
+    }
+
+    function setPickStstus(){
+
+
+        var bill='';
+
+
+        $("input.ordersn").each(function(){
+            if($(this).prop('checked')){
+                bill+=","+$(this).val();
+            }
+        });
+
+        if(bill==''){
+            layer.alert("必须要选择订单");
+            return ;
+        }
+
+        if(!confirm("请确定这个订单有库存！！！！您确认操作吗?您操作的订单是：\n\n"+bill)){
+            return false;
+        }
+
+
+        var url='t.php?s=/Package/PickBack/BattchSetOrder2WaitPick';
+
+        layer.load(1);
+
+        $.post(url,{bill:bill},function(data){
+            layer.closeAll();
+            layer.open({
+                type: 1,
+                area: ['770px', '480px'], //宽高
+                content: data
+            });
+        })
+
+
+    }
+
+
+    function PrintMod(type,storeId){
+        var bill='';
+
+        $("input.ordersn").each(function(){
+            if($(this).prop('checked')){
+                bill+=","+$(this).val();
+            }
+        });
+        if(bill==''){
+            layer.alert("必须要选择订单");
+            return ;
+        }
+
+        var url="<?php echo $erp_url;?>/t.php?s=/Transport/Print/PrintAllCarrier&bill="+bill+"&from_wms="+storeId+"&mod="+type;
+
+        window.open(url,'_blank')
+    }
+
+    //abel
+    function exportMod(){
+        //呼啦啦呼啦啦组合条件啦
+        var status  = $("#ebay_status").find("option:selected").val();
+        var carrier = $.trim($("#ebay_carrier").find("option:selected").text(),'');
+        var ebay_id = $("#ebay_id").val();
+        var ebay_addtime_s = $("#ebay_addtime_s").val();
+        var ebay_addtime_e = $("#ebay_addtime_e").val();
+        var label_type = $("#label_type").find("option:selected").val();
+        var floor  = $("#floor").find("option:selected").val();
+        var bill = '';
+        $("input[name='ordersn']").each(function(){
+            if($(this).is(":checked")){
+                bill += $(this).val() + ",";
+            }
+        })
+
+        status  = status    == "" ? "" : "/status/"+status;
+        carrier = carrier   == "--运输方式--" ? "" :"/carrier/"+carrier;
+        ebay_id =  ebay_id  == '' ? "" : "/ebay_id/"+ebay_id;
+        ebay_addtime_s = ebay_addtime_s == "" ? "" :  "/ebay_addtime_s/"+ebay_addtime_s;
+        ebay_addtime_e = ebay_addtime_e == "" ? "" : "/ebay_addtime_e/"+ebay_addtime_e;
+        label_type  = label_type == '' ? "" : "/label_type/"+label_type;
+        floor       = floor == "" ? "" :  "/floor/"+floor;
+        bill   = bill == "" ? "" : "/ebay_id/"+bill;
+        var combination = status + carrier + ebay_id +  ebay_addtime_s + ebay_addtime_e + label_type + floor + bill;
+        var url="t.php?s=/Package/PickBack/exportOrder"+combination;
+        window.open(url,'_blank');
+    }
+</script>
+
+</html>

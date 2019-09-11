@@ -1,0 +1,138 @@
+<!--<style type="text/css">-->
+    <!--.table1 tr td,th{border:1px solid #000;}</style>-->
+<css href="/newerp/Public/css/fonts.css" />
+<style>
+    .nobord{
+        border-left-style: none;
+        border-right-style: none;
+        border-bottom-style: none;
+        border-top-style: none;
+
+    }
+</style>
+
+<div style="position: relative;width:100mm;min-height:100mm;font-family:Arial;height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid black;">
+        <tr>
+            <td>
+                <div>
+                    <div>
+                        <img style="width:15mm;" src="/themes/Sugar5/images/lazada_logo.png" />
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="height:19mm;">
+                    <div style="width:100%;float:left;text-align:center;height:20px;line-height:20px;font-size:13px;font-weight:bold;">
+                        Lazada Firstmile Tracking Number
+                    </div>
+                    <div style="float:left;width:100%;height:45px;margin-top:1px;text-align: center">
+                        <!--<div style="float:left;height:40px;width:100%;font-family: IDAutomationC128S;font-size: 25px;" id="bcTarget<{tracknumber}>">-->
+                            <!--<{tracknumberImg}>-->
+                        <!--</div>-->
+                        <!--<div style="width:100%;text-align:center;padding-top:65px;">-->
+                            <!--<{tracknumber}>-->
+                        <!--</div>-->
+                        <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="95%" height="40"/>
+                        <p class="pcenter" style="font-size: 12px">{$Order['ebay_tracknumber']}</P>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="height:25mm;font-weight:bold;">
+                    TO: {$Order['ebay_username']}<br>
+                    Service: Lazada Firstmile Fulfilment<br><br>
+                    Seller Name: <br>
+                    Seller Addresss: <br>
+                    Seller Contact: 
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="height:auto;font-size:10px;">
+                    <div style="width:100%;font-size:9px;text-align: center;padding: 1px">
+                        <table cellspacing="0" cellpadding="0" style="border: none !important;">
+                            <tr class="nobord">
+                                <td class="nobord" width="65%">Item name</td>
+                                <td class="nobord" width="35%">Item sku seller</td>
+                            </tr>
+                            <php> $i = 0;</php>
+                            <foreach name="Order['lazadaItemTitle']" key="sku" item="itemTitle">
+                                <php>
+                                    if($i > 1) break;
+                                    $itemTitle = mb_substr($itemTitle, 0, 40);
+                                    $i++;
+                                </php>
+                                <tr class="nobord">
+                                    <td class="nobord" style="text-align: left;">{$itemTitle}...</td>
+                                    <td class="nobord">{$sku}</td>
+                                </tr>
+                            </foreach>
+                        </table>
+                    </div>
+                    首公里仓库:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    广东省深圳市宝安区福永塘尾高新开发区福园一路德的工业园B栋1A区 518103
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="height:4mm;">
+                    <div style="float:left;width:62%;line-height:16px;text-align:center;font-size:15px;height:16px;border-right:1px solid black;">渠道编码</div>
+                    <div style="float:left;width:34%;line-height:16px;text-align:center;font-size:15px;height:16px;">{$Order['sort_code']}</div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="height:auto;font-size:10px;">
+                    <div style="width:100%;float:left;height:18px;font-size:14px;text-align:center">Lazada Package Number</div>
+                    <div style="width:100%;float:left;height:18px;font-size:14px;text-align:center">{$Order['pxorderid']}</div>
+                    <div style="width:100%;float:left;height:17px;font-size:13px;text-align:left">orderId:{$Order['ebay_id']} Date:<php> echo date("Y-m-d");</php></div>
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <php>
+                    $skuStr = mb_substr($Order['skustr'], 0, 40);
+                </php>
+                {$skuStr}
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 5px;bottom: 15px;margin-right: 10px;">
+        <span class="fonts" style="text-align: center;font-weight: bold;border:2px solid #4c4c4c;padding-left: 8px;padding-right: 8px;padding-top: -1px;padding-bottom: -1px;">{$countriest[$Order['ebay_carrier']]}</span>
+        <!--<span class="fonts" style="margin-right: 18px;">{$countriest[$Order['ebay_carrier']]}</span> -->
+    </div>
+</div>
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;font-family:Arial;height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

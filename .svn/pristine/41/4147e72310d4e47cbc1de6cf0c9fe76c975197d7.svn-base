@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport"/>
+    <title>跨仓异常看板</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+    body{padding:0;margin: 0;}
+    .container{width:100%;padding:0;margin: 0;}
+
+    .SecondPick_error{font-size:26px;}
+    .ebay_sku_table{width:100%}
+    .show_location{font-size:180px;width:200px;text-align:center;line-height:200px;height:200px;border:10px solid #0066cc;margin:10px;}
+    .fenjian_location{font-size:20px;background:#286090;color:#fff;}
+    .all_locations{margin: 0 auto;width:96%;background:#21B9BB;padding:8px 0;}
+    .all_locations .location{width:100px;height: 62px;float:left;margin-left:15px}
+    .all_locations .location_line{clear: both;height: 62px;margin-bottom:8px;}
+    .location.complete{background:#191;color:#000;}
+    .location.incomplete{background:#911;color:#fff;}
+    .location.empty{background:#fff;color:#000;}
+    .location.error{background:#000;color:#fff;}
+    .location_sn{font-size:16px;font-weight:bold;}
+    .ebay_id_stype{margin-top:2px;font-size:11px;margin-left:5px;}
+    .GiveUpOrder,.ClearOrder{margin-left:26px;font-size:10px;}
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="padding: 3px 5px;background-color:orange">
+        <div class="col-xs-12" style="font-size:15px;font-weight:bold;text-indent:1em;">跨仓异常看板
+            <span style="color:#334499;cursor:pointer;" onclick="viewNote()"> 查看说明 </span>
+            &nbsp;
+            &nbsp;
+            <span style="color:#334499;cursor:pointer;" onclick="viewNeedSKU(196)"> 1号仓应集货品 </span>
+            &nbsp;
+            &nbsp;
+            <span style="color:#334499;cursor:pointer;" onclick="viewNeedSKU(234)"> 2号仓应集货品 </span>
+            &nbsp;
+            &nbsp;
+            <span style="color:#334499;cursor:pointer;" onclick="scanskuintoListByordersn()">拣货单异常扫入sku</span>
+            &nbsp;
+            &nbsp;
+            <span style="color:#334499;cursor:pointer;" onclick="scanskuintoListBysku()">SKU盲扫</span>
+        </div>
+    </div>
+
+    <div id="message" style="color:red;font-size:40px;">{$error}</div>
+
+    <div class="row" style="height:15px;background:#090909;">
+    </div>
+    <div class="all_locations">
+        <?php
+
+        $classArr=[
+            '1'=>'empty',
+            '2'=>'incomplete',
+            '3'=>'complete',
+            '4'=>'error',
+        ];
+            //debug($Locations);
+            $i=0;
+            foreach($Locations as $k=>$List){
+              if($k%10==0){
+                  echo '<div class="location_line">';
+                  $i=1;
+              }else{
+                  $i++;
+              }
+
+                $location_status = $List['status'];
+                $ebay_id         = $List['ebay_id'];
+                $l_class         = $classArr[$location_status];
+    ?>
+
+                <div class="location {$l_class}">
+                    <span class="location_sn">{$List['location']}</span>
+                    <?php
+                        if($location_status==1){
+                            echo '<button class="btn btn-xs btn-warning" onclick="UseLocationView(\''.$List['location'].'\')">占用库位</button>';
+                        }
+                        if($location_status==2){
+                            echo '<button class="btn btn-xs btn-success" onclick="viewOrderSku('.$ebay_id.')">集货进度</button>';
+                        }
+
+                        if($location_status==3){
+                            echo '<button class="btn btn-xs btn-success" onclick="PrintOrderLable('.$ebay_id.')">打印面单</button>';
+                            echo '<button class="btn btn-xs btn-danger ClearOrder" onclick="ClearOrder('.$ebay_id.')">清空库位</button>';
+                        }
+
+                        if($location_status==4){
+                            echo '<button class="btn btn-xs btn-danger ClearOrder" onclick="GiveUpOrder('.$ebay_id.')">异常归还</button>';
+                        }
+
+                        if($location_status>1){
+                            echo '<div class="ebay_id_stype">订单:'.$ebay_id.'</div>';
+                            if(strstr($_SESSION['truename'],'测试人员')||strstr($_SESSION['truename'],'章涛')){
+                                if($location_status!=3){
+                                    echo '<button class="btn btn-xs btn-danger GiveUpOrder" onclick="GiveUpOrder('.$ebay_id.')">放弃集货</button>';
+                                }
+                            }
+                        }
+                    ?>
+
+                </div>
+
+        <?php
+                if($i%10==0&&$i>0){
+                    echo '</div>';
+                }
+            }
+        ?>
+    </div>
+
+
+    <iframe id="print_iframe" onload="autoPrint()" name="print_iframe" style="width:116mm;height:116mm;overflow-y:scroll;" src="{$reprint}"></iframe>
+
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<script type="application/javascript">
+$(function(){
+    setTimeout(function(){
+        $("#message").slideUp();
+    },3000)
+});
+
+function autoPrint(){
+    if($("#print_iframe").attr("src")!=''){
+        window.frames[0].print();
+        return false;
+    }
+
+}
+
+
+//扫描sku 扫描到 异常区中 并且需要
+function scanskuintoListByordersn(){
+    var url='t.php?s=/Package/OrderCrossStockList/scanskuintoListByordersn';
+    window.open(url,'_blank');
+}
+
+
+//扫描sku 盲扫
+function scanskuintoListBysku(){
+    var url='t.php?s=/Package/OrderCrossStockList/scanskuintoListBysku';
+    window.open(url,'_blank');
+}
+
+
+
+
+function PrintOrderLable(ebay_id){
+   var url='t.php?s=/Package/OrderCrossStockList/index&ebay_id='+ebay_id;
+    location.href=url;
+}
+
+
+    function selectPickOrder(event){
+        //var keyCode = event.keyCode;
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        //$("#code").val($("#code").val()+"###"+keyCode);
+        if (keyCode !==13) {
+            return false;
+        }
+
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            return false;
+        }
+       // alert(ordersn);
+
+        $("#sku").select().focus();
+
+    }
+
+
+    // 填写 sku 该岛哪里去
+    function FillSKUPickOrder(event){
+        //var keyCode = event.keyCode;
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return false;
+        }
+
+        var ordersn=$("#ordersn").val();
+        var sku=$("#sku").val();
+
+        if(ordersn==''){
+            return false;
+        }
+
+        if(sku==''){
+            return false;
+        }
+
+        $("#sku").select();
+
+        var url="{:U('OrderCrossSorting/ScanOneSKU')}";
+        $.post(url,{ordersn:ordersn,sku:sku},function(data){
+            var number='fail';
+            var msg=data.msg;
+
+            if(data.status==1){
+                number=data.data;
+                var myLocation=$("#myTbody").html();
+                //alert(myLocation);
+                if ($.trim (myLocation) != '') {
+                    myLocation = $ (myLocation);
+
+                    var date = myLocation.attr("date");
+                    var sku = myLocation.attr("sku");
+                    var location = myLocation.html ();
+
+                    if(undefined!=sku){
+                        var html = '<div style="font-size:14px;">' + date + '&nbsp;&nbsp;&nbsp;' + sku + '&nbsp;&nbsp;&nbsp;分拣位：' + location + '</div>';
+                        $ ("#bottom_info").prepend (html);
+                    }
+                }
+               // alert(myLocation);
+
+            }
+            $("#myTbody").html(msg);
+
+            playm(number);
+
+        },'json')
+
+
+
+    }
+
+
+    function playm(id){
+        var video=null;
+        if(id=="fail"){
+            video	=	document.getElementById("failSound");
+            video.src="capi/number/error.mp3";
+            video.play();
+        }else {
+            video	=	document.getElementById("10");
+            video.src="capi/number/"+id+".mp3";
+            video.play();
+        }
+    }
+
+
+    function repeat_fenjian(){
+       // alert('这功能还没开花!');
+
+        if(!confirm("重新分拣之后,会完全清空订单(小格子)与sku的关联\n需要将现有小格子里面的SKU全部拿出来\n请确保没有开始打包")){
+            return '';
+        }
+        var ordersn=$("#ordersn").val();
+        var url="{:U('OrderCrossSorting/RePick')}";
+        $.post(url,{ordersn:ordersn},function(data){
+            if(undefined===data.status){
+                 layer.alert("请求失败!");
+                return '';
+            }
+
+            if(data.status>=0){
+                layer.alert(data.msg);
+            }
+        },'json')
+    }
+
+
+
+    function view_fenjian_step(){
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/getPickStstus')}&ordersn="+ordersn;
+
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '分拣进度',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+    }
+
+
+function DoUseLocation(){
+    var ebay_id=$("#use_ebay_id").val();
+    var location=$("#use_location").val();
+    var url="{:U('OrderCrossStockList/DoUseLocation')}";
+
+    $.post(url,{ebay_id:ebay_id,location:location},function(data){
+        if(data.status==1){
+            layer.msg(data.msg,{icon:1});
+            setTimeout(function(){
+                layer.closeAll();
+            },1500);
+        }else{
+            layer.msg(data.msg,{icon:2});
+        }
+    },'json');
+}
+
+/**
+*测试人员谭 2017-12-25 22:01:12
+*说明: 用pxid 或者 ebay_tracknuber 换取 ebay_id
+*/
+function getebayIdByTracknumber(event){
+    //var keyCode = event.keyCode;
+    var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+    //$("#code").val($("#code").val()+"###"+keyCode);
+    if (keyCode !==13) {
+        return false;
+    }
+
+    var tracknumber=$("#use_ebay_tracknumber").val();
+
+    if(tracknumber==''){
+        return false;
+    }
+
+    var url='{:U("OrderCrossStockList/getebayIdByTracknumber")}';
+    $.post(url,{'tracknumber':tracknumber},function(data){
+        if(data.status==1){
+            var ebay_id=data.data;
+            $("#use_ebay_id").val(ebay_id).select().focus();
+            DoUseLocation();
+        }else{
+            layer.msg(data.msg,{icon:2});
+        }
+    },'json');
+
+
+}
+
+function UseLocationView(location){
+    var url="{:U('OrderCrossStockList/UseLocationView')}&location="+location;
+
+    $.post(url,{},function(data){
+
+        layer.open({
+            type: 1,
+            title: '用订单号占用库位',
+            shift: '1',
+            closeBtn: 1,
+            scrollbar: false,
+            area: ['80%', '80%'],
+            content: data
+        });
+
+
+        selectTracknumber();
+    });
+
+
+}
+
+function showHide196(that){
+
+    if($(that).prop('checked')){
+        $(".showhide_196 span").css("color",'#000');
+        $(".showhide_ok_196 span").show();
+    }else{
+        $(".showhide_196 span").css("color",'#bbb');
+        $(".showhide_ok_196 span").hide();
+    }
+}
+
+    function showHide234(that){
+
+        if($(that).prop('checked')){
+            $(".showhide_234 span").css("color",'#000');
+            $(".showhide_ok_234 span").show();
+        }else{
+            $(".showhide_234 span").css("color",'#bbb');
+            $(".showhide_ok_234 span").hide();
+        }
+
+    }
+
+    function selectTracknumber(){
+        $("#use_ebay_tracknumber").select().focus();
+    }
+
+
+    /**
+    *测试人员谭 2017-12-27 15:00:30
+    *说明: 查看集火的进度
+    */
+  function viewOrderSku(ebay_id){
+        var url='{:U("OrderCrossStockList/viewOrderSku")}&ebay_id='+ebay_id;
+        layer.open({
+            type: 2,
+            title: '用订单号占用库位',
+            shift: '1',
+            closeBtn: 1,
+            scrollbar: false,
+            area: ['80%', '80%'],
+            content: url
+        });
+  }
+// hank 2017/12/27 17:23 查询看板中所有的异常订单还需要集
+    function viewNeedSKU(storeid){
+        var url='{:U("OrderCrossStockList/viewNote")}&storeid='+storeid;
+        var html = storeid==196?'1号仓':'2号仓';
+        layer.open({
+            type: 2,
+            title: html+'异常订单集货信息',
+            shift: '1',
+            closeBtn: 1,
+            scrollbar: false,
+            area: ['80%', '80%'],
+            content: url
+        });
+    }
+
+
+    /**
+    *测试人员谭 2017-12-27 23:55:27
+    *说明: GiveUpOrder 放弃 订单集合
+    */
+    function GiveUpOrder(ebay_id){
+        if(!confirm("您确定放弃？")){
+            return false;
+        }
+        var url='{:U("OrderCrossStockList/GiveUPOrder")}';
+        $.post(url,{'ebay_id':ebay_id},function(data){
+            if(data.status==1){
+                layer.msg(data.msg,{icon:1});
+            }else{
+                layer.msg(data.msg,{icon:2});
+            }
+        },'json');
+    }
+
+
+    /**
+    *测试人员谭 2017-12-28 00:17:01
+    *说明: 已经完成了
+    */
+    function ClearOrder(ebay_id){
+        if(!confirm("您确定清空？如果您清空的话请确保已经打印好!")){
+            return false;
+        }
+        var url='{:U("OrderCrossStockList/GiveUPOrder")}';
+        $.post(url,{'ebay_id':ebay_id},function(data){
+            if(data.status==1){
+                layer.msg(data.msg,{icon:1});
+            }else{
+                layer.msg(data.msg,{icon:2});
+            }
+        },'json');
+
+    }
+</script>
+
+</html>

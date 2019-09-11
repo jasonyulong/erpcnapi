@@ -1,0 +1,288 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <?php
+            $ebay_carrier = trim($Order['ebay_carrier']);
+            $countrycode  = strtoupper(trim($Order['countrycode']));
+            if(in_array($ebay_carrier,['线下EUB广州-YLD','线下EUB广州(带电)-YLD'])):
+        ?>
+            <?php if($countrycode == 'FR'):?>
+            <tr>
+                <td class='noright nobottom'>
+                    <p>Prioritaire</p>
+                    <div style="font-size:8mm;margin:3px;border:2px solid #000;height:10mm;width:10mm;">FR</div>
+                </td>
+                <td colspan="2" align="center" valign="top" class="noright nobottom">
+                    <p><b>ePacket</b></p>
+                    <div class="line"></div>
+                    <img src="../themes/Sugar5/images/hrb_logo.jpg" height="30" width="80"/>
+                    <img src="../themes/Sugar5/images/fr_post.png" height="30" width="80">
+                </td>
+                <td class="nobottom">
+                    <img src="../themes/Sugar5/images/fr_post1.png" height="80" width="80">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" align="left" width="20%" class="noright notop font9 blod">DE:</td>
+            </tr>
+
+            <?php elseif($countrycode == 'GB'):?>
+                <tr>
+                    <td class='noright nobottom'>
+                        <div style="font-size:8mm;margin:3px;border:2px solid #000;height:10mm;width:16mm;">英国</div>
+                    </td>
+                    <td colspan="2" align="center" valign="top" class="noright nobottom">
+                        <img src="../themes/Sugar5/images/hrb_logo.jpg" height="30" width="70"/>
+
+                        <div class="line"></div>
+                        <img src="../themes/Sugar5/images/royal.png" height="30" width="70">
+                    </td>
+                    <td class="nobottom">
+                        <img src="../themes/Sugar5/images/fr_post1.png" height="80" width="60">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" align="left" width="20%" class="noright notop font9 blod">Return To</td>
+                </tr>
+            <?php elseif(in_array($countrycode,['RU','CA','DE'])):?>
+            <tr>
+                <td class='noright nobottom'>
+                    <div style="font-size:8mm;margin:3px;border:2px solid #000;height:14mm;width:22mm;">
+                        <p>{$countrycode}</p>
+                        <p style="font-size:4mm;">{$Order['ebay_countryname']}&nbsp;{$Order['postnum']}</p>
+                    </div>
+                </td>
+                <td colspan="3" align="center" valign="top" class="noright nobottom">
+                    <p class="font18"><b>ePacket</b></p>
+                    <div class="line"></div>
+                    <img src="../themes/Sugar5/images/hrb_logo.jpg" height="30" width="90"  style="clear:both;"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" align="left" width="20%" class="noright notop font9 blod">FROM:</td>
+            </tr>
+            <?php else:?>
+                <tr>
+                    <td class='noright nobottom'><div class='bigf'>F</div></td>
+                    <td align="center" valign="top" class="noright nobottom" style="width: 50mm;">
+                        <img src="../themes/Sugar5/images/hrb_logo.jpg" height="20" width="60%"  style="clear:both;"/>
+                        <div class="line"></div>
+                        <img src="eubprint/us.jpg" height="20" width="60%">
+                    </td>
+                    <td class="nobottom"  colspan="2">
+                        <p class="font8" style="width: 20mm;text-align: center">
+                            Airmail<br>
+                            Postage Paid<br>
+                            China Post<br>
+                        </p>
+                        <p class="font8" style="width: 20mm;text-align: center">{$Order['postnum']}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="left" width="20%" class="noright notop font8 blod">FROM</td>
+                    <td  width="80%" colspan="3" class="ffa notop font8 blod">ePacket™</td>
+                </tr>
+            <?php endif;?>
+        <?php else:?>
+        <tr>
+            <td class='noright nobottom'><div class='bigf'>F</div></td>
+            <td align="center" valign="top" class="noright nobottom" style="width: 50mm;">
+                <img src="../themes/Sugar5/images/hrb_logo.jpg" height="30" width="60%"  style="clear:both;"/>
+                <div class="line"></div>
+                <img src="eubprint/us.jpg" height="30" width="60%">
+            </td>
+            <td class="nobottom"  colspan="2" >
+                <p class="pborder" style="width: 20mm;">
+                    Airmail<br>
+                    Postage Paid<br>
+                    China Post<br>
+                </p>
+                <p class="pcenter">{$Order['postnum']}</p>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" width="20%" class="noright notop font9 blod">FROM</td>
+            <td  width="80%" colspan="3" class="ffa notop font9 blod">ePacket™</td>
+        </tr>
+        <?php endif;?>
+        <tr>
+            <td width="60%" colspan="2" class="ffa">
+                <p class=" font8 blod" style="width:100%">
+                    {$Order['backAddress']}
+                </p>
+                <?php if($countrycode == 'US' || $countrycode == 'PR'):?>
+                <p class="font5" style="width:100%">
+                    Customs information avaliable on attached CN22.
+                    USPS Personnel Scan barcode below for delivery event information.  id:{$Order['ebay_id']}
+                </p>
+                <?php endif;?>
+            </td>
+            <td  width="40%"  colspan="2" class="font8 ffa">
+                <?php if($countrycode == 'US' || $countrycode == 'PR'):?>
+                <img src="../barcode128.class.php?data=420{$Order['zipcode']}" alt="" width="100%" height="29"/>
+                <p class="pcenter" style="padding-top: 3mm">ZIP:{$Order['zipcode']}</P>
+                <?php elseif($countrycode == 'FR'):?>
+                    <p class="pcenter"  style="padding-top: 3mm"><b>{$Order['zipcode']}</b></p>
+                    <p class="pcenter"><b>法国</b></p>
+                <?php elseif(in_array($countrycode,['RU','CA','DE'])):?>
+                <img src="../themes/Sugar5/images/fr_post1.png" height="80" width="80">
+                <?php endif;?>
+            </td>
+        </tr>
+        <tr>
+            <?php if($countrycode == 'FR'):?>
+            <td width="20%">
+                <p  class="pcenter"><b class="font20">A:</b></p>
+            </td>
+            <?php else:?>
+            <td width="20%" class="ffa nobottom font11" ><b class="font20">To:</b></td>
+            <?php endif;?>
+
+            <td width="60%" class="font10 blod nobottom" style="line-height: 10pt;" colspan="2">
+                {$Order['ebay_username']}<br/>
+                <div style="width:60mm;overflow-wrap: break-word;">
+                    {$Order['ebay_street']}, {$Order['ebay_street1']}
+                </div>
+                {$Order['ebay_city']}, {$Order['ebay_state']} &nbsp;&nbsp;{$Order['ebay_postcode']}<br/>
+                {$Order['ebay_countryname']}<br>
+                PHONE: {$Order['ebay_phone']}</b>
+            </td>
+            <td align="right"  width="20%" class="nobottom noleft">
+                <?php if($countrycode == 'FR'):?>
+                <img src="../themes/Sugar5/images/erpmsg.jpg" height="30" width="60"  style="clear:both;"/>
+                <?php endif;?>
+            </td>
+        </tr>
+        <tr>
+            <td class="font9" colspan="4">
+                <div style="border-top: 1px solid #000;">
+                    <?php if($countrycode == 'FR'):?>
+                    <p class="pcenter">CONFIRMATION DE  DISTRIBUTION</P>
+                    <?php elseif(in_array($countrycode,['RU','CA','DE'])):?>
+                    <p class="pcenter">DELIVERY CONFIRMATION</P>
+                    <?php elseif($countrycode == 'GB'):?>
+                    <p class="pcenter">ROYALMALL DELIVERY CONFIRMATION</P>
+                    <?php else:?>
+                    <p class="pcenter">USPS TRACKING ®</P>
+                    <?php endif;?>
+                    <p class="pcenter">
+                        <?php if($countrycode != 'US' && $countrycode != 'PR'):?>
+                        <img src="../themes/Sugar5/images/scan.png" height="50" width="8%"  style="clear:both;"/>
+                        <?php endif;?>
+                        <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" width="80%" height="50"/>
+                        <?php if($countrycode != 'US' && $countrycode != 'PR'):?>
+                        <img src="../themes/Sugar5/images/fr_post4.png" height="50" width="9%"  style="clear:both;"/>
+                        <?php endif;?>
+                    </p>
+                    <p class="pcenter">{$Order['ebay_tracknumber']}</P>
+                    <br>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div class="fonts" style="position: absolute;right: 5px;bottom: 3px;">
+        <span style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+
+</div>
+<div class="" style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="next">
+        <tr>
+            <td >
+                <img src="../themes/Sugar5/images/hrb_logo.jpg" height="30" width="105"  style="clear:both;"/><br>
+                IMPORTANT:<br>
+                The item/parcel may be<br>
+                opened officially.<br>
+                Please print in English.<br>
+                <div class="bnum" style="font-size:16pt">
+                    <div style="border: 1px solid #000;width:8mm;">
+                    {$Order['countrycode']}
+                    {$Order['postnum']}
+                    </div>
+                </div>
+            </td>
+            <td>
+                <br>
+                <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="100%" height="40"/>
+                <p class="pcenter">{$Order['ebay_tracknumber']}</P>
+                <br>
+            </td>
+        </tr>
+        <tr class="mytr">
+            <td height="70" width="50%">
+                <p class=" font7 blod">
+                    {$Order['backAddress']}
+                </p>
+              <span class="font15">
+                    <?php
+                        if(strstr($Order['ebay_carrier'],'电')){
+                            echo '↯';
+                        }
+                    ?>
+              </span>
+            </td>
+            <td rowspan="3">
+                <div class="bdadd" >
+                    <b>SHIP TO: {$Order['ebay_username']}<br>
+                        {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+                        {$Order['ebay_city']}, {$Order['ebay_state']}<br>
+                        {$Order['ebay_countryname']}, {$Order['ebay_postcode']}<br>
+                        PHONE: {$Order['ebay_phone']},tel:{$Order['ebay_phone1']}</b>
+                </div>
+            </td>
+        </tr>
+        <tr class="mytr">
+            <td>收寄单位：速递广东深圳市香港中快揽投部</td>
+        </tr>
+        <tr class="mytr">
+            <td>Certificate No.</td>
+        </tr>
+    </table>
+    <table width="100%" cellpadding="0" cellspacing="0" border="1" class="tab">
+        <tr style="font-size:10px">
+            <td width="5%" >No</td>
+            <td width="5%">Qty</td>
+            <td width="60%">Description of Contents</td>
+            <td width="10%">KG</td>
+            <td width="10%">Val(US $)</td>
+            <td width="10%">Goods Origin</td>
+        </tr>
+        <tr>
+            <td height="30">1</td>
+            <td>1</td>
+            <td>
+                <div class="sku">
+                    {$Order['skustr']}{$Order['zhongwen']}
+                </div>
+            </td>
+            <td>0.65</td>
+            <td>12</td>
+            <td>China</td>
+        </tr>
+        <tr style="font-size:10px">
+            <td >&nbsp;</td>
+            <td>1</td>
+            <td>Total Gross Weight (Kg):</td>
+            <td>0.65</td>
+            <td>12</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td colspan="6">
+                <div class="last">
+                    I certify the particulars given in this customs declaration are correct. This item does not contain any dangerous article, or articles prohibited by legislation or by postal or customs regulations. I have met all applicable export filing requirements under the Foreign Trade Regulations.
+                    Senders Signature & Date Signed:   CN22
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <if condition="$Order['ebay_carrier'] neq 'EUB带电' ">
+        <div class="fonts" style="position: absolute;right: 8px;bottom: -3px;">
+            <span >{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    </if>
+</div>

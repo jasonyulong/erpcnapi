@@ -1,0 +1,176 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="4">
+                <div style="float: left;width: 100px;">
+                    <img src="../themes/Sugar5/images/hrb_logo.jpg" width="100" height="35" style="float: left;"/>
+                </div>
+                <div style="float: left;width: 100px;margin: 0 6px;height: 35px;line-height: 35px;text-align: center">
+                    <b>VPG&nbsp;POST</b>
+                </div>
+                <div style="float: left;width: 100px;text-align: center">
+                    <p style="margin-bottom: 6px;">跟踪小包</p>
+                    <p>TRACKED&nbsp;PACKET</p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" height="15">
+                <span class="ffa">协议客户：厦门市石搜进出口有限公司（90000010222502）</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <table class="notop noleft">
+                    <tr>
+                        <td colspan="3" class="ffa font8 blod nobottom ">
+                            <div style="max-width:225px;">{$Order['backAddress']}</div>
+                        </td>
+                        <td width="60" class="ffa font8 blod nobottom noright " align="center" style="vertical-align:middle">
+                            {$Order['ebay_postcode']}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p style="height: 90px;line-height: 90px;text-align: center;font-weight: bold;width: 60px;font-size: 40px;">
+                    A:
+                </p>
+            </td>
+            <td colspan="3">
+                <div style="float:left;">
+                    <div style="float:left;font-size:13px;width:306px;line-height:15px;" class="ffa2">
+                        {$Order['ebay_username']}<br>
+                        {$Order['ebay_street']}, {$Order['ebay_street1']}<br>
+                        {$Order['ebay_city']}, {$Order['ebay_state']}&nbsp; {$Order['ebay_postcode']}<br>
+                        {$Order['ebay_countryname']}&nbsp;&nbsp;<br>
+                        <span style="">Tel:&nbsp;{$Order['ebay_phone1']} </span>
+                    </div>
+                </div>
+                <div style="float:left;">
+                    <b>Zip:&nbsp;</b>{$Order['ebay_postcode']}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Phone:&nbsp;</b>{$Order['ebay_phone']}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="bold">
+                退件单位：厦门市大宗邮件集中处理中心
+            </td>
+        </tr>
+        <tr><td colspan="4" class="font7 ffa height1" align="center">
+            <div style="float:left;margin-left:50px;" width="300px;" class="barcodeImg">
+                <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="275" height="37"/>
+            </div>
+            {$Order['ebay_tracknumber']}
+        </td>
+        </tr>
+    </table>
+</div>
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <div style="width:100mm;font-size:12px;overflow:hidden;font-weight: bold;">
+        <div style="float: left;text-align: center;width: 100px;">
+            <p>航&nbsp;&nbsp;空</p>
+            <p>BY&nbsp;AIR</p>
+        </div>
+        <div style="float: left;text-align: center;width: 120px;height: 30px;line-height: 30px;">
+            SMALL&nbsp;PACKET
+        </div>
+        <div style="float: left;text-align: center;width: 100px;height: 30px;line-height: 30px;">
+            <b>VPG&nbsp;POST</b>
+        </div>
+    </div>
+    <table cellpadding='0' cellspacing='0' width='100%' border='0' class='view'>
+        <tr>
+            <td height="21" colspan="6" style="padding:0;margin: 0;">
+                <div class="left" style="margin-left: 10px;height: 28px;line-height: 28px;">
+                    <b>报关签条(COSTOMS DECLARATION)</b>
+                </div>
+                <div class="left" style="margin-left: 55px">
+                    <p><b>邮</b>2113</p>
+                    <p>CN22</p>
+                </div>
+            </td>
+        </tr>
+        <tr height="21px">
+            <td colspan="6"  valign="middle" width="100%"><span class="font8">可以径行开拆</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; May be opened officially</td>
+        </tr>
+        <tr height="30px" align="center">
+            <td colspan="2" class="font7 nobottom" width="35%">邮件种类 Category of item</td>
+            <td width="10%" align="center">&nbsp;√</td>
+            <td class="font8">礼品<br/>Gift</td>
+            <td     align="center">&nbsp;</td>
+            <td class="font8">商品货样<br/>Commercial Sample</td>
+        </tr>
+        <tr height="30px" align="center">
+            <td class="font8" colspan="2">(在适当的文字前划X)</td>
+            <td  align="center">&nbsp;</td>
+            <td class="font8">文件<br/>Documents</td>
+            <td  align="center" class="font8">&nbsp;</td>
+            <td class="font8">其他<br/>Other</td>
+        </tr>
+        <tr height="30px" align="center">
+            <td colspan="3"><span class="font8">内件详细名称和数量</span><span class="ffa font7">Quantity and detailed description of contents</span></td>
+            <td  colspan="2"class="font8"> 重量<br/>Weight(KG)</td>
+            <td class="font8">价值<br/>Value(USD)</td>
+        </tr>
+        <tr align="center" height="21px">
+            <td colspan="3" class="font8">{$Order['shenbao']}</td>
+            <td colspan="2">
+                <?php
+                    // 白俄罗斯 捷克 乌克兰 巴西 总金额的50% 且 小于 1
+                    // 其他国家 总金额的50% 且 小于 10
+                    $countryArr = array(
+                        '白俄罗斯'=>'BY',
+                        '捷克'=>'CZ',
+                        '乌克兰'=>'UA',
+                        '巴西'=>'BR'
+                    );
+                    $countryCode = trim($Order['countrycode']);
+                    $ebay_total = trim($Order['ebay_total']);
+
+                    $Value = $ebay_total*0.5;
+                    $randNum = 0.98*rand(8,10);
+                    $Value = $Value >= 10?$randNum:$Value;
+
+                    if(in_array($countryCode,$countryArr)){
+                        $randNum = 0.098*rand(8,10);
+                        $randNum = round($randNum,2);
+                        $Value = $Value >= 1?$randNum:$Value;
+                    }
+
+                    $Weight = round((0.08+mt_rand()/mt_getrandmax()*(0.33-0.01)),2);
+                    echo $Weight;
+                ?>
+            </td>
+            <td>
+                <?php
+                echo $Value;
+                ?>
+            </td>
+        </tr>
+        <tr height="30px" align="center">
+            <td colspan="3" style="line-height:12px;">
+                <span class="font7">协助系统税则号列和货物原产国(只对商品邮件填写)</span>
+                <span class="ffa font7">HS tariff number and country of origin of goods(For commercial items only)</span>
+            </td>
+            <td colspan="2" lass="font8" style="line-height:12px;">总重量(千克)<br>Total weight(KG)</td>
+            <td class="font8" style="line-height:12px;">总价值<br>Total Value(USD)</td>
+        </tr>
+        <tr height="20px" >
+            <td colspan="3" class="bold" align="center">CN</td>
+            <td colspan="2"  align="center">{$Weight}</td>
+            <td  align="center">{$Value}</td>
+        </tr>
+        <tr>
+            <td colspan="6" style="padding: 2px;line-height:12px">
+                <span class="font7">我保证上述申报准确无误，本函件内未装寄法律或邮政和海关规章禁止寄递的任何危险物品</span>
+                <span class="ffa font7">(I the undersigned certify that the particulars given in this declaration are correct and this item does not contain any angerous articles prohi bited by legislation or by postal or customs regulations)</span><br/>
+                <span style="display:inline-block;float:left" class="ffa font7 bold">寄件人签字Sender’s signature：</span>
+                <span style="float:right;" class="bold">CN22</span>
+            </td>
+
+        </tr>
+    </table>
+</div>

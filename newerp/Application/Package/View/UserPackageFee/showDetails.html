@@ -1,0 +1,119 @@
+<div class="container-fluid">
+        <div class="row" style="width: 90%;margin: 10px auto">
+            <table class="table table-responsive table-hover table-condensed">
+                <tr>
+                    <th colspan="4" style="font-size:16px" class="pUser" user="{$pkuser}">{$pkuser}：</th>
+                </tr>
+                <tr>
+                    <th>计费依据</th>
+                    <th>包裹数量</th>
+                    <th>SKU种类</th>
+                    <th>SKU数量</th>
+                    <th>费用区间</th>
+                    <th>费用合计</th>
+                </tr>
+
+
+                <?php
+                 $fees=0;
+                 $qtys=0;
+                 foreach($orders as $order){
+                        $fees+=$order['fees'];
+                        $qtys+=$order['qtys'];
+                ?>
+                <tr class="tips">
+                    <td class="feeGroup">{$order['fee_group']}</td>
+                    <td>{$order['qtys']}</td>
+                    <td class="disCount"><span style="color: red;">正在统计...</span></td>
+                    <td class="Count"><span style="color: red;">正在统计...</span></td>
+                    <td>{$order['fee']}</td>
+                    <td>
+                        <?php
+                        echo round($order['fees'],3);
+                        ?>
+                    </td>
+
+                </tr>
+
+                <?php } ?>
+                <tr>
+                    <td></td>
+                    <td>{$qtys}</td>
+                    <td class="skuDisTotal">0</td>
+                    <td class="skuTotal">0</td>
+                    <td></td>
+                    <td>
+                        <?php
+                        echo round($fees,3);
+                        ?>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+    </div>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script>
+    /**
+     * 计算sku种类和数量
+     * @author xiao
+     * @date 2018-04-06
+     */
+    function getSkuData(){
+        //查询区间
+        var timeArea_start = $('input[name="timeArea_start"]').val() || <?php echo "'".$_GET['timeArea_start']."'"; ?>;
+        var timeArea_end   = $('input[name="timeArea_end"]').val() || <?php echo "'".$_GET['timeArea_end']."'"; ?>;
+        //总共多少人员
+        $.each($("table"),function(i){
+            var tableObj = $(this);
+            var user = tableObj.find("th.pUser").attr("user");
+            //计算总数
+            var skuDisTotal = 0;
+            var skuTotal = 0;
+            var len = tableObj.find('tr.tips').length;
+            tableObj.find('tr.tips').each(function(j){
+               var disObj =  $(this).find("td.disCount");
+               var Obj =  $(this).find("td.Count");
+               var feeGroup = $(this).find("td.feeGroup").html();
+                $.ajax({
+                    type: "POST",
+                    url: "t.php?s=/Package/UserPackageFee/getSkuTotal",
+                    data:  {timeArea_start:timeArea_start,timeArea_end:timeArea_end,feeGroup:feeGroup,user:user},
+                    dataType: "json",
+                    async:true,
+                    success: function(e){
+
+                    },
+                    error:function(){
+                        disObj.html('网络出问题了...');
+                        Obj.html('网络出问题了...');
+                    },
+                    complete:function(c){
+                        if(c.status == '200'){
+                           var e = c.responseJSON;
+                            if(e.status == 1){
+                                skuDisTotal += parseInt(e.data.skudiscount);
+                                skuTotal += parseInt(e.data.skucount);
+                                disObj.html(e.data.skudiscount);
+                                Obj.html(e.data.skucount);
+                                if((len - 1) == j){
+                                    //计算总数，循环请求会出现延迟问题，所以延迟几秒再去累加
+                                    setTimeout(function(){
+                                        tableObj.find("td.skuDisTotal").html(skuDisTotal);
+                                        tableObj.find("td.skuTotal").html(skuTotal);
+                                    },1500);
+                                }
+                            }else{
+                                disObj.html(e.msg);
+                                Obj.html(e.msg);
+                            }
+                        }
+                    }
+                });
+            });
+        })
+    }
+    window.onload = function(){
+        getSkuData();
+    }
+</script>

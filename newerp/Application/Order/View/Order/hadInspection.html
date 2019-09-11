@@ -1,0 +1,182 @@
+<extend name="Public:index" />
+<block name="main">
+
+    <div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+        <form>
+            <div class="form-inline">
+                <div class="input-group">
+                    <div class="input-group-addon">订单号</div>
+                    <input type="text" name="content" class="form-control input-sm" style="width:120px" value="{$request.content}">
+                    <select name="field" data-placeholder="" >
+                        <php>foreach($fields as $fieldVal=>$fieldName){</php>
+                        <option value="{$fieldVal}"  <php>if($fieldVal == $request['field'])echo 'selected'</php>>{$fieldName}</option>
+                        <php>}</php>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-group-addon">进erp时间</div>
+                    <input type="text" class="form-control input-sm" name="ebay_addtime_start" style="width: 100px;" placeholder="开始日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request.ebay_addtime_start}">
+                    <div class="input-group-addon">至</div>
+                    <input type="text" class="form-control input-sm" name="ebay_addtime_end" style="width: 100px;" placeholder="结束日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request.ebay_addtime_end}">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-addon">wms更新时间</div>
+                    <input type="text" class="form-control input-sm" name="w_add_time_start" style="width: 100px;" placeholder="开始日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request.w_add_time_start}">
+                    <div class="input-group-addon">至</div>
+                    <input type="text" class="form-control input-sm" name="w_add_time_end" style="width: 100px;" placeholder="结束日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request.w_add_time_end}">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-addon">订单状态</div>
+                    <php>$request['ebay_status'] = explode(',',$request['ebay_status']);</php>
+                    <select id="ebay_status" data-placeholder="订单状态" multiple="">
+                        <option value=""></option>
+                        <php>foreach($topMenus as $id=>$name){</php>
+                        <option value="{$id}"  <php>if(in_array($id,$request['ebay_status']))echo 'selected'</php>>{$name}</option>
+                        <php>}</php>
+                    </select>
+                </div>
+                <input type="hidden" name="sort_name"  value="{$request.sort_name}">
+                <input type="hidden" name="sort_value" value="{$request.sort_value}">
+                <button onclick="searchForm(this)" class="btn btn-primary btn-sm" id="search-btn" type="button">搜索</button>
+                <button onclick="checkStoreCount(this)" class="btn btn-primary btn-sm" id="search-btn" type="button">查异常库存</button>
+            </div>
+
+        </form>
+        <ul class="pagination">{$show}</ul>
+        <table class="table custom-table">
+            <thead>
+                <th width="10%" style="text-align: left;"><input type="checkbox" value="" onclick="checkAll(this)"/>ID</th>
+                <th width="10%" style="text-align: left;">订单号</th>
+                <th width="18%" style="text-align: left;">运输方式</th>
+                <th width="18%" style="text-align: left;">跟踪号</th>
+                <th width="18%" style="text-align: left;">客户姓名</th>
+                <th width="18%" style="text-align: left;">
+                    <a href="javascript:;" onclick="sort(this)" data-name="w_update_time" data-value="{$request['sort_value'] == 'desc' ? 'asc' : 'desc'}">
+                        wms更新时间
+                        <php>if($request['sort_name'] == 'w_update_time'){</php>
+                        <switch name='request.sort_value'>
+                            <case value="asc">
+                                <i class="glyphicon glyphicon-arrow-up"></i>
+                            </case>
+                            <case value="desc">
+                                <i class="glyphicon glyphicon-arrow-down"></i>
+                            </case>
+                        </switch>
+                        <php>}</php>
+                    </a>
+                </th>
+                <th width="18%" style="text-align: left;">
+                    <a href="javascript:;" onclick="sort(this)" data-name="ebay_addtime" data-value="{$request['sort_value'] =='desc' ? 'asc' : 'desc'}">
+                        进erp时间
+                        <php>if($request['sort_name'] == 'ebay_addtime'){</php>
+                        <switch name='request.sort_value'>
+                            <case value="asc">
+                                <i class="glyphicon glyphicon-arrow-up"></i>
+                            </case>
+                            <case value="desc">
+                                <i class="glyphicon glyphicon-arrow-down"></i>
+                            </case>
+                        </switch>
+                        <php>}</php>
+                    </a>
+                </th>
+                <th width="18%" style="text-align: left;">
+                    <a href="javascript:;" onclick="sort(this)" data-name="addtime" data-value="{$request['sort_value'] =='desc' ? 'asc' : 'desc'}">
+                        验货时间
+                        <php>if($request['sort_name'] == 'addtime'){</php>
+                        <switch name='request.sort_value'>
+                            <case value="asc">
+                                <i class="glyphicon glyphicon-arrow-up"></i>
+                            </case>
+                            <case value="desc">
+                                <i class="glyphicon glyphicon-arrow-down"></i>
+                            </case>
+                        </switch>
+                        <php>}</php>
+                    </a>
+                </th>
+                <th width="18%" style="text-align: left;">状态</th>
+            </thead>
+            <php>foreach($orders as $v){</php>
+            <tr>
+                <td style="text-align: left;"><input type="checkbox" class="orders" value="{$v['ebay_id']}"></td>
+                <td style="text-align: left;">{$v['ebay_id']}</td>
+                <td style="text-align: left;">{$v['ebay_carrier']}</td>
+                <td style="text-align: left;">{$v['ebay_tracknumber']}<php>if(!empty($v['pxorderid'])){</php><br>(<font color="red">pxId:{$v['pxorderid']})</font><php>}</php></td>
+                <td style="text-align: left;">{$v['ebay_username']}</td>
+                <td style="text-align: left;">{$v['w_add_time']}</td>
+                <td style="text-align: left;">{:date('Y-m-d H:i:s',$v['ebay_addtime'])}</td>
+                <td style="text-align: left;">{:date('Y-m-d H:i:s',$v['addtime'])}</td>
+                <td style="text-align: left;">{$topMenus[$v['ebay_status']]}</td>
+                <!--<td style="text-align: left;">{$allStatus[$v['status']]}</td>-->
+            </tr>
+            <php>}</php>
+        </table>
+        <ul class="pagination">{$show}</ul>
+    </div>
+
+    <script>
+
+        $(function () {
+            $('#ebay_status').chosen({search_contains: true, width: '120px', allow_single_deselect: true});
+            $('select[name=field]').chosen({search_contains: true, width: '120px', allow_single_deselect: true});
+        })
+        /*
+         * 搜索
+         */
+        function searchForm(obj) {
+            var data = $(obj).closest('form').serialize();
+            var ebay_status = $('#ebay_status').val();
+//            alert(data);return;
+            data     = data.replace(/(&|^)(\w*?\d*?\-*?_*?)*?=?((?=&)|(?=$))/g, '');
+//            alert(data);return;
+            data     = data.replace(/^&/g, '');
+            var url = '/t.php?s=/Order/Order/hadInspection';
+            if (url.indexOf('?') > 0) {
+                url += '&' + data;
+            } else {
+                url += '?' + data;
+            }
+            if(ebay_status){
+                url += '&ebay_status='+ebay_status;
+            }
+            location.href = url;
+        }
+
+        function checkStoreCount(){
+            var url='http://erp.spocoo.com/t.php?s=/Order/Test/getSKUCount&storeid='+'<?php echo C('CURRENT_STORE_ID')?>'+'&bill=';
+            var ebay_id='';
+            $(".orders").each(function(){
+                if($(this).prop('checked')){
+                    ebay_id+=$(this).val()+","
+                }
+            });
+
+            if(ebay_id==''){
+                alert("请选中订单");return;
+            }
+
+            window.open(url+ebay_id,'_blank');
+
+        }
+
+        /**
+         * 排序
+         * @author Simon 2017-11-30
+         * @return{[type]}[description]
+         */
+        function sort(obj){
+            var sort_name = $(obj).data('name');
+            var sort_value = $(obj).data('value');
+            $('input[name=sort_name]').val(sort_name);
+            $('input[name=sort_value]').val(sort_value);
+            $('#search-btn').click();
+        }
+
+        function checkAll(that){
+            var bool=$(that).prop("checked");
+            $(".orders").prop("checked",bool);
+        }
+    </script>
+</block>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+    <style>
+        body{margin:0;padding:0;}
+        #ebay_id{font-size: 30px;height: 40px;}
+    </style>
+    <link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+</head>
+<body>
+<div class="row" style="margin: 0 auto;padding: 8px 5px;background-color:orange">
+    <h4>退货换单</h4>
+</div>
+<div class="container-fluid">
+
+    <div class="row" style="margin-top:20px;margin-left:-20px">
+
+    </div>
+
+
+
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-sm-5">
+            <input id="ebay_id" onkeyup="checkTracknumber(event)" class="form-control" placeholder="扫描单号" value="" type="text">
+        </div>
+        <div style="display:block;font-size:30px;" id="message">
+
+        </div>
+    </div>
+
+</div>
+<div style="margin:30px;">
+
+    <script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+    <script src="/newerp/Public/layer/layer.js"></script>
+    <h1 style="color:red">{$error}</h1>
+
+    <div id="print_iframe">
+        <!--
+        <iframe onload="autoChecks()" name="print_iframe" style="width:116mm;max-height:200px;overflow-y:scroll;" src=""></iframe>
+        --->
+    </div>
+
+
+</div>
+</body>
+
+<script>
+    $(function(){
+        $("#ebay_id").select().focus();
+    });
+
+    function checkTracknumber(event){
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return '';
+        }
+
+        var ebay_id= $.trim($("#ebay_id").val());
+
+
+        if(ebay_id==''){
+            return ;
+        }
+        if(ebay_id.length<7){
+            layer.msg("跟踪号格式不对!", {icon: 2});
+            $("#ebay_id").select().focus();
+            return false;
+        }
+
+        var url='t.php?s=/Order/RePrint/getReturnedOrderEbayidByTracknumber';
+        $("#ebay_id").val('');
+        layer.load(2);
+        $.post(url,{tracknumber:ebay_id},function(data){
+            $("#ebay_id").select().focus();
+            layer.closeAll();
+            if(data.status==0){
+                $("#message").html(data.msg).css("color","#a00");return ;
+            }
+                if(data.status==1){
+                $("#message").html(data.msg).css("color","#0a0");
+                var print_url=data.url;
+                var html='<iframe onload="autoPrint()" src="'+print_url+'" id="print_iframe_true" name="print_iframe" style="width:116mm;max-height:200px;overflow-y:scroll;"></iframe>';
+                $("#print_iframe").html(html);
+            }
+
+
+
+        },'json');
+
+        //return false;
+    }
+
+
+    function autoPrint(){
+        window.frames[0].print();
+        return false;
+    }
+
+</script>
+</html>

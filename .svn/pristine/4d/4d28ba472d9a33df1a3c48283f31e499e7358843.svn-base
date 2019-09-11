@@ -1,0 +1,101 @@
+<?php
+error_reporting(0);
+date_default_timezone_set ("Asia/Chongqing");
+set_time_limit(200);
+//if(empty($_SERVER['argv'])){
+//    echo '---not php-cli----';
+//    die();
+//}
+include 'include/dbconf.php';
+include 'include/dbmysqli.php';
+$dbcon=new DBMysqli($LOCAL);
+
+include 'include/LocalApi.class.php';
+
+function sendweight(){
+    global $dbcon;
+
+    $file=dirname(__FILE__).'/log/sendweight/'.date('Ymd').'.txt';
+    $filedebug=dirname(__FILE__).'/log/sendweight/'.date('Ymd').'.debug.txt';
+    $ss="select username,password,id from erp_ebay_user order by rand() limit 1";
+    $ss=$dbcon->getResultArrayBySql($ss);
+    $id=$ss[0]['id'];
+    $password=$ss[0]['password'];
+    $username=$ss[0]['username'];
+    $val=$username.$password;
+
+
+    $sa="select id,ebay_id,weight,scantime from api_orderweight where status=1";
+   // $sa.=" and ebay_id=3711574 ";
+    $sa.=" order by id desc limit 1000 ";
+
+    $sa=$dbcon->getResultArrayBySql($sa);
+    if(count($sa)==0){
+        return false;
+    }
+
+    echo count($sa)."\n";
+
+    $data['data']=$sa;
+    $LocalApi=new LocalApi();
+    $action='sendweightbyminzhi';
+    $rs=$LocalApi->send($action,$data,$id,$val);
+    echo "\n\n\n";
+    print_r($rs);
+    echo "\n\n\n";
+    if(!$rs['status']){
+        $idstr='';
+        foreach($sa as $list){
+            $idstr.=','.$list['id'];
+        }
+        $log="请求失败!----".print_r($rs,true).'------'.$idstr.'---'.date('YmdHis')."\n\n\n";
+        $LocalApi->writeFile($file,$log);
+        return false;
+    }
+
+    $rsData=$rs['data'];
+    echo $rsData."\n\n";
+    $log='Debug:'.$rsData.'----'.date('YmdHis')."\n\n\n";
+    $LocalApi->writeFile($filedebug,$log);
+
+    if(!empty($rsData)&&preg_match('/^[0-9,]+$/',$rsData)){
+        $rsData=trim($rsData,',');
+        $up="update api_orderweight set status=2 where id in($rsData)";
+        $dbcon->execute($up);
+
+        /**
+        *测试人员谭 2017-11-16 10:41:25
+        *说明: wms 改成2
+        */
+        $sql="select ebay_id from api_orderweight where id in($rsData)";
+        $sql=$dbcon->getResultArrayBySql($sql);
+
+
+        foreach($sql as $List){
+            $ebay_id=$List['ebay_id'];
+            $up="update erp_ebay_order set ebay_status='2' where ebay_id='$ebay_id' limit 1";
+            $dbcon->execute($up);
+
+            /**
+            *测试人员谭 2017-11-16 11:10:58
+            *说明: 日志 还是要干一干
+            */
+            $noo='订单重量同步后转到已经完成';
+            $mctime= time();
+            $upsql= "insert into orderslog(operationuser,notes,operationtime,types,ebay_id) ";
+            $order= $ebay_id;
+            $upsql.="values('system','$noo','$mctime',99,'$order')";
+            $dbcon->execute($upsql);
+        }
+
+        return false;
+    }
+
+
+
+}
+
+
+sendweight();
+
+$dbcon->close();

@@ -1,0 +1,312 @@
+<extend name="Public/groupBase"/>
+
+<block name="linkrel">
+
+    <style type="text/css">
+
+        .btn {
+            border-radius: 2px;
+        }
+        .colors{font-size:14px;color:#0066cc}
+
+    </style>
+
+</block>
+
+
+<block name="bread">
+    <li>
+        <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+    </li>
+    <li>
+        <a class="m-r-xs"> 订单捡货组统计</a>
+    </li>
+</block>
+
+
+
+<block name="content">
+
+    <div class="container-fluid">
+        <!--头部条件搜索框-->
+        <div class="row" style="margin-bottom: 10px">
+            <form action="__CONTROLLER__/pickerStatistic" method="post" onSubmit="return checkDate();">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <label for="timeArea_start">开始时间点：</label>
+                        <input type="text" class="form-control" value="{$timeCondition['timeArea_start']}" name="timeArea_start" placeholder="开始时间点" onclick="laydate({format:'YYYY-MM-DD'})" id="timeArea_start"/>
+                    </div>
+
+                    <div class="col-xs-3">
+                        <label for="timeArea_start">结束时间点：</label>
+                        <input type="text" class="form-control" value="{$timeCondition['timeArea_end']}" name="timeArea_end" onclick="laydate({format:'YYYY-MM-DD'})" placeholder="结束时间点" id="timeArea_end"/>
+                    </div>
+
+                    <div class="col-xs-2" style="margin-top: 21px">
+                        <div>
+                            <button class="btn btn-sm btn-info"> 查询 </button>
+                            <a href="javascript:" onclick="prints()"> 打印 </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 统计数据结果 -->
+        <div class="row">
+           <?php
+           //debug($MainData);
+           ?>
+
+            <?php
+            $total=0;
+            $total1=0;
+            $total2=0;
+            $total3=0;
+            $typeArr=[
+                '1'=>'单品单件',
+                '2'=>'单品多件',
+                '3'=>'多品多件',
+            ];
+
+             foreach($MainData as $pkuser=>$List){
+
+           ?>
+                 <div class="container-fluid">
+                     <div class="row" style="width: 90%;margin: 10px auto">
+                         <table class="table table-responsive table-hover table-condensed">
+                             <tr>
+                                 <th colspan="6"  class="pUser" user="{$pkuser}" style="font-size:16px">{$pkuser}：</th>
+                             </tr>
+                             <tr>
+                                 <th>包裹类型</th>
+                                 <th>包裹数量</th>
+                                 <th>SKU种类</th>
+                                 <th>SKU数量</th>
+                                 <th>费用</th>
+                                 <th>费用合计</th>
+                             </tr>
+
+
+                             <?php
+                             $fees=0;
+                             $qtys=0;
+                             foreach($List as $order){
+                                 $type=$order['type'];
+                                 $qty=$order['cc'];
+                                 $typeName=$typeArr[$type];
+                                 $qtys+= $qty;
+                                 $total+= $qty;
+                                 if($type==1){
+                                     $total1+=$qty;
+                                 }
+
+                                 if($type==2){
+                                     $total2+=$qty;
+                                 }
+
+                                 if($type==3){
+                                     $total3+=$qty;
+                                 }
+                                 ?>
+                                 <tr class="tips">
+                                     <td class="pickType" data-type="{$type}">{$typeName}</td>
+                                     <td>{$qty}</td>
+                                     <td class="disCount">正在统计...</td>
+                                     <td class="Count">正在统计...</td>
+                                     <td>--</td>
+                                     <td>--</td>
+
+                                 </tr>
+
+                             <?php } ?>
+                             <tr>
+                                 <td class="colors">合计:</td>
+                                 <td class="colors">{$qtys}</td>
+                                 <td class="skuDisTotal">0</td>
+                                 <td class="skuTotal">0</td>
+                                 <td class="colors">--</td>
+                                 <td class="colors">--
+                                     <?php
+                                     //echo round($fees,3);
+                                     ?>
+                                 </td>
+                             </tr>
+                         </table>
+                     </div>
+                 </div>
+
+            <?php } ?>
+            <table width="100%">
+                <tr>
+                    <td class="colors">总计:</td>
+                    <td class="colors">单品单货:{$total1}</td>
+                    <td class="colors">单品多货:{$total2}</td>
+                    <td class="colors">多品多货:{$total3}</td>
+                    <td class="colors">{$total}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!--  -->
+        <div class="row">
+
+        </div>
+    </div>
+
+</block>
+
+<block name="src_js">
+    <!-- laydate -->
+    <script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+
+    <script type="application/javascript">
+
+        function prints(){
+            var url='t.php?s=/Package/UserPackageFee/pickerStatisticPrint'+"&timeArea_start="+$("#timeArea_start").val()+'&timeArea_end='+$("#timeArea_end").val();
+            window.open(url,'_blank')
+        }
+
+        function showDetail(user){
+            var timeArea_start = $('input[name="timeArea_start"]').val();
+            var timeArea_end   = $('input[name="timeArea_end"]').val();
+            var params = "&user=" + user +'&timeArea_start=' + timeArea_start + '&timeArea_end=' + timeArea_end;
+
+            layer.open({
+                type   : 2,
+                title  : '包装人员:'+user,
+                area   : ['40%', '50%'],
+                maxmin : true,
+                shadeClose: true,
+                scrollbar : false,
+                content: '{:U("UserPackageFee/showDetails")}' + params
+            });
+        }
+        /**
+         * 判断时间是否超过一个月
+         * @author xiao
+         * @date 2018-04-06
+         */
+        function checkDate() {
+            var beginTime = $.trim($('input[name="timeArea_start"]').val());
+            var endTime   = $.trim($('input[name="timeArea_end"]').val());
+            var time1 = new Date(beginTime).getTime();
+            var time2 = new Date(endTime).getTime();
+            if(beginTime == ''){
+                alert("开始时间不能为空");
+                return false;
+            }
+            if(endTime == ''){
+                alert("结束时间不能为空");
+                return false;
+            }
+            if(time1 > time2){
+                alert("开始时间不能大于结束时间");
+                return false;
+            }
+            //判断时间跨度是否大于1个月
+            var arr1 = beginTime.split('-');
+            var arr2 = endTime.split('-');
+            arr1[1] = parseInt(arr1[1]);
+            arr1[2] = parseInt(arr1[2]);
+            arr2[1] = parseInt(arr2[1]);
+            arr2[2] = parseInt(arr2[2]);
+            var flag = true;
+            if(arr1[0] == arr2[0]){ //同年
+                if(arr2[1]-arr1[1] > 1){ //月间隔超过1个月
+                    flag = false;
+                }else if(arr2[1]-arr1[1] == 1){ //月相隔1个月，比较日
+                    if(arr2[2] > arr1[2]){ //结束日期的日大于开始日期的日
+                        flag = false;
+                    }
+                }
+            }else{ //不同年
+                if(arr2[0] - arr1[0] > 1){
+                    flag = false;
+                }else if(arr2[0] - arr1[0] == 1){
+                    if(arr1[1] < 12){ //开始年的月份小于12时，不需要跨年
+                        flag = false;
+                    }else if(arr1[1]+1-arr2[1] < 12){ //月相隔大于1个月
+                        flag = false;
+                    }else if(arr1[1]+1-arr2[1] == 12){ //月相隔1个月，比较日
+                        if(arr2[2] > arr1[2]){ //结束日期的日大于开始日期的日
+                            flag = false;
+                        }
+                    }
+                }
+            }
+            if(!flag){
+                alert("查询区间不能超过一个月");
+            }
+            return flag;
+        }
+        /**
+         * 计算sku种类和数量
+         * @author xiao
+         * @date 2018-04-06
+         */
+        function getSkuData(){
+            //查询区间
+            var timeArea_start = $('input[name="timeArea_start"]').val() || <?php echo "'".$_GET['timeArea_start']."'"; ?>;
+            var timeArea_end   = $('input[name="timeArea_end"]').val() || <?php echo "'".$_GET['timeArea_end']."'"; ?>;
+            //总共多少人员
+            $.each($("table"),function(i){
+                var tableObj = $(this);
+                var user = tableObj.find("th.pUser").attr("user");
+                //计算总数
+                var skuDisTotal = 0;
+                var skuTotal = 0;
+                var len = tableObj.find('tr.tips').length;
+                tableObj.find('tr.tips').each(function(j){
+                    var disObj =  $(this).find("td.disCount");
+                    var Obj =  $(this).find("td.Count");
+                    var type = $(this).find("td.pickType").attr("data-type");
+                    $.ajax({
+                        type: "POST",
+                        url: "t.php?s=/Package/UserPackageFee/getPickSkuTotal",
+                        data:  {timeArea_start:timeArea_start,timeArea_end:timeArea_end,user:user,type:type},
+                        dataType: "json",
+                        async:true,
+                        success: function(e){
+
+                        },
+                        error:function(){
+                            disObj.html('网络出问题了...');
+                            Obj.html('网络出问题了...');
+                        },
+                        complete:function(c){
+                            if(c.status == '200'){
+                                var e = c.responseJSON;
+                                if(e.status == 1){
+                                    skuDisTotal += parseInt(e.data.skudiscount);
+                                    skuTotal += parseInt(e.data.skucount);
+                                    disObj.html(e.data.skudiscount);
+                                    Obj.html(e.data.skucount);
+                                    if((len - 1) == j){
+                                        //计算总数，循环请求会出现延迟问题，所以延迟几秒再去累加
+                                        setTimeout(function(){
+                                            tableObj.find("td.skuDisTotal").html(skuDisTotal);
+                                            tableObj.find("td.skuTotal").html(skuTotal);
+                                        },1500);
+                                    }
+                                }else{
+                                    disObj.html(e.msg);
+                                    Obj.html(e.msg);
+                                }
+                            }
+                        }
+                    });
+                });
+            })
+        }
+        window.onload = function(){
+            getSkuData();
+        }
+    </script>
+</block>
+
+
+
+
+
+

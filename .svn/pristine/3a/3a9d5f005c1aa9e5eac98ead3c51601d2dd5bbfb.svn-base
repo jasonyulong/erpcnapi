@@ -1,0 +1,265 @@
+<css href="/newerp/Public/css/fonts.css" />
+<?php if($Order['countrycode'] == 'US' && stristr($Order['ebay_carrier'],'东莞仓')):?>
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="3" width="70%">
+                <div style="height: 10mm">
+                    <img src="../themes/Sugar5/images/hrb_logo.jpg" width="100" height="35" style="float: left;"/>
+                    <div style="text-align:center;float:right;height:35;">
+                        <?php if($Order['countrycode'] != 'US'):?>
+                        <font style="font-size:14pt;font-weight:bold;line-height:35px;margin-right:30px;">{$Order['countrycode']}</font>
+                        <?php endif;?>
+                    </div>
+                    <div style="text-align:center;float:right;margin-right:20px;height:35">
+                        <span class="ffa font8"><br><b>Small Packet BY AIR</b></span>
+                    </div>
+                </div>
+                <?php if($Order['countrycode'] == 'US'):?>
+                <div style="height: 4mm;margin-left: 12mm"><b>US22</b></div>
+                <?php endif;?>
+            </td>
+            <td width="20%" align="center" style="vertical-align: middle;">
+                <div>
+                    <span class="ffa" style="font-weight:bold;font-size:11pt;">{$Order['countrycn']}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="ffa font8 blod" width="40%">FROM:
+                <if condition="$Order['ebay_addtime'] gt 1530892800">
+                        {$Order['backAddress']}
+                <else/>
+                    No 193 Qingfeng Road,
+                    Qingxi Town<br>
+                    Dongguan,Guangdong<br>china,523660
+                </if>
+                <?php if($Order['countrycode'] == 'US'):?>
+                    大客户号：
+                    <?php if($Order['ebay_addtime'] > 1530892800):?>
+                        44190002147000（21）
+                    <?php else:?>
+                        44190002147000
+                    <?php endif;?>
+                <?php endif;?>
+                <br>
+                <?php if($Order['countrycode'] != 'US'):?>
+                <div style="float:left" width="120px;"  class="barcodeImg">
+                    <img src="../barcode128.class.php?data={$Order['ebay_id']}" alt="" width="120" height="25"/>
+                </div>
+                <br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {$Order['ebay_id']}
+                <?php endif;?>
+            </td>
+            <td width="55%" colspan="3" style="font-size:12px;line-height:15px;" class="ffa2 font8">Ship To:<font style="font-size:12px;font-weight:bold;">{$Order['ebay_username']}</font><br>
+                <div style="width:60mm;overflow-wrap: break-word;">
+                    {$Order['ebay_street']}, {$Order['ebay_street1']}
+                </div>
+                {$Order['ebay_city']}, {$Order['ebay_state']}&nbsp; {$Order['ebay_postcode']}<br>
+                {$Order['ebay_countryname']}&nbsp;&nbsp;<br>
+                <span style="">TEL:&nbsp;{$Order['ebay_phone1']}</span><br>
+                <b>Phone:&nbsp;</b>{$Order['ebay_phone']}
+                <br><b>Zip:&nbsp;</b>{$Order['ebay_postcode']}
+            </td>
+        </tr>
+        <?php if($Order['countrycode'] == 'US'):?>
+        <tr>
+            <td colspan="2">退件单位：<if condition="$Order['ebay_addtime'] gt 1530892800">中邮东莞仓<else/>东莞邮政包裹局邮件处理中心</if>
+            </td>
+        </tr>
+        <?php endif;?>
+        <tr>
+            <td colspan="4" class="font7 ffa height1" align="center">
+                <div class="ffa" style="float:left;width:20mm;height: 13mm;" >
+                    <?php if($Order['countrycode'] != 'US'):?>
+                    untracked
+                    <?php else:?>
+                    Delivery scan event not required
+                    <?php endif;?>
+                </div>
+                <div style="float:left;width:60mm;height: 13mm;"  class="barcodeImg">
+                    <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="264" height="37"/>
+                    <br><b>{$Order['ebay_tracknumber']}</b>
+                </div>
+            </td>
+        </tr>
+        <tr style="text-align:center">
+            <td colspan="2" class="blod">Description of Contents</td>
+            <td style="line-height: 9pt;"  class="blod">kg.</td>
+            <td style="line-height: 9pt;"  class="blod">Val(USD)</td>
+        </tr>
+        <tr align="center">
+            <td colspan="2">{$Order['shenbao']}</td>
+            <td style="line-height: 8pt;" >
+                <?php
+                $Value 	     = $Order['sbjz'];
+                $Weight 	 = round((0.08+mt_rand()/mt_getrandmax()*(0.33-0.01)),2);
+                echo $Weight;
+        ?>
+            </td>
+            <td style="line-height: 8pt;" >
+                <?php
+        echo $Value;
+        ?>
+            </td>
+        </tr>
+        <tr align="center">
+            <td colspan="2">Total Gross Weight(Kg)</td>
+            <td style="line-height: 8pt;" >{$Weight}</td>
+            <td style="line-height: 8pt;" >{$Value}</td>
+        </tr>
+        <tr>
+            <td  colspan="4">
+                <p style="line-height:11px;">I certify that the particulars given in this declaration are correct and this item does not contain any dangerous articles prohibited by legislation or by postal or customers regulatioins.</p>
+                <div>
+                    <div style="float:left;height:22;line-height:20px;border-bottom:1px solid solid;">
+                        Sender's signiture & Data Signed:
+                        <php>
+                            $date = date('Y-m-d');
+                        </php>
+                        {$date}
+                    </div>
+                    <div style="float:right;margin-right:5px;margin-top:-1px;text-align:center;line-height:24px;"><font style="font-size:14px;font-weight:bold;">CN22</font></div>
+                </div>
+                <div style="border-top:1px solid black;"><p style="font-size:10px;line-height:10px;margin-left:10px;"></p></div>
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 50px;bottom: 0px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+
+</div>
+<?php else:?>
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td  align="left" valign="top" class="noright nobottom">
+                <img src="../themes/Sugar5/images/hrb_logo.jpg" height="40" width="125"  style="clear:both;"/>
+
+                    <?php if(strstr($Order['ebay_carrier'],'挂号'))
+                        echo '<span class="blod font20">R</span>';
+                    ?>
+
+                <div class="pcenter1">Small Packet BY AIR</div>
+            </td>
+            <td colspan="3">
+                <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="100%" height="40"/>
+                <p class="pcenter1 font8">{$Order['ebay_tracknumber']}</P>
+                <?php
+                    if(strstr($Order['ebay_carrier'],'平邮'))
+                        echo '<p class="pcenter1 font8 blod">untracked 平小包</p>';
+                ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="ffa line_break">
+                <div class="countrycode blod" style="margin-left:10mm;">{$Order['countrycode']}{$Order['importantcode']}</div>
+                <p class="font7 blod line_break" style="width:40mm;">
+                    <if condition="$Order['ebay_addtime'] gt 1530892800">
+                        {$Order['backAddress']}
+                    <else/>
+                        No 193 Qingfeng Road,
+                        Qingxi Town<br>
+                        Dongguan,Guangdong<br>china,523660
+                    </if>
+                </p>
+            </td>
+            <td colspan="3" class="font10 blod nobottom">
+                <div style="font-weight:normal;width:56mm;" class="line_break">Ship To: <b>{$Order['ebay_username']}</b><br>
+                {$Order['ebay_street']}, {$Order['ebay_street1']}<br/>
+                {$Order['ebay_city']}, {$Order['ebay_state']}&nbsp;{$Order['ebay_countryname']}
+                    <br>{$Order['ebay_postcode']}<br/>
+                tel:{$Order['ebay_phone1']}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td width="20%" class="ffa  font10 pcenter1"><B>{$Order['warehousename']}</B></td>
+            <td width="80%" class="font10 blod " style="line-height: 10pt;" colspan="3">
+                phone: {$Order['ebay_phone']} &nbsp;&nbsp;<span class="font11">{$Order['countrycn']}</span></b>
+            </td>
+        </tr>
+        <tr>
+            <td class="font9" colspan="2">Description Of Contents</td>
+            <td class="font9">Kg</td>
+            <td class="font9">Vals(USD $)</td>
+        </tr>
+        <tr>
+            <td class="font9" style="height:20pt;" colspan="2">{$Order['shenbao']}</td>
+            <td class="font9">0.08</td>
+            <td class="font9">                <?php
+                    // 白俄罗斯 捷克 乌克兰 巴西 总金额的50% 且 小于 1
+                    // 其他国家 总金额的50% 且 小于 10
+                    $countryArr = array(
+                        '白俄罗斯'=>'BY',
+                '捷克'=>'CZ',
+                '乌克兰'=>'UA',
+                '巴西'=>'BR'
+                );
+                $countryCode = trim($Order['countrycode']);
+                $ebay_total = trim($Order['ebay_total']);
+
+                $Value = $ebay_total*0.5;
+                $randNum = 0.98*rand(8,10);
+                $Value = $Value >= 10?$randNum:$Value;
+
+                if(in_array($countryCode,$countryArr)){
+                $randNum = 0.098*rand(8,10);
+                $randNum = round($randNum,2);
+                $Value = $Value >= 1?$randNum:$Value;
+                }
+                echo $Value;
+                ?></td>
+        </tr>
+        <tr>
+            <td class="font9" colspan="2">Total Gross Weight(Kg)</td>
+            <td class="font9">0.08</td>
+            <td class="font9">{$Value}</td>
+        </tr>
+        <tr>
+        <td class="font7 ffa" colspan="4">I certify that the particulars given in this declaration are correct and this
+            item does not contain any dangerous articles prohibited by legislation or by
+            postal or customers regulations.</td>
+        </tr>
+        <tr>
+            <td class="font9 blod" colspan="3">
+                Sender's signiture & Data Signed:
+                <php>
+                    $date = date('Y-m-d');
+                </php>
+                {$date}
+            </td>
+            <td class="font11 blod">CN22</td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 5px;bottom: 3px;">
+        <span  class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<?php endif;?>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="font14 line_break" style="width: 80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

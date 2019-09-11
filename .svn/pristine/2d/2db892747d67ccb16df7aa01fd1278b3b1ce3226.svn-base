@@ -1,0 +1,14 @@
+<?php
+/**
+ * User: 王模刚
+ * Date: 2017/12/10
+ * Time: 21:30
+ */
+
+namespace Mid\Model;
+
+
+class MidInternalStoreSkuModel extends BaseModel
+{
+    protected $tableName='internal_store_sku';
+}

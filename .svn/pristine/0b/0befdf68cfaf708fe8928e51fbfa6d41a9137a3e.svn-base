@@ -1,0 +1,547 @@
+<extend name="Public/base"/>
+<block name="linkrel">
+    <link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+    <link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+    <style>
+        table th,td {
+            text-align: center !important;
+        }
+        input.filer_time{width:80px;}
+    </style>
+</block>
+
+
+<block name="bread">
+    <li>
+        <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+    </li>
+    <li>
+        <a class="m-r-xs"> 物流管理 &gt; 仓库信息</a>
+    </li>
+</block>
+
+
+<block name="menu">
+
+    <foreach name="carrierGroupArr" item="group">
+        <li class="active">
+
+            <a href="javascript:void(0);" class="group group_{$group.id}" data-val="{$group.id}" style="margin: 0;padding: 10px 20px 10px 25px;font-weight: bold">
+                <span class="nav-label" data-val="{$group['id']}" style="position: relative;display:inline-block;overflow: hidden;
+                white-space: nowrap;text-overflow: ellipsis;width: 130px;line-height: 1.2em;text-align: left;" title="{$group['sup_name']}">
+                    <i class="fa fa-bookmark-o"></i>
+                    {$group['sup_name']}
+                </span>
+                <span class="label label-warning" style="float: right">{$group['total'] ? $group['total'] : 0}</span>
+                <!--<span class="fa arrow"></span>-->
+            </a>
+
+            <ul class="nav nav-second-level">
+                <foreach name="group['sub']" item="id" key="name">
+                    <li>
+                        <php>
+                            if (strpos($id, '=>') !== false) {
+                                $pieces = explode('=>', $id);
+                            $id = $pieces[0];
+                                $count = $pieces[1];
+                            } else {
+                                $count = 0;
+                            }
+                        </php>
+
+                        <a class="J_menuItem carrier_{$id}" href="javascript:void 0" data-index="0" style="margin: 0 5px;" data-val="{$id}">
+                            <span style="position: relative;display:inline-block;overflow: hidden;white-space: nowrap;
+                            text-overflow: ellipsis;width: 130px;line-height: 1.2em;text-align: left;" title="{$name}">
+                                 <i class="fa fa-cubes"></i> {$name}
+                            </span>
+                            <span class="label label-info" style="margin-right: 5%;float: right">{$count}</span>
+                        </a>
+                    </li>
+                </foreach>
+            </ul>
+        </li>
+    </foreach>
+</block>
+
+<block name="content">
+
+    <div class="row checkbox_box" style="margin-top: 10px;padding-left: 20px;padding-top:10px;border-top: 1px solid #555">
+        <label>
+            进ERP：
+            <input id="erp_addtime_start" type="text" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" class="filer_time" value="{$DATETIMES['erp_add_s']}"/>&nbsp;&nbsp;
+            <input id="erp_addtime_end" type="text" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" class="filer_time" value="{$DATETIMES['erp_add_e']}"/>
+        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+        <label>
+            进WMS：
+            <input id="wms_addtime_start" type="text" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" class="filer_time" value="{$DATETIMES['wms_add_s']}"/>&nbsp;&nbsp;
+            <input id="wms_addtime_end" type="text" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" class="filer_time" value="{$DATETIMES['wms_add_e']}"/>
+        </label>
+        <span style="color:#911;"><b>注意:左边的数字页面刚进来的时候 不会考虑楼层 和时间</b></span>
+    </div>
+    <div class="row checkbox_box" style="padding-left: 20px;border-bottom: 1px solid #555">
+        包裹类型：
+        <!--<label><input type="checkbox" class="icheckClass" checked name="showType[]" value="0">全部</label> &nbsp;&nbsp;&nbsp;&nbsp;-->
+        <!--<label><input type="checkbox" class="icheckClass" checked name="showType[]" value="1">单品单件</label> &nbsp;&nbsp;&nbsp;&nbsp;
+        <label><input type="checkbox" class="icheckClass" checked name="showType[]" value="2">单品多件</label> &nbsp;&nbsp;&nbsp;&nbsp;-->
+        <label><input type="checkbox" class="icheckClass" checked name="showType[]" value="3">多品多件</label> &nbsp;&nbsp;&nbsp;&nbsp;
+
+        <span class="company_carrier">
+            <!--<label class="alert alert-success" style="padding: 5px 10px;margin-bottom:0"> Hello world </label>-->
+            <!--<label class="alert alert-success" style="padding: 5px 10px;margin-bottom:0;margin-right: 15px"> Hello world </label>-->
+        </span>
+
+        <label>
+            <select style="width:50px;" name="floor" id="floor">
+                <option value="5">5楼</option>
+                <option value="3">3楼</option>
+            </select>
+        </label>
+        <label>
+            <button class="btn btn-xs btn-success" id="updateNum" style="border-radius: 2px;padding:3px 5px">刷新</button>
+        </label>
+
+        <label>
+            <button class="btn btn-xs btn-info create-sheet-btn" data-url="{:U('OrderGroup/CreatePickOrder')}" style="border-radius: 2px;padding:3px 5px">生成清单</button>
+        </label>
+
+        <a href="{:U('Transport/SynOrder/index')}" target="_blank">无法货找单（总共 <label id="counts"></label> 单）</a>
+
+    </div>
+
+    <div class="row main-content" style="margin-top: 15px">
+        <!-- TODO : This field will be write in the table data items. -->
+
+    </div>
+
+</block>
+
+<block name="src_js">
+
+    <script type="application/javascript" src="/newerp/Public/plugins/icheck/icheck.min.js"></script>
+    <script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+    <script type="application/javascript">
+        $(function(){
+            $.get('t.php?s=/Transport/SynOrder/counts',function($data){
+                $("#counts").text($data);
+            });
+        });
+        var Handler = (function($, layer) {
+
+            var urls = {
+                getByCompanyUrl : "{:U('OrderGroup/getOrderListByCompany')}",
+                getByCarrierUrl : "{:U('OrderGroup/getOrderListByCarrier')}",
+                updateOrderCount: "{:U('OrderGroup/updateLeftOrderCount')}"
+            };
+
+            /**
+             * 生成拣货单的相关数据
+             */
+            var createSheetData = {};
+
+
+            /**
+             * 输出测试信息的简化绑定函数
+             */
+            var echo = console.log.bind(console);
+
+            /**
+             * @access private
+             * @property {Handler} _this
+             */
+            var _this;
+
+
+            /**
+             * 处理事件类的构造函数
+             * @constructor
+             */
+            function Handler()
+            {
+                _this = this;
+            }
+
+
+            /**
+             * 初事件绑定始化
+             */
+            Handler.prototype.init = function()
+            {
+                $('input:checkbox').iCheck({
+                    checkboxClass : 'icheckbox_square-blue'
+                });
+
+                $('.group').on('click', function(event) {companyClick(this, event);});
+                $('.J_menuItem').on('click', function() {carrierClick(this);});
+                $('#updateNum').on('click', function() {updateOrderCount(this);});
+                $('.create-sheet-btn').on('click', function() {createSheetHandler(this);});
+            };
+
+
+            /**
+             * 物流公司点击的动作
+             * @param that
+             * @param event
+             * @returns {null}
+             */
+            function companyClick(that, event)
+            {
+                event.preventDefault();
+//                 关闭列表的情况
+                if ($(that).parent().hasClass('active')) {
+
+                }
+
+
+                var types = getCheckedTypes();
+                // 打开列表的情况
+                var groupId = $(that).attr('data-val');
+                createSheetData.groupId = groupId;
+                createSheetData.carrier = '';
+                createSheetData.carrierId = '';
+                createSheetData.types = types;
+
+                var groupName = $(that).find('span').eq(0).attr('title');
+
+                var loadingIndex = layer.load(0, {shade:0.5});
+
+                createSheetData.floor=$("#floor").val();
+                createSheetData.erp_addtime_start = $("#erp_addtime_start").val();
+                createSheetData.erp_addtime_end = $("#erp_addtime_end").val();
+                createSheetData.wms_addtime_start = $("#wms_addtime_start").val();
+                createSheetData.wms_addtime_end = $("#wms_addtime_end").val();
+
+                $.ajax({
+                    url  : urls.getByCompanyUrl,
+                    type : 'post',
+                    data : createSheetData,
+                    dataType : 'html'
+                }).done(function(result) {
+                    $('.main-content').html(result);
+                    setAllCheckBoxICheck($('.main-content table'));
+                    subPageEventBind();
+
+                    // 分页的页码点击事件处理
+                    $('.pagination').find('li a').on('click', function() {
+                        switchPage(this, 1);
+                    });
+
+                    // 把公司名称作为条件写到筛选的顶部
+                    $('.company_carrier').html('<label class="alert alert-success company_label" style="padding: 5px 10px;margin-bottom:0;margin-right: 10px" data-id="' + groupId + '"> ' + groupName + ' </label>');
+
+                }).fail(function() {
+                    layer.msg('Error Occurred.');
+                }).always(function() {
+                    layer.close(loadingIndex);
+                });
+            }
+
+
+            /**
+             * 物流公司下的运输方式被点击的事件处理
+             * @param that
+             * @returns {null}
+             */
+            function carrierClick(that)
+            {
+                var carrierTypeId = $(that).attr('data-val');
+                createSheetData.carrier = carrierTypeId;
+
+                if (!carrierTypeId) {
+                    return null;
+                }
+
+                var carrierName = $(that).find('span').eq(0).attr('title');
+
+                var types = getCheckedTypes();
+                var loadingIndex = layer.load(0, {shade:0.5});
+
+                createSheetData.carrierId=carrierTypeId;
+                createSheetData.types=types;
+                createSheetData.floor=$("#floor").val();
+                createSheetData.erp_addtime_start = $("#erp_addtime_start").val();
+                createSheetData.erp_addtime_end = $("#erp_addtime_end").val();
+                createSheetData.wms_addtime_start = $("#wms_addtime_start").val();
+                createSheetData.wms_addtime_end = $("#wms_addtime_end").val();
+
+                $.ajax({
+                    url  : urls.getByCarrierUrl,
+                    type : 'post',
+                    data : createSheetData,
+                    dataType : 'html'
+                }).done(function(result) {
+                    $('.main-content').html(result);
+                    setAllCheckBoxICheck($('.main-content table'));
+                    subPageEventBind();
+
+                    // 分页的页码点击事件处理
+                    $('.pagination').find('li a').on('click', function() {
+                        switchPage(this, 2);
+                    });
+
+                    // 把运输方式名称写入到条件搜索栏
+                    var hasCarrierLabel = $('.company_carrier label.carrier_label');
+                    if(hasCarrierLabel.length) {
+                        hasCarrierLabel.html(carrierName).attr('data-id', carrierTypeId);
+                    } else {
+                        $('.company_carrier').append('<label class="alert alert-success carrier_label" data-id="' + carrierTypeId + '" style="padding: 5px 10px;margin-bottom:0;margin-right: 15px"> ' + carrierName + ' </label>');
+                    }
+                }).fail(function() {
+                    layer.msg('Error Occurred.');
+                }).always(function() {
+                    layer.close(loadingIndex);
+                });
+            }
+
+
+            /**
+             * 切换页面的动作
+             * @param that DOM : 点击页面页码的元素
+             * @param type int : 分页的类型 1：公司数据的分页  2：运输方式的分页
+             */
+            function switchPage(that, type)
+            {
+                var isCurrentPage = $(that).parent().hasClass('active');
+                if (isCurrentPage) {
+                    echo("Current page");
+                    return null;
+                }
+
+                var linkStr = $(that).attr('data-link');
+                var linkPiece = linkStr.split('/');
+                var pageNum = (linkPiece[linkPiece.length - 1]).split('.')[0];
+
+
+                var submitData = {};
+                submitData.types = getCheckedTypes();
+
+                var url = '';
+                if (type == 1) {
+                    submitData.groupId = createSheetData.groupId;
+                    echo(createSheetData);
+                    url = urls.getByCompanyUrl+'&p='+pageNum;
+
+                    if (!submitData.groupId) {
+                        layer.msg('未找到分组Id.');
+                        return null;
+                    }
+                } else if (type == 2) {
+                    submitData.carrierId = createSheetData.carrier;
+                    url = urls.getByCarrierUrl+'&p='+pageNum;
+
+                    if (!submitData.carrierId) {
+                        layer.msg('未找到运输方式ID.');
+                        return null;
+                    }
+                } else {
+                    layer.msg('未知的查询类型.');
+                    return null;
+                }
+
+
+                var loadingIndex = layer.load(0, {shade:0.5, time: 10 * 1000});
+                submitData.floor=$("#floor").val();
+                submitData.erp_addtime_start = $("#erp_addtime_start").val();
+                submitData.erp_addtime_end = $("#erp_addtime_end").val();
+                submitData.wms_addtime_start = $("#wms_addtime_start").val();
+                submitData.wms_addtime_end = $("#wms_addtime_end").val();
+                $.ajax({
+                    url  : url,
+                    type : 'post',
+                    data : submitData,
+                    dataType : 'html'
+                }).done(function(result) {
+                    $('.main-content').html(result);
+                    setAllCheckBoxICheck($('.main-content table'));
+                    subPageEventBind();
+
+                    // 分页的页码点击事件处理
+                    $('.pagination').find('li a').off('click').on('click', function() {
+                        switchPage(this, type);
+                    });
+                }).always(function() {
+                    layer.close(loadingIndex);
+                });
+
+
+            }
+
+
+            /**
+             * 将指定盒子容器中的所有的checkbox 使用icheck 插件进行渲染
+             * @param box
+             */
+            function setAllCheckBoxICheck(box)
+            {
+                $(box).find('input:checkbox').iCheck({
+                    checkboxClass : 'icheckbox_square-orange'
+                });
+            }
+
+            /**
+             * 显示订单后将这个订单列表中checkbox 进行事件绑定（全选/取消全选）
+             */
+            function subPageEventBind()
+            {
+                var checkAllBox = $('#check_all_items');
+                if (checkAllBox.length == 0) {
+                    return false;
+                }
+
+                var allCheckBox = $('table td').find('input:checkbox');
+
+                checkAllBox.on('ifChecked', function() {
+                    $.each(allCheckBox, function(key, val) {
+                        $(val).iCheck('check');
+                    });
+                }).on('ifUnchecked', function() {
+                    $.each(allCheckBox, function(key, val) {
+                        $(val).iCheck('unCheck');
+                    });
+                });
+            }
+
+
+            /**
+             * 更新右侧菜单栏中的数量展示, 追加不止刷新数量，而且如果订单列表已打开，将订单列表一起刷新
+             * @param that
+             */
+            function updateOrderCount(that)
+            {
+//                var url = $(that).attr('data-url');
+                var values = getCheckedTypes();
+
+                var groups = $('a.group');
+                var groupId = '';
+
+                // 刷新统计数量的动作
+                var submitData = {};
+                $('span.label').html(0);
+                $.each(groups, function(k, val) {
+                    groupId = $(val).attr('data-val');
+                    submitData.groupId = groupId;
+                    submitData.types = values;
+                    submitData.floor = $("#floor").val();
+
+                    submitData.erp_addtime_start = $("#erp_addtime_start").val();
+                    submitData.erp_addtime_end = $("#erp_addtime_end").val();
+                    submitData.wms_addtime_start = $("#wms_addtime_start").val();
+                    submitData.wms_addtime_end = $("#wms_addtime_end").val();
+
+                    $.ajax({
+                        url : urls.updateOrderCount,
+                        type: 'post',
+                        data: submitData,
+                        dataType : 'json'
+                    }).done(function(result) {
+                        // 运输方式分组的总数的写入
+                        $(val).find('.label').html(result.sum);
+                        // 运输方式分组的单个物流方式的写入
+                        $.each(result.data , function (key, item) {
+                            $(val).next().find('a.carrier_'+key).find('span').eq(1).html(item);
+                        });
+                    });
+                });
+
+                // 如果需要刷新订单列表
+                refreshOrderList();
+            }
+
+
+            /**
+             * 判断是不是要刷新订单列表如果只打开任意一个父菜单, 则刷新父菜单的订单列表
+             * 如果又打开父菜单下的子菜单的订单列表则刷新子菜单的订单列表
+             */
+            function refreshOrderList()
+            {
+                var hasOpenedLists = $('.company_carrier').find('label');
+                if (hasOpenedLists.length === 0) { //没有打开任何列表则不需要刷新订单的列表
+                    return null;
+                }
+
+                var paramId = null;
+                if (hasOpenedLists.length == 1) {
+                    paramId = hasOpenedLists.attr('data-id');
+                    $('.group_' + paramId).click();
+                } else if (hasOpenedLists.length == 2) {
+                    paramId = hasOpenedLists.eq(1).attr('data-id');
+                    $('.carrier_' + paramId).click();
+                }
+            }
+
+
+            /**
+             * 生成拣货单按钮的执行函数,操作的结果展示在展示区
+             */
+            function createSheetHandler(that)
+            {
+                var typeCheckBoxes = $('.checkbox_box').find('input:checkbox');
+
+//                createSheetData.isallpage = typeCheckBoxes.eq(0).prop('checked');
+                createSheetData.includetype1 = typeCheckBoxes.eq(0).prop('checked');
+                createSheetData.includetype2 = typeCheckBoxes.eq(1).prop('checked');
+                createSheetData.includetype3 = typeCheckBoxes.eq(2).prop('checked');
+                createSheetData.isallpage    = $('#check_all_pages').prop('checked');
+
+                if (!createSheetData.isallpage) {
+                    var allCheckedOrders = $('table td input:checked');
+                    createSheetData.bills = [];
+                    $.each(allCheckedOrders, function(key, val) {
+                        createSheetData.bills.push($(val).val());
+                    });
+                    if (createSheetData.bills.length == 0) {
+                        layer.msg('请先勾选订单,或勾选 所有页');
+                        return false;
+                    }
+                }
+
+                var loadingIndex = layer.load(0, {shade:0.5});
+                var url = $(that).attr('data-url');
+                createSheetData.floor=$("#floor").val();
+                createSheetData.erp_addtime_start = $("#erp_addtime_start").val();
+                createSheetData.erp_addtime_end = $("#erp_addtime_end").val();
+                createSheetData.wms_addtime_start = $("#wms_addtime_start").val();
+                createSheetData.wms_addtime_end = $("#wms_addtime_end").val();
+//                console.log(createSheetData);return;
+                $.ajax({
+                    url : url,
+                    type: 'post',
+                    data: createSheetData,
+                    dataType : 'html'
+                }).done(function(result) {
+                    $('.main-content').html(result);
+                }).fail(function() {
+                    layer.msg('Error Occurred.');
+                }).always(function() {
+                    layer.close(loadingIndex);
+                });
+            }
+
+
+            /**
+             * 获取勾选的类型
+             * @returns {Array}
+             */
+            function getCheckedTypes()
+            {
+                var checkedElements = $('.checkbox_box').find('input:checked');
+                var values = [];
+                $.each(checkedElements, function ( key, item ) {
+                    values.push($(item).val());
+                });
+                return values;
+            }
+
+            return Handler;
+        })($, layer);
+
+
+        (new Handler()).init();
+    </script>
+</block>
+
+
+
+
+
+
+

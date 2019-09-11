@@ -1,0 +1,33 @@
+table.view,#taskSearch,.handleUi{width: 90%;margin: 0 auto;}
+table.view tr:hover{ background:#E0DFE3;}table.view tr td.bgshow{padding: 0!important;margin:0!important;width: 4px;}
+table.view tr:hover td.bgshow{background:#32b6e7;}
+#taskSearch,.handleUi{text-align: right;margin:0 auto;}
+#taskSearch{height:26px;}
+#taskSearch h1{float:left;position:absolute;margin: 4px 0 0 0;font-family:'微软雅黑';font-size:15px;}
+#taskSearch input,#taskSearch select{height:20px;padding:0;margin: 0;}
+.taskhead{background:#b6d1f2;padding:9px 0;}
+input.search{border:1px #9baebf solid;border-right:none;}
+
+#dvbtn{height:20px;background:url('../../../../themes/Sugar5/images/searchs.jpg') no-repeat #32b6e7;cursor:pointer;width: 20px;float:right;border:1px #9baebf solid;border-left: none; }
+div.inputleft{float:right;width: 795px;}
+.handleUi{padding-top:9px;}
+.headlebox{margin-bottom:5px;}
+.handleUi div{height:26px;width:370px;float: right; text-align: left;}
+.headlebox a{float:left;height:26px;text-decoration:none;font-size:12px;font-family:'微软雅黑';text-align:right;width:81px;margin-right:12px;vertical-align:middle;line-height:26px;display:block;}
+.headlebox a span{display:block;float:left;height: 26px;width: 26px;background:#0000FF;}
+.headlebox a.add_t span{background:url('../../../../themes/Sugar5/images/ui_min.jpg') -6px -1px;}
+.headlebox a.del_t span{background:url('../../../../themes/Sugar5/images/ui_min.jpg') -63px -1px;}
+.headlebox a.out_t span{background:url('../../../../themes/Sugar5/images/ui_min.jpg') -156px -1px;}
+.headlebox a.add_t:hover span{background:url('../../../../themes/Sugar5/images/ui_min.jpg') -6px -29px;}
+.headlebox a.del_t:hover span{background:url('../../../../themes/Sugar5/images/ui_min.jpg') -63px -29px;}
+.headlebox a.out_t:hover span{background:url('../../../../themes/Sugar5/images/ui_min.jpg') -156px -29px;}
+/*******新建任务********/
+#contents{width: 90%; margin:20px auto;border: 1px #999 solid;border-radius:10px;min-height:200px;}
+#contents .c_infos{position:absolute;z-index: 10;margin:-8px 0 0 18px;background: #fff;}
+#contents .add_table{border:none;margin:10px;}
+#contents .gongbs input{margin-left: 15px;}
+#contents input.gonga{margin-left: 0px;}
+#contents textarea{height: 200px;width:450px;min-height:200px;max-height:200px;min-width: 450px;max-width:450px; }
+.left_td{width: 90px;text-align: right;font-size: 12px}
+a.sub_task{background:#B6D1F2;text-decoration:none;color:#444; text-align:center;line-height:20px;font-size: 13px;display: block;width:50px;height:20px;}
+a.sub_task:hover{background:#0Bc0FF;}

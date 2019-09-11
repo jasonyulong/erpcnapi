@@ -1,0 +1,62 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+
+    <div class="row" style="margin: 1px; border:1px solid #000">
+        <div class="row" style="text-align: right;margin-right: 2mm;margin-top: 2mm;font-size: 28px;">
+            <b>
+            <?php
+                $code = substr($Order['zipcode'],0,1);
+                if(0 <= $code && $code <= 3){
+                    echo 'JFK';
+                }
+                if(4 <= $code && $code <=9){
+                    echo 'LAX';
+                }
+            ?>
+            </b>
+        </div>
+        <div class="row" style="font-size: 25px;font-weight: bold;text-align: center;height: 16px;padding: 20px ;margin: 0 auto;border-bottom: 1px solid #000;vertical-align: middle">
+            USZXR
+        </div>
+
+        <div class="row" style="height: 100px;text-align: center;padding: 20px;font-weight: bold;vertical-align: middle;font-size: 16px">
+            <if condition="strstr($Order['pxorderid'], 'YT') eq ''">
+            <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="280" height="50"/><br/>
+            {$Order.ebay_tracknumber}
+            <else/>
+            <img src="/barcode128.class.php?data={$Order['pxorderid']}" alt="" width="280" height="50"/><br/>
+            {$Order.pxorderid}
+            </if>
+        </div>
+
+        <div class="row" style="height: 100px;text-align: center;padding: 15px;font-weight: bold;vertical-align: middle;font-size: 16px">
+            <img src="/barcode128.class.php?data=WST{$Order['ebay_id']}" alt="" width="200" height="50"/><br/>
+            WST{$Order.ebay_id}
+        </div>
+
+        <!--添加拣货代码-->
+        <div class="fonts" style="position: absolute;rigth:0px;right: 5px;bottom: 23px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    </div>
+</div>
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

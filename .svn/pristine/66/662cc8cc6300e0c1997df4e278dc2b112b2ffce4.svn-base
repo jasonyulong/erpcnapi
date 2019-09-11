@@ -1,0 +1,103 @@
+<?php
+ namespace Mid\Controller;
+ use Think\Controller;
+ /**order
+  * @author 王模刚
+  * @since 2017 10 25 18:00
+  */
+ class GetOrderController extends Controller {
+
+ 	public function index() {
+ 		echo 'index';
+ 	}
+
+	/**get ebay order
+	 * @author 王模刚
+	 * @since 2017 10 25 18:00
+	 * @link   http://local.erpcnapi.com/t.php?s=/Mid/GetOrder/getOrderList/ebay_id/9564222
+	 */
+	 public function getOrderList(){
+//		 echo '<pre>';
+		 $orderService = new \Mid\Service\OrderService();
+		 $request = $_REQUEST;
+		 if (isset($request['ebay_id']) && (int)$request['ebay_id'] < 1) {
+		 	unset($request['ebay_id']);
+		 }
+		 $orderService->getSyncOrderList($request);
+		 echo '<br/>End';
+	 }
+
+	 /**
+	  * get old order before online
+	  * @author Rex
+	  * @since 	2017-11-08 19:43
+	  * @link 	http://local.erpcnapi.com/t.php?s=/Mid/GetOrder/getOldOrderList
+	  */
+	 public function getOldOrderList(){
+	 	$orderService = new \Mid\Service\OrderService();
+	 	$request = $_REQUEST;
+	 	if (isset($request['ebay_id']) && (int)$request['ebay_id'] < 1) {
+	 		unset($request['ebay_id']);
+	 	}
+	 	$orderService->getOldSyncOrderList($request);
+	 	echo '<br/>End';
+	 }
+
+	 /**
+	  * get order type list   直接存储 不需要中间表过度  此方法废用，通过自动任务生成
+	  * @author 王模刚
+	  * @since 2017 10 26 9:40
+	  * @link  http://local.erpanapi.com/t.php?s=/Mid/GetOrder/getOrderTypeList
+	  */
+	 public function getOrderTypeList(){
+	     die();
+		 $orderService = new \Mid\Service\OrderService();
+		 $orderService -> getSyncOrderTypeList();
+		 echo '<br/>End';
+	 }
+
+	 /**
+	  * 临时同步前期等待扫描订单  临时用
+	  * @author Rex
+	  * @since 	2017-11-07 18:42
+	  * @link 	http://local.erpcnapi.com/t.php?s=/Mid/GetOrder/getWaitScanOrderList
+	  */
+	 public function getWaitScanOrderList() {
+	 	//去掉这些有问题的部分
+/*	 	echo '<pre>';
+	 	$orderService = new \Mid\Service\OrderService();
+	 	$orderService->getWaitScanOrderList();
+	 	echo '<br/>End';*/
+	 }
+
+	 /**
+	  * 抽查订单，要求每个平台都需要抽查到
+	  * 王模刚  2017 11 8
+	  * @link  http://local.erpcnapi.com/t.php?s=/Mid/GetOrder/tmpGetOrder
+	  */
+	 public function tmpGetOrder(){
+		 echo '<pre>';
+		 $orderService = new \Mid\Service\OrderService();
+		 $orderService->tmpGetOrder();
+		 echo '<br/>End';
+	 }
+
+     /**
+      * 临时同步 2017-11-06 17:30 之前订单的 进系统时间
+      * @author Simon 2017/11/11
+      */
+	 public function tmpSyncOrderTime(){
+         $orderService = new \Mid\Service\OrderService();
+         $orderService->tmpSyncOrderTime();
+     }
+
+
+     public function getOrderByEbayId() {
+
+         $requestData = ['ebay_id' => $_REQUEST['ebay_id'], 's_time' => time()];
+         $orderService = new \Mid\Service\OrderService();
+         $data        = $orderService->getOrderByEbayId($requestData);
+         echo '<pre>';
+         print_r($data);
+     }
+ }

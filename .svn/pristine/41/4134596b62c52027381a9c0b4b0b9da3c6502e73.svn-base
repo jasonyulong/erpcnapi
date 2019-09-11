@@ -1,0 +1,79 @@
+<?php
+error_reporting(0);
+date_default_timezone_set ("Asia/Chongqing");
+if(empty($_SERVER['argv'])){
+    echo '---not php-cli----';
+    die();
+}
+
+/**
+*测试人员谭 2017-11-13 15:43:41
+*说明: 这里这个尾数是指 api_checksku 的 id 的尾数 是什么
+ * 本程序将启动10个进程 同时干
+*/
+$end_number=(int)$_SERVER['argv'][1];
+
+
+include 'include/dbconf.php';
+include 'include/dbmysqli.php';
+$dbcon=new DBMysqli($LOCAL);
+include 'include/LocalApi.class.php';
+
+function sendpkuser(){
+    global $dbcon,$end_number;
+
+    $file=dirname(__FILE__).'/log/sendpkuser/'.date('Ymd').'.txt';
+    $filedebug=dirname(__FILE__).'/log/sendpkuser/'.date('Ymd').'.debug.txt';
+    $ss="select username,password,id from ebay_user where username='测试人员谭' limit 1";
+    $ss=$dbcon->getResultArrayBySql($ss);
+    $id=$ss[0]['id'];
+    $password=$ss[0]['password'];
+    $username=$ss[0]['username'];
+    $val=$username.$password;
+
+    $checkid=(int)$_SERVER['argv'][2];
+
+    $sa="select id,ebay_id,packinguser,packagingstaff from api_checksku where status=1 and in_process!=1 and id like '%$end_number' order by id desc limit 100";
+
+    if($checkid){
+        $sa="select id,ebay_id,packinguser,packagingstaff from api_checksku where status=1 and id ='$checkid'";
+    }
+
+    $sa=$dbcon->getResultArrayBySql($sa);
+    print_r($sa);
+    //die();
+    if(count($sa)==0){
+        return false;
+    }
+    $data['data']=$sa;
+    $LocalApi=new LocalApi();
+    $action='sendpkuserbyminzhi';
+    $rs=$LocalApi->send($action,$data,$id,$val);
+
+    if(!$rs['status']){
+        $idstr='';
+        foreach($sa as $list){
+            $idstr.=','.$list;
+        }
+        $log="请求失败!----".print_r($rs,true).'------'.$idstr.date('YmdHis')."\n\n\n";
+        $LocalApi->writeFile($file,$log);
+        return false;
+    }
+
+    $rsData=$rs['data'];
+    echo $rsData."\n\n";
+    $log='加入出库队列 Debug:'.$rsData.date('YmdHis')."\n\n\n";
+    $LocalApi->writeFile($filedebug,$log);
+
+    if(!empty($rsData)&&preg_match('/^[0-9,]+$/',$rsData)){
+        $rsData=trim($rsData,',');
+        $up="update api_checksku set in_process=1 where id in($rsData)";
+        $dbcon->execute($up);
+        return false;
+    }
+}
+
+
+sendpkuser();
+
+$dbcon->close();

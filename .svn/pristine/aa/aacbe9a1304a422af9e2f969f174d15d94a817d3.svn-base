@@ -1,0 +1,28 @@
+<?php
+namespace Common\Model;
+use Think\Model;
+
+/**
+ * 汇率模型
+ * ran
+ * Class EbayCurrencyModel
+ * @package Common\Model
+ */
+class EbayCurrencyModel extends Model
+{
+    protected $tableName = 'erp_ebay_currency';
+
+    /**
+    * 获取汇率
+    * ran
+    */
+    public function getRates(){
+        $field='currency,rates';
+        $rateInfo = $this->field($field)->select();
+        $rateArr = [];
+        foreach($rateInfo as $v){
+            $rateArr[$v['currency']] = $v['rates'];
+        }
+        return $rateArr;
+    }
+}

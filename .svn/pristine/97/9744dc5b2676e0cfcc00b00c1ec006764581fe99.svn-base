@@ -1,0 +1,562 @@
+<?php
+namespace Order\Service;
+
+use Api\Model\OrderInterceptRecordModel;
+use Common\Model\ErpEbayGoodsModel;
+use Common\Model\ConfigsModel;
+use Mid\Model\AvgWeightStatisticsModel;
+use Mid\Model\GoodsOutWeightModel;
+use Common\Model\CarrierModel;
+use Order\Model\CanWeightFailureLogModel;
+use Order\Model\EbayOrderDetailModel;
+use Order\Model\EbayOrderModel;
+use Order\Model\OrderTypeModel;
+use Package\Model\ApiCheckskuModel;
+use Package\Model\ApiOrderWeightModel;
+use Package\Model\GoodsSaleDetailModel;
+use Package\Model\OrderslogModel;
+use Package\Model\TopMenuModel;
+use Package\Model\WeighRuleModel;
+use Package\Model\WeightingKeywordModel;
+use Think\Cache\Driver\Redis;
+use Think\Exception;
+
+/**
+ * 处理拦截
+ * 1、删除erp_order_type中的数据
+ * 2、删除erp_goods_sale_detail订单相关的数据
+ * 3、将订单转到回收站
+ * 4、删除api_checksku验货数据
+ * @author Simon 2017/11/22
+ */
+class ScanService
+{
+
+    private $currency_store=0;
+    private $apiCheck=null;
+    private $apiWeight=null;
+    private $ebayOrderModel=null;
+    private $ebayOrderDetailModel=null;
+    private $goodsSaleDetailModel=null;
+    private $orderTypeModel=null;
+    private $interceptModel=null;
+    private $TopMenu=null;
+    private $GoodsOutWeight=null;
+    private $avgWeightStatistics=null;
+    private $weighRule=null;
+    /**
+     * 称重失败日志
+     * @var null
+     */
+    private $canWeightFailureLogModel = null;
+
+    public function __construct() {
+        $this->interceptModel       = new OrderInterceptRecordModel();
+        $this->orderTypeModel       = new OrderTypeModel();
+        $this->goodsSaleDetailModel = new GoodsSaleDetailModel();
+        $this->ebayOrderModel       = new EbayOrderModel();
+        $this->ebayOrderDetailModel = new EbayOrderDetailModel();
+        $this->apiCheck             = new ApiCheckskuModel();
+        $this->apiWeight             = new ApiOrderWeightModel();
+        $this->TopMenu              = new TopMenuModel();
+        $this->GoodsOutWeight       = new GoodsOutWeightModel();
+        $this->avgWeightStatistics  = new AvgWeightStatisticsModel();
+        $this->weighRule  = new WeighRuleModel();
+        $this->currency_store       = C('CURRENT_STORE_ID');
+        $this->canWeightFailureLogModel = new CanWeightFailureLogModel();
+
+        //状态缓存
+
+    }
+
+
+
+
+
+
+
+    /**
+    *测试人员谭 2018-05-04 23:47:55
+    *说明:扫描一枪并保存重量
+    */
+    public function SaveWeight($trackNo,$currentweight,$curr){
+
+        return false;
+
+    }
+
+    /**
+    *测试人员谭 2018-05-04 23:41:40
+    *说明: 最后还是把这个订单的跟踪号拿出来了
+    */
+    private function trueEbayID($trackNo){
+        $filed='ebay_id,ebay_tracknumber,pxorderid,ebay_carrier,ebay_ordersn';
+        $Arr=$this->ebayOrderModel->where("ebay_tracknumber='$trackNo' and ebay_status=2009")
+            ->field($filed)
+            ->find();
+
+
+        if(!empty($Arr)){
+            return $Arr;
+        }
+
+        $Arr=$this->ebayOrderModel->where("pxorderid='$trackNo' and ebay_status=2009")
+            ->field($filed)
+            ->find();
+
+        if(empty($Arr)){
+            return ['ebay_id'=>false];
+        }
+
+        return $Arr;
+
+    }
+
+
+    /**
+    *测试人员谭 2018-05-04 23:52:11
+    *说明: 没有那啥 2009
+    */
+    private function getOrderStatusMessage($trackNo){
+        $Arr=$this->ebayOrderModel->where("ebay_tracknumber='$trackNo'")
+            ->field('ebay_id,ebay_tracknumber,pxorderid,ebay_status')->order('ebay_id desc')
+            ->find();
+
+        if(empty($Arr)){
+            $Arr=$this->ebayOrderModel->where("pxorderid='$trackNo'")
+                ->field('ebay_id,ebay_tracknumber,pxorderid,ebay_status')->order('ebay_id desc')
+                ->find();
+
+            if(empty($Arr)){
+                return '系统无法识别该号码!';
+            }
+        }
+
+        $menuName=$this->getTopMenuName($Arr['ebay_status']);
+
+
+        return '系统当前状态:'.$menuName.'(code:'.$Arr['ebay_status'].')!';
+
+
+
+    }
+
+
+/**
+*测试人员谭 2018-05-05 14:11:48
+*说明: 订单的各种状态
+*/
+    private function getTopMenuName($index){
+        $topmenuArr=S('order.topmenu');
+        if(!$topmenuArr){
+            $topmenuArr=$this->TopMenu->getMenuName();
+            S('order.topmenu',$topmenuArr,3600);
+        }
+
+        return $topmenuArr[$index];
+    }
+
+
+    /**
+     * 称重规则限制
+     * @param $ebay_id
+     * @return array
+     * @author Shawn
+     * @date 2018/12/24
+     */
+    private function getCalcWeight($ebay_id){
+        $log = "[".date("Y-m-d H:i:s")."]"."用户：".$_SESSION['truename']."称重过程重量检测：".PHP_EOL;
+        $log .= "ebay_id===".$ebay_id.PHP_EOL;
+        $logPath = dirname(dirname(THINK_PATH)).'/log/checkweight/'.date('YmdH').'.txt';
+        //获取配置是否开启限重
+        $configModel = new ConfigsModel();
+        $config = $configModel->getField("limit_weight_status");
+        $config = (int)$config;
+        //没有开启直接pass
+        if($config == 0) {
+            $log .= "称重限制重量功能未开启，本次称重不检测重量是否符合规则！".PHP_EOL;
+            writeFile($logPath,$log);
+            return ['weight' => false];
+        }
+        //判断是否有权限
+        $power = explode(",", $_SESSION['power']);
+        //有权限用户直接通过
+        if(in_array('view_pick_carrier_group', $power)){
+            $log .= "该用户有权限设置规则，无须遵守规则，直接通过".PHP_EOL;
+            writeFile($logPath,$log);
+            return ['weight'=>false];
+        }
+        //获取加权设置
+        $weightingModel = new WeightingKeywordModel();
+        $weightingData = $weightingModel->order("id asc")->select();
+        //默认加权为0
+        $weighting = 0;
+        //加权优先级
+        $weightingId = 0;
+        //订单产品总重量g
+        $orderTotalWeight = 0;
+        //获取订单sku和数量
+        $orderData = $this->goodsSaleDetailModel->where("ebay_id=$ebay_id")->field('sku,qty')->select();
+        if(empty($orderData)){
+            $log .= "没有找到订单信息".PHP_EOL;
+            writeFile($logPath,$log);
+            return ['weight'=>false];
+        }
+        $goodsModel = new ErpEbayGoodsModel();
+        foreach ($orderData as $value){
+            $sku = $value['sku'];
+            $qty = (int)$value['qty'];
+            //获取sku实重和品名
+            $goodsData = $goodsModel->where(['goods_sn'=>$sku])->field("goods_weight,goods_name")->find();
+            if(empty($goodsData)){
+                continue;
+            }else{
+                $realWeight = $goodsData['goods_weight'];
+                $goodsName = $goodsData['goods_name'];
+                $orderTotalWeight += $qty * $realWeight * 1000;
+                //如果有设置的数据
+                if(!empty($weightingData)){
+                    foreach ($weightingData as $va){
+                        $keyword = $va['keyword'];
+                        $p_name_str = strstr($goodsName, $keyword);
+                        $bool = $weightingId == 0 || $va['sort'] < $weightingId;
+                        if($p_name_str !== false && $bool){
+                            $weighting = $va['weighting'];
+                            $weightingId = $va['sort'];
+                        }
+                    }
+                }
+            }
+        }
+        $orderTotalWeight = $orderTotalWeight + $weighting;
+        //查询是否包含在设置区间
+        $weightRuleData = $this->weighRule->where("weight_begin <= '$orderTotalWeight' and weight_end > '$orderTotalWeight'")
+            ->field('allow_dif')
+            ->find();
+        if(empty($weightRuleData)){
+            $log .= "出库称重规则没有找到".$orderTotalWeight."符合设置的重量区间".PHP_EOL;
+            writeFile($logPath,$log);
+            return ['weight'=>false];
+        }
+        $weight_start = $orderTotalWeight - $weightRuleData['allow_dif'];
+        $weight_end = $orderTotalWeight + $weightRuleData['allow_dif'];
+        $weight_start_msg = $weight_start < 0 ? 0 : $weight_start;
+        return ['weight'=>true,'start'=>$weight_start,'end'=>$weight_end,'msg'=>'重量异常：该订单允许出库重量为'.$weight_start_msg.'g——'.$weight_end.'g'];
+  }
+
+    /**
+     * @param $trackNo 跟踪号
+     * @param $currentweight 重量
+     * @param $curr 物流
+     * @param $number 当前包裹编号
+     * @return array
+     * @author Shawn
+     * @date 2018/8/10
+     */
+    public function SaveWeightNew($trackNo,$currentweight,$curr,$number)
+    {
+        $log = $_SESSION['truename'].'扫描第一枪条码:'.$_REQUEST['ebayid']."----".date('YmdHis')."\n\n";
+        $file = dirname(dirname(THINK_PATH)).'/log/firstscan/'.date('YmdH').'.txt';
+        writeFile($file,$log);
+        if(in_array($curr, ['美国虚拟仓普货-TJ', '美国虚拟仓内电-TJ', '美国虚拟仓特货-TJ', '美国虚拟仓普货大包-TJ', '美国虚拟仓内电大包-TJ', '美国虚拟仓特货大包-TJ']))
+        {
+          $length = strlen($trackNo);
+          if($length > 30)
+          {
+            $trackNo = substr($trackNo, 12, $length - 8);
+          }
+          else
+          {
+            $trackNo = substr($trackNo, 8, $length - 8);
+          }   
+        }
+        //加个判断旧包裹是否处理完
+        $is_can_scan = $this->apiWeight->where(["bag_mark"=>''])->getField("id");
+        if(!empty($is_can_scan)){
+            return ['result'=>0,'message'=>'旧程序未处理完,禁止称重','data'=>''];
+        }
+
+        if(empty($trackNo)){
+            return ['result'=>0,'message'=>'条码扫描异常','data'=>''];
+        }
+
+        if($currentweight<=0){
+            return ['result'=>0,'message'=>'重量获取异常','data'=>''];
+        }
+
+        if(empty($curr)){
+            return ['result'=>0,'message'=>'运输方式系统提交异常','data'=>''];
+        }
+        //验证下电子称是否卡死 Shawn 2018-08-27
+        $key = 'check_scan_weight:'.trim($_SESSION['id']);
+        $redis = new Redis();
+        $redisData = $redis->get($key);
+        //没有这个key就加一下
+        if(!$redisData){
+            $scanWeightData['check_weight'] = $currentweight;
+            $scanWeightData['check_count'] = 1;
+            $redis->set($key,$scanWeightData,86400);
+        }else{
+            //相同重量，累加一次，不一样的话就清零
+            if($redisData['check_weight'] == $currentweight){
+                //超过8次提示一下
+                if($redisData['check_count'] >= 8){
+                    return ['result'=>0,'message'=>'请检查电子称是否卡死！','data'=>''];
+                }
+                $redisData['check_count']++;
+            }else{
+                $redisData['check_weight'] = $currentweight;
+                $redisData['check_count'] = 1;
+            }
+            $redis->set($key,$redisData,86400);
+        }
+
+        $OrderArr = $this->trueEbayID($trackNo);
+
+        if(!$OrderArr['ebay_id']){
+
+            $msg=$this->getOrderStatusMessage($trackNo);
+
+            return ['result'=>0,'message'=>'待称重中找不到订单:'.$msg,'data'=>''];
+        }
+        //判断运输方式是否正确
+
+
+        $ebay_id          = $OrderArr['ebay_id'];
+        $ebay_tracknumber = $OrderArr['ebay_tracknumber'];
+        $pxorderid        = $OrderArr['pxorderid'];
+        $ordersn          = $OrderArr['ebay_ordersn'];
+        $ebay_carrier     = trim($OrderArr['ebay_carrier']);
+
+//
+        $apiChecks=$this->apiCheck->where("ebay_id=$ebay_id")->field('id,status')->find();
+
+        if(empty($apiChecks)){
+            return ['result'=>0,'message'=>'订单必须要验货 或者 捡货包装','data'=>''];
+        }
+
+        if($apiChecks['status']!=2){
+            return ['result'=>0,'message'=>'订单未回传出库记录,请等待5分钟：code:'.$apiChecks['status'],'data'=>''];
+        }
+
+
+        $aveWeight=$this->apiWeight->where("ebay_id=$ebay_id")->field('id')->find();
+
+        if(!empty($aveWeight)){
+            return ['result'=>0,'message'=>'订单已经同步过重量了，包裹可能重发!','data'=>''];
+        }
+
+
+        $Back=$this->interceptModel->isExistNotControlInterceptInfo($ebay_id);
+
+        if($Back){
+            return ['result'=>0,'message'=>'订单已被拦截,请先检查拦截列表','data'=>''];
+        }
+
+
+        if($ebay_carrier=='EUB'&&!strstr($pxorderid,'交运')){
+            return ['result'=>0,'message'=>'EUB订单必须要交运','data'=>''];
+        }
+        $ebayCarrierModel = new CarrierModel();
+        $allCarrierData = $ebayCarrierModel->getCarrierCache();
+        //修改运输方式的匹配 以前是部分，现在是全部
+        if($curr=='PMS'){
+            if(substr($ebay_carrier,0,3)!=$curr){
+                $this->canWeightFailureLogModel->addLog($ebay_carrier,$curr,$ebay_id);
+                return ['result'=>0,'message'=>'运输方式 选择的有问题:'.$ebay_carrier."($curr),单号:{$ebay_id}",'data'=>''];
+            }
+        }elseif($ebay_carrier!=$curr){
+            //判断代码是否一致
+            if(!array_key_exists($ebay_carrier,$allCarrierData) || !array_key_exists($curr,$allCarrierData)){
+                return ['result'=>0,'message'=>'运输方式出现异常了，没有在集合中找到:'.$ebay_carrier."($curr),单号:{$ebay_id}",'data'=>''];
+            }else{
+                $curr_code = $allCarrierData[$curr]['sorting_code'];
+                $carrier_code = $allCarrierData[$ebay_carrier]['sorting_code'];
+                if(empty($curr_code) || empty($carrier_code)){
+                    $this->canWeightFailureLogModel->addLog($ebay_carrier,$curr,$ebay_id);
+                    return ['result'=>0,'message'=>'运输方式不一致，且代码为空:'.$ebay_carrier."($curr),单号:{$ebay_id}",'data'=>''];
+                }
+                if($carrier_code != $curr_code){
+                    $this->canWeightFailureLogModel->addLog($ebay_carrier,$curr,$ebay_id);
+                    return ['result'=>0,'message'=>'运输方式不一致，且代码不一样:'.$ebay_carrier."($curr),单号:{$ebay_id}",'data'=>''];
+                }
+            }
+        }
+
+
+
+        /**
+         *测试人员谭 2018-07-27 10:38:52
+         *说明: 会爆炸的SKU 一定要踢出来
+         */
+
+        $bombsku=include dirname(dirname(THINK_PATH)).'/newerp/Application/Package/Conf/bombsku.php';
+
+        //print_r($bombsku);die();
+
+        $boMap['sku']=['in',$bombsku];
+        $boMap['ebay_id']=$ebay_id;
+
+        $rs= $this->goodsSaleDetailModel->where($boMap)->field('sku')->find();
+
+        if($rs){
+            return ['result'=>0,'message'=>'该包裹包含危险爆炸品，请联系主管处理!'];
+        }
+
+
+
+        /**
+         *测试人员谭 2018-05-05 00:14:35
+         *说明: 获取订单计算重量
+         */
+        /**
+         *测试人员谭 2018-05-05 00:16:00
+         *说明: 验证称重 和仓库设置的规则
+         * TODO : 单品单货 验证
+         * TODO: 平均重量验证
+         */
+
+
+        /**
+        *测试人员谭 2018-09-07 13:51:06
+        *说明:  江鹏程经理大惊失色，质问我为什么去掉重量规则，去掉的不是平均重量吗？
+         *      原来一开始 他根本就不明白 平均重量和  重量规则的关系......
+         *      我们必须牢记这种工作失误，并一定要在未来涉及到这种  规则，计算 方面的东西的时候 一定一定要写出 弱智都能看懂的详细文档
+         *      现在我们不得不 重新启用这个平均重量
+        */
+
+        $calcWeight = $this->getCalcWeight($ebay_id);
+
+
+        /**
+         *测试人员谭 2018-05-05 17:15:57
+         *说明:需要验证重量拉
+         */
+        if($calcWeight['weight']){
+            $start=$calcWeight['start'];
+            $end=$calcWeight['end'];
+            $msg=$calcWeight['msg'];
+
+            if($currentweight>$end || $currentweight <$start ){
+                return ['result'=>0,'message'=>'订单重量异常:'.$msg."{$currentweight},{$start},{$end}",'data'=>''];
+            }
+        }
+
+        //判断一下是否有袋子没有弄完的，如果当前没有袋子需要生成袋子
+        $userName = session("truename");
+        $bagMap['delivery_status'] = 0;
+        $bagMap['bag_status'] = 1;
+        $bagMap['create_by'] = $userName;
+        $apiBagModel = M("api_bags");
+        $bagExistCode = $apiBagModel->where($bagMap)->getField("mark_code");
+        //有未完成的袋子，看下是不是目前正在操作的
+        if(!empty($bagExistCode) && ($number != $bagExistCode)){
+            return ['result'=>0,'message'=>'上一个包裹'.$bagExistCode.'尚未完成','data'=>''];
+        }else{
+            //如果为空需要生成一个袋子
+            if(empty($number)){
+                //获取最后一个id
+                $lastId = $apiBagModel->order("id desc")->getField("mark_code");
+                // 生成袋子的条码
+                $slice = substr($lastId, 0, 6);
+                if ($lastId && strpos($lastId, '-') !== false && $slice == date('ymd')) {
+                    $mark = explode('-', $lastId);
+                    $count = ++$mark[1];
+                } else {
+                    $count = '1';
+                }
+                $bagMark = date('ymdH').'-'.$count;
+                // 检测袋子的重复性，同一个袋子号的不能重复
+                $checkRepeat = $apiBagModel->where(['mark_code'=>$bagMark])->getField("id");
+                if(empty($checkRepeat)){
+                    $bagData['create_at'] = time();
+                    $bagData['create_by'] = $userName;
+                    $bagData['mark_code'] = $bagMark;
+                    $bagData['bag_status'] = 1;
+                    $result = $apiBagModel->add($bagData);
+                    if($result){
+                        $number = $bagMark;
+                    }else{
+                        return ['result'=>0,'message'=>'包裹编号添加数据出错了，请重试','data'=>''];
+                    }
+                }else{
+                    return ['result'=>0,'message'=>'创建包裹编号出错了，请重试'.$bagMark.'已被占用','data'=>''];
+                }
+            }else{
+                $bagCheckData = $apiBagModel->where(['mark_code'=>$number])->find();
+                if(empty($bagCheckData)){
+                    return ['result'=>0,'message'=>'没有找到该包裹编号'.$number.'请确认是否正确','data'=>''];
+                }else{
+                    if($bagCheckData['delivery_status'] == 1){
+                        return ['result'=>0,'message'=>'该包裹编号'.$number.'已经交运了，不能扫描了','data'=>''];
+                    }
+                    if($bagCheckData['create_by'] != $userName){
+                        return ['result'=>0,'message'=>'该包裹编号'.$number.'不是你的，不允许操作','data'=>''];
+                    }
+                    //判断下袋子里面存在的物流和传来的物流是否一致
+                    $bagCarrier = $this->apiWeight->where(['bag_mark'=>$number])->getField("transport");
+                    if(!empty($bagCarrier)){
+                        if($bagCarrier != $curr){
+                            //往包裹里面追加订单，这里暂不记录日志，2018-12-27 10:59跟老谭确认了
+                            if(!array_key_exists($bagCarrier,$allCarrierData)  || !array_key_exists($curr,$allCarrierData)){
+                                return ['result'=>0,'message'=>'运输方式出现异常了，没有在集合中找到:'.$bagCarrier."($curr),单号:{$ebay_id}",'data'=>''];
+                            }else{
+                                $currCarrierCode = $allCarrierData[$bagCarrier]['sorting_code'];
+                                $curr_code = $allCarrierData[$curr]['sorting_code'];
+                                if(empty($curr_code) || empty($currCarrierCode)){
+                                    return ['result'=>0,'message'=>'包裹运输方式不一致，且代码为空:'.$bagCarrier."($curr),单号:{$ebay_id}",'data'=>''];
+                                }
+                                if($currCarrierCode != $curr_code){
+                                    return ['result'=>0,'message'=>'包裹运输方式不一致，且代码不一样:'.$bagCarrier."($curr),单号:{$ebay_id}",'data'=>''];
+                                }
+                            }
+
+                        }
+
+                    }
+
+                }
+            }
+        }
+        //计算下总重量不能超过30KG
+        $totalWeight = $this->apiWeight->where(["bag_mark"=>$number])->getField("sum(`weight`) as total_weight");
+        if(!empty($totalWeight)){
+            $allWeight = (int)$totalWeight + (int)$currentweight;
+            if($allWeight > 30000){
+                return ['result'=>0,'message'=>'包裹总重量超过30KG了，当前袋子重量：'.$totalWeight.'g','data'=>''];
+            }
+        }
+        //称重数据表数据
+        $add = [];
+        $add['ebay_id'] = $ebay_id;
+        $add['weight'] = $currentweight; // 这里一定要是 g 单位
+        $add['scantime'] = time();
+        $add['scan_user'] = $userName;
+        $add['transport'] = $ebay_carrier;
+        $add['bag_mark'] = $number;
+
+        /**
+         * 数据库操作有点多，加个事务回滚
+         * @author Shawn
+         * @date 2018-8-11
+         */
+        $this->apiWeight->startTrans();
+        $weightResult = $this->apiWeight->add($add);
+        if(!$weightResult){
+            $this->apiWeight->rollback();
+            return ['result'=>0,'message'=>'称重失败，记录写入异常'];
+        }else{
+            $orderResult = $this->ebayOrderModel->where(['ebay_id'=>$ebay_id])->limit(1)->save(['scantime'=>time()]);
+            if(!$orderResult){
+                $this->apiWeight->rollback();
+                return ['result'=>0,'message'=>'更新订单表扫描时间失败了，请重试','data'=>''];
+            }
+
+        }
+        $this->apiWeight->commit();
+        $OrdersLog = new OrderslogModel();
+        $log = '称重员:'.$userName.'，称重成功,订单即将转到已发货!';
+        $OrdersLog->addordernote($ebay_id,$log);
+        return ['result'=>1,'message'=>'称重成功','number'=>$number,'ebay_id'=>$ebay_id];
+    }
+}

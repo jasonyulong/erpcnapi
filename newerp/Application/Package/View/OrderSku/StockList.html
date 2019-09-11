@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>扣库存队列</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+<link href="/newerp/Public/css/whouse.css" rel="stylesheet">
+<style type="text/css">
+    #data_div table td{padding: 4px;}
+    #data_div2 table td{padding: 4px;}
+    td.alinks{cursor: pointer;color: #004488;}
+    tr.bgcolors td{background:#D66;}
+</style>
+<body>
+<div style="height:40px;background:#449D44;color:#fff;">扣库存队列</div>
+
+<h1>总未出库:{$total}</h1>
+<h1>等待最久的50单:</h1>
+<div class="container" id="data_div">
+    
+    <table border="1">
+        <tr>
+            <td>订单号</td>
+            <td>时间</td>
+            <td>包装员</td>
+            <td>加入出库队列</td>
+        </tr>
+        <?php
+
+         foreach($Orders as $List){
+            $ebay_id=$List['ebay_id'];
+            $addtime=date('Y-m-d H:i:s',$List['addtime']);
+            $packinguser=$List['packinguser'];
+            $in_process=$List['in_process'];
+
+            $css='';
+
+            if(time()-$List['addtime'] > 300){
+                $css='bgcolors';
+            }
+
+
+
+        ?>
+
+        <tr class="{$css}">
+            <td><a href="http://erp.spocoo.com/t.php?s=/Orders/Index/index&search_field=ebay_id&search_value={$ebay_id}" target="_blank">{$ebay_id}</a></td>
+            <td>{$addtime}</td>
+            <td>{$packinguser}</td>
+            <td>
+                <if condition="$in_process">
+                    是<else/>否
+                </if>
+            </td>
+        </tr>
+        <?php } ?>
+    </table>
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript" src="/newerp/Public/plugins/icheck/icheck.min.js"></script>
+<script type="application/javascript">
+
+</script>
+
+</html>

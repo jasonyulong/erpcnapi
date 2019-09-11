@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>称重</title>
+    <link rel="stylesheet" type="text/css" href="cache/themes/Sugar5/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="themes/Sugar5/css/navs.css" />
+    <link href="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.css" rel="stylesheet">
+    <style>
+        #moduleList{height: 36px;width: 100%;text-align: center;}
+        #scanbox{background:#FAFAFA;border: 1px solid #abc3d7;padding: 20px;margin:10px;margin-top:30px;}
+        #borcode{font-size:40px;}
+        .oval-pop {
+            border: 1px solid red;
+            border-radius: 15px;
+            color: red;
+            cursor: default;
+            display: inline-block;
+            height: 30px;
+            line-height: 30px;
+            margin-left: 10px;
+            text-align: center;
+            width: 30px;
+        }
+        .box {
+            /*border:1px solid #ccc;*/
+            /*padding-left: 10px;*/
+            border-radius: 2px;
+        }
+        .relative_box {
+            width:440px;
+            top:0;
+            border:1px solid #ccc;
+            border-radius: 2px;
+            border-bottom: none;
+            background-color: rgba(200,200,200, 0.7);
+            box-shadow: 0 0 1px #bbb;
+            padding-bottom: 15px;
+        }
+
+        .header {
+            background-color: rgba(190,190,190, 0.9);
+            border-top-left-radius: 2px;
+            border-top-right-radius: 2px;
+            padding: 5px 10px;
+        }
+        /*.scanUser, .currentCounts, .totalCurrentWeight {
+            color: green;
+            font-size: 14px;
+            font-weight: bold;
+        }*/
+        /*新的称重页面样式begin Shawn*/
+        .show-info{
+            margin:10px auto;
+            min-width:1024px;
+        }
+        .warp-left{
+            width: 250px;
+            position: absolute;
+            margin-left: 10px;
+            margin-top: 10px;
+            min-height: 600px;
+        }
+        .warp-left p {
+            line-height: 1;
+            vertical-align: middle;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .warp-mid{
+            margin-left: 350px;
+            width: 500px;
+        }
+        .carrers{
+            margin-bottom: 10px;
+        }
+        .scan_title{
+            font-size: 20px;
+            line-height: 1;
+        }
+        .scan_order_number{
+            color: #0Bc0FF;
+        }
+        .print_btn{
+            background-color: #5bc0de;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 2;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            margin-top: 10px;
+            width: 180px;
+        }
+        .print_btn img {
+            text-align: center;
+            vertical-align: middle;
+            height: 30px;
+        }
+        .success_tips{
+            font-size: 40px;
+            color: blue;
+            margin-bottom: 20px;
+        }
+        .success_info{
+            width: 100%;
+            font-size: 18px;
+        }
+        .currentCounts{
+            color: green;
+            font-size: 30px;
+        }
+        .send_success{
+            word-break: normal;
+            white-space: nowrap;
+            background-color: green;
+            color: #FFFFFF;
+            border-radius: 6px;
+            width: 80px;
+            text-align: center;
+        }
+        .table_show{
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 400px;
+            padding: 10px;
+            background-color: #ccc;
+            border-spacing:0px 10px;
+            border-collapse:separate;
+            width: 100%;
+        }
+        .table_show tr{
+            height: 30px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+
+        }
+        .warp-right{
+            margin-left: 880px;
+            width: 400px;
+            top:230px;
+            overflow-y: scroll;
+            height: 400px;
+            position: absolute;
+        }
+        .bagList{
+            width: 100%;
+            border: 1px solid #000000;
+            padding: 0;
+            font-size: 18px;
+            line-height: 1;
+            text-align: center;
+            height: 400px;
+        }
+        .bagList th {
+            background-color: #cccccc;
+            height: 40px;
+            border: 1px solid #000;
+        }
+        .bagList tr td{
+            border: 1px solid #000;
+        }
+        .content{
+            height: 340px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .error_msg{
+            font-size: 40px;
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .error_msg_list{
+            font-size: 40px;
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .btn_list{
+            background-color: #5bc0de;
+            display: inline-block;
+            margin: 5px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            width: 50px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1 style="color:#911;padding: 17px;font-size: 20px;margin:0"><?php  echo $whousename;?></h1>
+<div id="moduleList"><p style="font-size: 30px;text-align: center;color: red" >提示：不同物流，代码一样的可以装入相同的蛇皮袋子！</p></div>
+<div>
+    <a class="inBagLink" href="inBagList.php" style="background-color: #37d5ff;padding:5px 10px;margin-left: 10px" target="_blank"> 装袋列表 </a>
+    <a class="inBagLink" href="javascript:getScanOrderList()" style="background-color: #37d5ff;padding:5px 10px;margin-left: 10px">更新扫描数据 </a>
+</div>
+<select name="openSound" style="display: none;" id="openSound">
+    <option value="2">开启声音提示</option>
+    <option value="1">关闭声音提示</option>
+</select>
+<div class="show-info">
+    <!-- 操作列表 -->
+    <div class="warp-left">
+        <p onclick="check_scan_type(1);">
+            <input type="radio" name="scan_type" id="scan_new" checked value="1" /><b>仅扫描订单号/跟踪号</b>
+        </p>
+        <p onclick="check_scan_type(2);">
+            <input type="radio" name="scan_type" id="scan_old" value="2" /><b>继续扫描</b>
+        </p>
+        <p class="carrers">
+            <select name="curr" id="curr" onchange="changeCarrier(this)">
+                <volist name="Carriers" id="item">
+                    <option value="{$item.name}" weightMin="{$item.weightmin}" weightMax="{$item.weightmax}" <?php if($item['name'] == $bagData['transport']){ echo "selected"; } ?> >{$item.name}{$item.code}</option>
+                </volist>
+
+            </select>
+        </p>
+        <p>
+            <b class="scan_title">扫描单号<br /></b>
+            跟踪号<input data="" value="清除上次失败" onclick="clearPrevError(true)" type="button">
+        </p>
+
+        <p><input id="order" name="order" onkeyup="checkByTrackNo(event)" data="" type="text" style="width:200px; height:35px; font-size:24px" /></p>
+        <p>当前包裹编号：
+            <b class="scan_order_number"><if condition="$bagData">{$bagData['mark_code']}</if></b>
+        </p>
+        <div>
+            重量：<br>
+            <span id="readScaleWeightValue_s" style="font-weight:bold;font-size:100px;margin:0px;color:blue">0</span>
+            <span style="color:#666;font-size:20px"><br>KG</span>
+            <input type="hidden" id="readScaleWeightValue" name="deliverScanRecord.weight" value="0">
+        </div>
+        <if condition="can('weightManualSync')">
+            <input id="weightbyhand" type="text">(g)
+            <input onclick="submitweight()" value="手动同步" type="button">
+        </if>
+        <p>
+            <applet  id="appReadScale" name="appReadScale" code="B.class" archive="comm.jar" codebase="./java/" height="50" width="250">
+                你的浏览器不支持Java
+            </applet>
+        </p>
+        <input type="hidden" id="readScalePort" name="" value="">
+        <div>
+            <h4 style="color:#F00">请先选择电子称的端口</h4>
+            <div id="showScalePorts">
+            </div>
+        </div>
+        <div>
+            <button class="print_btn" id="search-btn" type="button"><span>打印包裹</span></button>
+        </div>
+
+    </div>
+    <!--称重列表 -->
+    <div class="warp-mid">
+        <div>
+            <p class="success_tips">成功：<b class="success_count">0</b></p>
+            <p class="success_info">重量：<b class="totalCurrentWeight">0</b>kg，数量：<b class="currentCounts">0</b>，均重：<b class="average_weight">0</b>g</p>
+        </div>
+        <div class="content" style="overflow-y: scroll;">
+            <table cellpadding="0" cellspacing="0" class="table_show">
+            </table>
+        </div>
+        <div class="error_msg"></div>
+    </div>
+    <!-- 装袋列表-->
+    <div class="warp-right">
+        <table cellpadding="0" cellspacing="0" class="bagList">
+            <tr>
+                <th width="140px;">包裹编号</th>
+                <th width="40px;">袋号</th>
+                <th width="80px;">订单数</th>
+                <th width="60px;">总重（kg）</th>
+                <th width="80px;">称重重量（kg）</th>
+                <th width="100px;">打印</th>
+            </tr>
+        </table>
+    </div>
+</div>
+<audio  id="successSound" autoplay="autoplay">
+    <source src='' type='audio/mp3'>
+</audio>
+<audio id="failSound" autoplay="autoplay">
+    <source src='' type='audio/mp3'>
+</audio>
+</body>
+<!--<script language="javascript" src="js/jquery.js"></script>-->
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script type="text/javascript" src="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.jquery.min.js"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script>
+    /*新版称重 js开始*/
+    var successTotal = 0;//今日称重订单总数
+    var noBagTotal = 0;//今日称重完未装袋订单数
+    var noBagWeightTotal = 0;//今日称重完成未装带总重量
+    var noBagWeight = 0;//今日称重完成未装带平均重量=重量/数量
+    var maxWeight = 30000;//默认最大重量30KG，超过提示去装袋
+    var currentTotalWeight = 0;//当前袋子重量
+    var currentBagNumber = "{$bagData['mark_code']}";//当前袋子编号
+    var check_weight=0;
+    var check_count=0;
+    $(function(){
+        $ ('select[name=curr]').chosen ({search_contains: true, width: '200px', allow_single_deselect: true});
+
+        $ ("#order").focus ();
+        //修改运输限重
+        // var weightMin = parseInt ($ ("#curr option:selected").attr ("weightMin")) * 1000;
+        // var weightMax = parseInt ($ ("#curr option:selected").attr ("weightMax")) * 1000;
+        // $ ("#weightLimit").html (weightMin + 'g—' + weightMax + 'g');
+        // 获取初始运输方式
+        $ ('.transport_manner').html ($ ('#curr').val ()).css ({color: 'green', fontSize: '14px', fontWeight: 'bold'});
+        //获取自己今日称重列表
+        getScanOrderList();
+        //打印包裹
+        $(".print_btn").unbind("click").click(function () {
+            if(currentBagNumber == ""){
+                alert('没有找到需要打印的包裹');
+                return false;
+            }else{
+                printBag();
+            }
+        })
+        // 显示comm接口列表
+        setTimeout (function () {
+            console.log ('read port');
+            appReadScaleInit ();
+        }, 4000);
+
+        // 读取 电子称重量
+        setInterval ("getScaleWeight()", 100);
+
+    });
+    /**
+     * 选择继续扫描功能
+     * @author Shawn
+     * @date 2018-08-10
+     **/
+    function check_scan_type(type) {
+        //继续扫描
+        if(type == 2){
+            $("#scan_old").prop("checked",true);
+            layer.open({
+                content : '<input name="scan_old" onkeyup="checkScanBagNumber(event);" style="font-size: 28px;width: 100%;height: 30px;" />',
+                title   : '扫描包裹编号',
+                area    : ['300px', '200px'],
+                maxmin: true,
+                yes     : function(index) {
+                    var old_code = $.trim($("input[name='scan_old']").val());
+                    if(old_code == ""){
+                       alert("请输入需要继续扫描的包裹");
+                       return false;
+                    }else{
+                        layer.close(index);
+                        $ ("#order").focus ();
+
+                    }
+                },
+            });
+            $(".layui-layer-content").css("height","auto");
+            $("input[name='scan_old']").focus();
+        }else{
+            $("#scan_new").prop("checked",true);
+        }
+    }
+    /**
+     *
+     * 检查下继续扫描的包裹号
+     * @author Shawn
+     * @date 2018-08-10
+     **/
+    function checkScanBagNumber(event) {
+        var code = $.trim ($("input[name='scan_old']").val());
+        if (code == "")return;
+
+        if(event!=100){
+            var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+            if (keyCode !==13) {
+                return '';
+            }
+        }
+        var url = '{:U("Scan/checkScanBagNumber")}';
+        $.ajax ({
+            url:      url,
+            type:     'post',
+            data:{number:code},
+            dataType: 'json'
+        }).done (function (re) {
+            if(re.status == 1){
+                var mark_code = re.data.mark_code;
+                currentBagNumber = mark_code;
+                $(".print_btn").attr("data",re.data.id);
+                $(".scan_order_number").html(mark_code);
+                $(".layui-layer-close").click();
+                $ ("#order").focus ();
+                getUserCurrentCarrierCounts();
+            }else{
+               alert(re.msg);
+            }
+        }).fail (function () {
+            alert("访问出错了.");
+        })
+    }
+    
+    /**
+     * 获取自己今日称重相关数据
+     * @author Shawn
+     * @date 2018-08-09
+     **/
+    function getScanOrderList() {
+        //清除之前的数据
+        var obj =  $(".content .table_show");
+        obj.find("tr").remove();
+        //列表数据显示
+        var html = '';
+        var url = '{:U("Scan/getScanOrderList")}';
+        $.ajax ({
+            url:      url,
+            type:     'post',
+            dataType: 'json'
+        }).done (function (re) {
+            if(re.status == 1){
+                var length = re.data.length;
+                successTotal = re.count;
+                if(length > 0){
+                    for(var i=0;i<length;i++){
+                        var ebay_id = re['data'][i]['ebay_id'];
+                        var track_number = re['data'][i]['ebay_tracknumber'];
+                        var transport = re['data'][i]['transport'];
+                        var weight = re['data'][i]['weight'];
+                        html += '<tr><td class="send_success">成功发货</td>';
+                        html += '<td> 订单：'+ebay_id+' 跟踪号：'+track_number+' 重量：'+weight+'kg 物流：'+transport+'</td></tr>';
+                    }
+                    obj.append(html);
+                    //成功订单总数
+                    $(".success_count").html(successTotal);
+                }
+            }else{
+                var info = "<tr><td class='error_msg_list'>"+re.msg+"</td></tr>";
+                obj.append(info);
+            }
+        }).fail (function () {
+            var info = "<tr><td class='error_msg_list'>访问出错了</td></tr>";
+            obj.append(info);
+        }).done (function () {
+            //用户当前渠道统计数据
+            getUserCurrentCarrierCounts();
+        }).done(function () {
+            //获取装袋列表
+            getUserBagList();
+        });
+    }
+
+    /**
+     *
+     * 获取用户当天装袋列表
+     * @author Shawn
+     * @date 2018-08-09
+     *
+     **/
+    function getUserBagList() {
+        var obj = $(".warp-right .bagList");
+        obj.find("tr:gt(0)").remove();
+        var url = '{:U("Scan/getUserBagList")}';
+        var html = '';
+        $.ajax ({
+            url:      url,
+            type:     'post',
+            dataType: 'json'
+        }).done (function (re) {
+            if (re.status == 1) {
+                var length = re.data.length;
+                if(length > 0){
+                    for(var i=0;i<length;i++){
+                        var number = re['data'][i]['number'];
+                        var code = re['data'][i]['mark_code'];
+                        var counts = re['data'][i]['counts'];
+                        var weight = re['data'][i]['calc_weight'];
+                        var totalWeight = re['data'][i]['weight'];
+                        html += "<tr><td>"+code+"</td><td>"+number+"</td><td>"+counts+"</td><td>"+weight+"</td><td><a href='javaScript:void(0)' id='editWeight_"+code+"' onclick=\"editWeight('"+code+"')\">"+totalWeight+"</a></td><td><span onclick=\"printBagList('"+code+"')\" class='btn_list'>打印</span></td>";
+                    }
+                    obj.append(html);
+                }
+            }else{
+                var info = "<tr><td colspan='5' class='error_msg_list'>"+re.msg+"</td></tr>";
+                obj.append(info);
+            }
+        }).fail (function () {
+            var info = "<tr><td colspan='5' class='error_msg_list'>访问出错了！</td></tr>";
+            obj.append(info);
+        });
+    }
+
+    /**
+     * 修改重量
+     * @author Shawn
+     * @date 2019-03-26
+     */
+    function editWeight(code)
+    {
+        layer.prompt({title: '包：'+code+"称重重量"}, function (val, index) {
+            var load_index = layer.load();
+            $.ajax({
+                url: "/t.php?s=/Order/Scan/editWeight",
+                type: 'POST',
+                data: {code: code, weight: val},
+                dataType: 'JSON',
+                success: function (ret) {
+                    layer.close(load_index);
+                    if (ret.status == 1) {
+                        layer.msg(ret.msg);
+                        $("#editWeight_"+code).html(ret.weight);
+                    }
+                    else {
+                        layer.close(load_index);
+                        layer.msg(ret.msg);
+                    }
+
+                }
+            });
+        });
+    }
+
+    /**
+     *
+     * 打印打包袋子信息
+     * @author Shawn
+     * @date 2018-08-10
+     **/
+    function printBag() {
+        var hint = confirm("是否确认结束当前包裹！");
+        if (hint == true)
+        {
+            var url = '{:U("Scan/printBag")}&id='+currentBagNumber;
+            window.open(url,"_blank");
+            //打印了，默认这个包裹已经完结
+            currentBagNumber = '';
+            $(".scan_order_number").html(currentBagNumber);
+            //刷新数据
+            getScanOrderList();
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+    /**
+     * 打印自己包装好的袋子
+     * @author Shawn
+     * @date 2018-08-13
+     **/
+    function printBagList(id) {
+        var url = '{:U("Scan/printBag")}&id='+id;
+        window.open(url,"_blank");
+    }
+
+    /**
+     * 获取当前包裹袋子称重未包装统计数据
+     * @author Shawn
+     * @date 2018-08-09
+     **/
+    function getUserCurrentCarrierCounts() {
+        var url = '{:U("Scan/getUserCurrentCarrierCounts")}';
+        $.ajax ({
+            url:      url,
+            type:     'post',
+            data:     {currentBagNumber: currentBagNumber},
+            dataType: 'json'
+        }).done (function (re) {
+            if (re.status == 1) {
+                noBagTotal = re.data.counts;
+                noBagWeightTotal = re.data.total;
+                noBagWeight = re.data.average;
+                currentTotalWeight = re.data.currentTotalWeight;
+                $('.currentCounts').html (noBagTotal);
+                $('.totalCurrentWeight').html (noBagWeightTotal);
+                $(".average_weight").html(noBagWeight);
+            }else{
+                console.log(re.msg);
+            }
+        }).fail (function () {
+            alert ('当前扫员扫描统计访问失败.');
+        });
+    }
+
+    /**
+     * 切换物流渠道
+     * @author Shawn
+     * @date 2018-08-09
+     **/
+    function changeCarrier(that) {
+        $ ('.transport_manner').css ({color: 'green', fontSize: '14px', fontWeight: 'bold'}).html ($ (that).val ());
+        //修改运输限重
+        // var weightMin = parseInt ($ ("#curr option:selected").attr ("weightMin")) * 1000;
+        // var weightMax = parseInt ($ ("#curr option:selected").attr ("weightMax")) * 1000;
+        // $ ("#weightLimit").html (weightMin + 'g—' + weightMax + 'g');
+    }
+    /**
+     *
+     * 显示错误提示信息
+     * @author Shawn
+     * @date 2018-08-09
+     **/
+    function showMsg(str, bool) {
+        var bool = bool || false;
+        var str = str || '';
+        var color = "#f33";
+        if (bool) {
+            color = "#393";
+        }
+        if (str == '') {
+            html = "<img src=cx.gif />";
+            $(".error_msg").html(html);
+            return;
+        }
+        var html = "<p style='color:" + color + "'>" + str + "</p>";
+        $(".error_msg").html(html);
+    }
+
+
+
+
+    // 显示comm接口列表
+    function appReadScaleInit() {
+        if ($ ('#readScalePort').val () == '') {
+            var txt = '';
+            var theApplet = document.appReadScale;
+            var ports = theApplet.getPort ();
+            for (var i = 0; i < ports.length; i ++) {
+                txt += '<label class="radio-inline"><input type="radio" name="ScalePorts" value="' + ports[i] + '" onclick="setScalePort(this.value)"> ' + ports[i] + '<label>';
+            }
+            $ ('#showScalePorts').html (txt);
+
+        }
+    }
+
+    // 开启重量读取
+    function setScalePort(value) {
+        $ ('#readScalePort').val (value);
+
+        var result = document.appReadScale.init (value, 9600, 8, 1);
+        if (result == 'success') {
+            getScaleWeight ();
+            $ ('#showScalePorts').parent ().children ('h4').css ('color', '#000');
+        } else {
+            alert ('电子称读取错误 : ' + result);
+        }
+    }
+
+    // 重量清零
+    function readScaleInit() {
+        $ ('#readScaleWeightValue').val (0);
+        $ ('#readScaleWeightValue_s').text (0);
+    }
+
+    // 读取 电子称重量
+    function getScaleWeight() {
+        // 判断是否有comm接口
+        if ($ ('#readScalePort').val () == '') return;
+
+        // 读取设备称出的重量
+        var cweightStr = document.appReadScale.currentweight;
+        //console.log(cweightStr);
+        //return ;
+        if (! cweightStr) {
+            return;
+        }
+
+        // 取出最大重量
+        cw_arr = cweightStr.match (/[\d\.]+/gi);
+
+        if (cw_arr && cw_arr.length > 0) {
+            cweightStr = 0;
+            for (var i in cw_arr) {
+                if (parseFloat (cw_arr[i]) > cweightStr) {
+                    cweightStr = cw_arr[i];
+                }
+            }
+        }
+        //console.log(cweightStr);
+        var cweight = parseFloat (cweightStr);
+        var rweight = $ ('#readScaleWeightValue').val ();
+        if (isNaN (cweight)) cweight = 0.0;
+
+        // 新称重
+        if (cweight <= 0.001) {
+            $ ('#readScaleWeightValue').val (0);
+            $ ('#readScaleWeightValue_s').text (0);
+            return;
+        }
+
+        // 计重变化
+        if (Math.abs (cweight - rweight) > 0.001) {
+            $ ('#readScaleWeightValue').val (cweight);
+            $ ('#readScaleWeightValue_s').text (cweight);
+        }
+    }
+
+
+    /**
+     *创建人: 测试人员谭 2018-05-09 21:41:09
+     *说明: 获取条码基本的判断！然后300 毫秒之后 开始提交
+     */
+    function checkByTrackNo(event) {
+        //清空隐藏域--重量范围
+        var order = $.trim (document.getElementById ('order').value);
+        if (order == "")return;
+
+        var isie = (document.all) ? true : false;//判断是IE内核还是Mozilla
+        var keyCode;
+        if (isie) {
+            keyCode = window.event.keyCode;//IE使用windows.event事件
+        } else {
+            keyCode = event.which;//3个按键函数有一个默认的隐藏变量，这里用e来传递。e.which给出一个索引值给Mo内核（注释1）
+        }
+        if (keyCode != 13) {
+            return false;
+        }
+        showMsg ("请确认包裹已离手!", true);
+        var savethisorder = $ ("#order").attr("data");
+
+        if (savethisorder != '' && undefined != savethisorder) {
+            showMsg ("上一个订单:" + savethisorder + " 未扫描完成!", false);
+            return;
+        }
+
+
+        //+锁后不能扫描输入
+        lockBarcodeInput ();
+        setTimeout (function () {
+            setTimeoutWeight ();
+        }, 200);
+
+    }
+
+
+    // 延迟200毫秒去获取重量并提交
+    function setTimeoutWeight() {
+        //再读一遍
+        getScaleWeight ();
+        //正儿八经地提交
+        var rs = input_submit ();
+        if (rs === false) {
+            unlockBarcodeInput ();
+            selectInput ();
+        }
+        //解锁后才能操作
+        //unlockBarcodeInput();
+    }
+
+    /**
+     * 提交重量和订单信息到后台，需要判断是否代码渠道，是否合袋
+     * @author Shawn
+     * @date 2018-08-08
+     **/
+    function input_submit() {
+        var scanType = $("input[name='scan_type']:checked").val();
+        var ebayid = document.getElementById ('order').value;
+        var curr = document.getElementById ('curr').value;
+        if (curr.indexOf ('PMS') == 0) {
+            curr = 'PMS'
+        }
+        ebayid = ebayid.toUpperCase();
+        // hank 20180312 万欧物流的加拿大、澳大利亚 、意大利专线需要截取跟踪号，截取办法：E后面取10位数字
+        curr = $.trim (curr);
+        if (curr == '意大利专线-万欧') {
+            ebayid = ebayid.substring (0, 11);
+        }
+        curr = encodeURIComponent (curr);
+
+        /**
+         *测试人员谭 2018-08-14 19:31:19
+         *说明: UBI 的条码很神奇啊
+         */
+        if(ebayid.indexOf('019931265099999891')>=0 && ebayid.length >30){
+            ebayid=ebayid.replace('019931265099999891','');
+        }
+
+        if(ebayid.match(/^[0-9A-Z]{7}400\d{13}00000$/)!=null){
+            ebayid=ebayid.substring(7,23);
+        }
+
+        var currentweight = parseFloat ($ ('#readScaleWeightValue').val ());
+
+        currentweight = 1000 * currentweight;
+
+        if (isNaN (currentweight) || currentweight <= 0) {
+            showMsg ("重量" + currentweight + "重量读取失败!请检查电子秤", false);
+            return false;
+        }
+        var TotalWeight = parseInt(currentTotalWeight)+parseInt(currentweight);
+        if(TotalWeight > maxWeight){
+            showMsg ("总重量超出" + maxWeight + "g,请打印当前包裹", false);
+            return false;
+        }
+
+        //获取选中的运输方式自身的限重
+        var weightMin = parseInt ($ ("#curr option:selected").attr ("weightMin")) * 1000;
+        var weightMax = parseInt ($ ("#curr option:selected").attr ("weightMax")) * 1000;
+        weightMax = (weightMax == 0) ? 2000 : weightMax;
+        if ((currentweight < weightMin) || (currentweight > weightMax)) {
+            showMsg ("当前运输方式最小限重：" + weightMin + "g，最大限重：" + weightMax + "g", false);
+            play (false);
+            return false;
+        }
+
+
+        $ ("#order").blur ();
+
+        $ ("#order").attr ("data", ebayid);
+
+        showMsg ("正在发送重量! " + currentweight + "g", true);
+
+        // if(true===checkWeightNormal(currentweight)){
+        //     showMsg ("电子秤可能卡死!", false);
+        //     play (false);
+        //     return false;
+        // }
+
+        PostWeight (ebayid, currentweight, curr);
+
+        return true;
+    }
+
+
+    /**
+     *创建人: 测试人员谭 2018-05-10 18:00:14
+     *说明: 就是Post 重量 啥都不干
+     */
+    function PostWeight(ebayid, currentweight, curr) {
+        var url = "t.php?s=/Order/Scan/saveWeightNew";
+        $.post (url,
+            {"ebayid": ebayid, "currentweight": currentweight, "curr": curr,"currentBagNumber":currentBagNumber},
+            function (data) {
+                if (data.result == 1) {
+                    play (true);
+                    if(currentBagNumber == ""){
+                        currentBagNumber = data.number;
+                        $(".print_btn").attr("data",currentBagNumber);
+                        $(".scan_order_number").html(currentBagNumber);
+                    }
+                    showMsg ("订单：" + ebayid + "重量同步成功!", true);
+                    clearPrevError (false);
+                    updateScanCount (ebayid,data.ebay_id,curr,currentweight);
+                } else {
+                    play (false);
+                    unlockBarcodeInput ();
+                    selectInput ();
+                    showMsg (data.message, false);
+
+                }
+            }, 'json');
+    }
+
+    /**
+     *创建人: 测试人员谭 2018-05-09 11:06:13
+     *说明: 手动提交
+     */
+
+    function submitweight() {
+        //alert("暂未开放");
+        var currentweight = parseInt($.trim ($ ("#weightbyhand").val ()));
+
+        if(isNaN(currentweight)){
+            showMsg("请输入正确的整数!",false);
+            return ;
+        }
+
+
+
+        var ebayid = $.trim(document.getElementById ('order').value);
+
+        var curr = document.getElementById ('curr').value;
+
+        if (ebayid == ""){
+            showMsg("没扫描条码!!",false);
+            return ;
+        }
+        ebayid = ebayid.toUpperCase();
+
+        if(curr==''){
+            showMsg("没选择运输方式!!",false);
+            return ;
+        }
+
+
+        if (curr.indexOf ('PMS') == 0) {
+            curr = 'PMS'
+        }
+        // hank 20180312 万欧物流的加拿大、澳大利亚 、意大利专线需要截取跟踪号，截取办法：E后面取10位数字
+        curr = $.trim (curr);
+        if (curr == '意大利专线-万欧') {
+            ebayid = ebayid.substring (0, 11);
+        }
+        var TotalWeight = parseInt(currentTotalWeight)+parseInt(currentweight);
+
+        if(TotalWeight > maxWeight){
+            showMsg ("总重量超出" + maxWeight + "g,请打印当前包裹", false);
+            return false;
+        }
+        curr = encodeURIComponent (curr);
+
+        PostWeight (ebayid, currentweight, curr);
+
+    }
+
+
+
+    /**
+     *创建人: 测试人员谭 2018-05-23 20:33:41
+     *说明: 怕这个电子秤卡死啊
+     */
+    function checkWeightNormal(ss){
+        if(isNaN(ss)){
+            check_weight=0;
+            check_count=0;
+            return false;
+        }
+        if(ss>0){
+            if(check_count==0){
+                check_weight=ss;
+            }
+            if(check_weight==ss){
+                check_count++
+                setTimeout(function(){
+                    checkWeightNormalAgain();
+                },500);
+            }
+
+            //这么巧？ 居然有 连续8个称重 一模一样
+            if(check_count > 8){
+                return true;
+            }
+
+            return false;
+        }
+
+
+        check_weight=0;
+        check_count=0;
+        return false;
+    }
+
+    function checkWeightNormalAgain(){
+        var currentweight = parseFloat ($ ('#readScaleWeightValue').val ());
+
+        currentweight=parseFloat(currentweight)*1000;
+
+        if(check_weight!=currentweight){
+            check_weight=0;
+            check_count=0;
+        }
+
+
+    }
+
+
+
+    /**
+     *创建人: 测试人员谭 2018-05-10 18:02:39
+     *说明: 锁定输入框
+     */
+    function lockBarcodeInput() {
+        $ ("#order").prop ("disabled", true);
+    }
+
+    /**
+     *创建人: 测试人员谭 2018-05-10 18:02:39
+     *说明: 解锁锁输入框
+     */
+    function unlockBarcodeInput() {
+        $ ("#order").prop ("disabled", false);
+    }
+
+    /**
+     * 每次扫描时的统计更新
+     */
+    function updateScanCount(track_number,ebay_id,carrier,currentweight) {
+        carrier = decodeURIComponent(carrier);
+        currentTotalWeight = parseInt(currentTotalWeight) + parseInt(currentweight);
+        //扫描数量+1
+        var countObj = $(".currentCounts");
+        var count = parseInt (countObj.html ()) + 1
+        countObj.html (count);
+        //重量累加
+        var totalWeight = (currentTotalWeight/1000).toFixed(2);
+        $('.totalCurrentWeight').html (totalWeight);
+        var averageWeight = (currentTotalWeight/count).toFixed(2);
+        $(".average_weight").html(averageWeight);
+        //扫描订单列表
+        currentweight = currentweight/1000;
+        var error = $(".content .table_show tr:eq(0)");
+        if(error.find(".error_msg_list").size() > 0){
+            error.remove();
+        }
+        var html = '<tr><td class="send_success">成功发货</td>';
+        html += '<td> 订单：'+ebay_id+' 跟踪号：'+track_number+' 重量：'+currentweight+'kg 物流：'+carrier+'</td></tr>';
+        $(".content .table_show").prepend(html);
+        //成功+1
+        var success_count = parseInt($(".success_count").html());
+        $(".success_count").html(success_count+1);
+    }
+
+    /**
+     *创建人: 测试人员谭 2018-05-10 18:03:45
+     *说明: 清除扫描信息 为下一个准备
+     */
+    function clearPrevError(type) {
+        unlockBarcodeInput ();
+        document.getElementById ('order').focus ();
+        document.getElementById ('order').value = '';
+        $ ("#order").attr ("data", "");
+        //手动点击需要清除redis值
+        if(type){
+            var url = "t.php?s=/Order/Scan/deleteCheckData";
+            $.post (url,{},function (e) {
+                
+            })
+        }
+    }
+
+
+    /**
+     *创建人: 测试人员谭 2018-05-10 13:23:19
+     *说明: 报错的死后用一下
+     */
+    function selectInput() {
+        $ ('#order').focus ().select ();
+    }
+
+    // 关于声音的事情
+    function play(bool) {
+        if (document.getElementById ("openSound").value == 1) {
+            return;
+        }
+        if (! bool) {
+            document.getElementById ("failSound").src = 'music/sound/fail.mp3';
+        } else {
+            document.getElementById ("successSound").src = 'music/sound/158.mp3';
+        }
+    }
+
+
+</script>
+</html>

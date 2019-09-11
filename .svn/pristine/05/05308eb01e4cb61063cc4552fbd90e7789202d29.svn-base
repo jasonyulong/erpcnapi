@@ -1,0 +1,13 @@
+/newerp/Application/Package/Service/MakeBaleService.class.php
+/newerp/Application/Package/View/MakeBale/newWorkbench.html
+/newerp/Application/Order/View/Order/index.html
+/newerp/Application/Package/View/PrintPickingList/orderPackages.html
+/newerp/Application/Order/Controller/OrderController.class.php
+/newerp/Application/Package/Controller/MakeBaleController.class.php
+/newerp/Application/Package/Controller/PrintPickingListController.class.php
+/newerp/Application/Package/View/MakeBale/moresku.html
+/newerp/Application/Package/View/PrintPickingList/printPackageNew.html
+/top.php
+
+
+ALTER TABLE `pick_order_detail` ADD INDEX `scan_user` (`scan_user`) USING BTREE ;

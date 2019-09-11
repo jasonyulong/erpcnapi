@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>多品多件—开始作业</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link href="/newerp/Public/css/whouse.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+
+    .content-area-modify .layui-layer-content{
+        height: 55px !important;
+        padding:5px 20px !important;
+    }
+    .container{width:90%;}
+    .pd10{padding:10px;}
+    .pd5{padding:5px;}
+    .package_process{background:#fff;border:1px solid #666;padding:10px;margin-top: 10px;}
+    .sku_color{color:#FFF;font-size:25px;}
+    .banner_color_blue{background:#30b2e6}
+    .banner_color_org{background-color:orange;}
+    .input_br{border: 1px solid #666;font-size:26px;padding:2px 3px;}
+    .processbg{width:130px;background:url("themes/default/images/process.jpg") no-repeat;height:17px;}
+    .processbg_success{background:url("themes/default/images/process.jpg") no-repeat 0 -17px;}
+    .fonts{text-align: center;}
+    p.length_break,p.length_breaks{width:300px;white-space:nowrap;display:block;text-overflow:ellipsis;overflow:hidden;}
+    p.length_breaks,p.length_break_model{width:200px;}
+    p.length_break_model{font-size:14px;color:#0099CC;font-weight: bold;}
+
+    .font20{font-size:30px;}
+    .peel_message_box{
+        position: absolute;left:82.4%;top:0;background-color: rgba(255,0,0,1);width:200px;height:40px;text-align: center;border-radius: 2px;font-family: 微软雅黑;vertical-align: middle;font-size:25px;font-weight: bold;color: #fff;padding:10px 20px;letter-spacing: 2px;
+        /*visibility:hidden;*/
+    }
+    .jiaodui_style{color:red;width:66px;font-size:30px;}
+    #sku_img,#model_img{background:#999;padding:10px;margin-left:10px;height:370px;width:370px;}
+    #sku_img img{height:350px;width:350px;}
+    #model_img{height:130px;width:130px;padding:5px;border-top:2px solid #fff;}
+    #model_img img{height:118px;width:118px;}
+    .scan_his{background:#FFA500;border:1px solid #AFAFAF;height:30px;line-height:30px;padding-left:8px;}
+    .scan_his_body{border: 1px solid #AFAFAF;min-height:100px;border-top:none;}
+    td.bolds{font-weight:bold;}
+    .delete_sku{height:30px;width:30px;color:#911;cursor:pointer;font-size: 30px;line-height:30px;text-align: center;background:#30B2E6}
+    .floor{
+        font-size: 30px;
+        color: red;
+        margin-right: 20px;
+        background-color: #30b2e6;
+        height: 100%;
+        width: 100px;
+        float: left;
+    }
+</style>
+<body>
+
+<div id="succ" style="text-align:center"></div>
+<div class="container">
+    <div class="row pd5 banner_color_org">
+        <div class="col-xs-12">
+            <div class="col-xs-8" style="font-size:20px;">
+                <select name="carrierGroup" style="color: red" onchange="changeCarrierGroup(this)">
+                    <volist name="carrierGroup" id="vo">
+                        <option value="{$key}" <eq name="type" value="$key">selected</eq> >{$vo}</option>
+                    </volist>
+                </select>
+                多品多件</b>&nbsp;
+                <input type="button" onclick="reloadPage()" class="btn btn-primary" value="重置页面"/>
+                <input type="button" onclick="jumpOrder('{$ordersn}')" class="btn btn-primary" value="跳过订单"/>
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" style="float: right;background-color: #286090;" onclick="location.href='t.php?s=/Package/MakeBale/newWorkbench'"> 单品单货</button>
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" style="float: right;background-color: #286090" onclick="location.href='t.php?s=/Package/MakeBale/newWorkbenchMore'"> 单品多货 </button>
+
+            </div>
+<!--            <div class="col-xs-1">
+                <input type="button" onclick="OverOrder('{$ordersn}')" class="btn btn-success" value="结束作业"/>
+            </div>
+            <div class="col-xs-1">
+                <input type="button" onclick="javascript:location.href='t.php?s=/Package/MakeBale/selectWorkbench.html'" class="btn btn-success" value="包装入口"/>
+            </div>-->
+            <!--菜单菜单----START-->
+            <div id="whouse_menu">
+                <div class="openDiv">
+                       <span class="childmod">
+                        <b class="b_title">拣货流程</b>
+                            <a href="t.php?s=/Package/CreateSinglePickOrder/index" target="_blank">创建拣货单（单品）</a>
+                            <a href="t.php?s=/Package/OrderGroup/index" target="_blank">创建拣货单（多品）</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/0" target="_blank">等待打印</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/1" target="_blank">已打印待确认</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/2" target="_blank">已确认待包装</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/3" target="_blank">已包装完毕</a>
+                        </span>
+                        <span class="childmod">
+                            <b class="b_title">二次分拣</b>
+                            <a href="t.php?s=/Package/SecondPick/" target="_blank">二次分拣</a>
+                        </span>
+
+                        <span class="childmod">
+                            <b class="b_title">包装流程</b>
+                            <a href="t.php?s=/Package/MakeBale/newWorkbench" target="_blank">包装流程（单品单件）</a>
+                            <a href="t.php?s=/Package/MakeBale/newWorkbenchMore" target="_blank">包装流程（单品多件）</a>
+                            <a href="t.php?s=/Package/MakeBale/" target="_blank">包装流程（多品多件）</a>
+                            <a href="t.php?s=/Package/UserPackageFee/showStatistic.html" target="_blank">包装费用统计</a>
+                        </span>
+                        <span class="childmod">
+                            <b class="b_title">基本配置</b>
+                            <a href="/t.php?s=/Package/CarrierGroup/groupList.html" target="_blank">运输方式分组配置</a>
+                        </span>
+                </div>
+            </div>
+            <!--菜单菜单----END-->
+        </div>
+    </div>
+</div>
+
+
+<div style="margin:10px auto;width:90%;">
+    <table width="100%">
+        <tr>
+            <td width="60%" valign="top">
+                <div class="banner_color_blue">
+                    <div class="pd5">
+                        <b class="sku_color">SKU</b> <input onkeyup="check(event)" value="{$_REQUEST['boxid']}" id="order" class="input_br" type="text"/>
+                        &nbsp;&nbsp;&nbsp;
+                        <span class="font21">订单:</span>
+                        <span class="font21" id="ebay_id"></span>
+                        <span style="/*display: none;*/" id="ordersn"></span>
+                        <span class="font18 bold carrier" id="ebay_carrier"></span>
+
+                    </div>
+                </div>
+                <div class="package_process" style="height:60px;padding:0;text-align: center;line-height: 2">
+                    <span class="floor font18 bold carrier"><b id="ebay_layer"></b></span>
+                    <span style="margin-left: 10px;font-size: 26px;color: red;"><b id="sku_total">多品SKU总数：0</b></span>
+                   <!-- <div class="col-xs-12" style="padding-top:5px;">
+                        <div class="col-xs-3">
+                            <p id="process1" class="processbg"></p>
+                            <p class="fonts">扫描SKU</p>
+                        </div>
+                        <div class="col-xs-3">
+                            <p id="process2" class="processbg"></p>
+                            <p class="fonts">扫描over获取包裹信息</p>
+                        </div>
+                        <div class="col-xs-3">
+                            <p id="process3" class="processbg"></p>
+                            <p class="fonts">自动出单</p>
+                        </div>
+                        <div class="col-xs-3">
+                            <p id="process4" class="processbg"></p>
+                            <p class="fonts">标记为已打印</p>
+                        </div>
+                    </div>-->
+                </div>
+                <div style="margin-top:10px;">
+                    <table width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #DDDDDD;" class="table table-responsive table-hover table-condensed">
+                        <tr style="background:#FFA500;">
+                            <th width="15%">图片</th>
+                            <th width="45%">品名</th>
+                            <th width="20%">SKU</th>
+                            <th width="15%">应发</th>
+                            <th width="5%">应发</th>
+                        </tr>
+                        <tbody id="mytbody">
+                            <?php
+                                $EachData=[];
+                                $FristError=0;
+                                if(isset($SKUInfoArr['status'])){
+                                    $RsStatus=$SKUInfoArr['status'];
+                                    if($RsStatus==1){
+                                        $EachData=$SKUInfoArr['data'];
+                                    }else{
+                                        $msg=$SKUInfoArr['msg'];
+                                        if($msg){
+                                            $FristError=1;
+                                        }
+                                        echo '<tr><td colspan="5" style="color:#911;font-size:30px;">'.$msg.'</td></tr>';
+                                    }
+                                }
+
+                               foreach($EachData as $sku=>$List){
+                                    $ebay_id=$List['ebay_id'];
+                                    $qty=$List['qty'];
+                                    $goods_name=$List['goods_name'];
+                                    $pic=$List['pic'];
+                                    $model=$List['model'];
+                                    $modelid=$List['modelid'];
+                                    $model_note=$List['model_note'];
+                                    $accessories=$List['accessories'];
+                            ?>
+                            <tr>
+                                <td>
+                                    <img style="height:60px;width:60px;" src="{:C('NEW_ONLINE_PIC_URL')}/{$pic}?w=60&h=60"/>
+                                </td>
+                                <td>
+                                    <p class="length_break">{$goods_name}</p>
+                                    <p class="length_break_model">{$model}：{$accessories}</p>
+                                </td>
+                                <td>
+                                    <p class="font20">{$sku}</p>
+                                    <input type="hidden" id="acc_{$sku}" data="{$modelid}" value="{$model}：{$accessories}">
+                                </td>
+                                <td><p class="font20" id="scan{$sku}" style="color:#181">{$qty}</p></td>
+                            </tr>
+
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                    <br>
+                    <table width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #DDDDDD;" class="table table-responsive table-hover table-condensed">
+                        <tr>
+                            <td id="model_img"></td>
+                            <td id="current_pk_attr"></td>
+                            <td id="current_pk_remove"></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td width="30%" valign="top">
+                <div id="sku_img">
+
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div style="margin:10px auto;width:90%;">
+    <div class="scan_his">扫描历史</div>
+    <div class="scan_his_body">
+        <table width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #DDDDDD;" class="table table-responsive table-hover table-condensed">
+            <tr>
+                <td>
+                    <a class="btn btn-sm btn-primary" style="font-size:12px;margin-top:-4px;" onclick="baozhuang_jindu('{$ordersn}')">查看今日包装</a>
+                    <span style="color:#911">*以下是最近5个包裹*</span>
+                </td>
+                <td style="width:116mm;">面单显示</td>
+            </tr>
+            <tr>
+                <td>
+                    <table class="table table-responsive table-hover table-condensed" width="100%" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td>订单号</td>
+                            <td>跟踪号</td>
+                            <td>sku</td>
+                            <td>包装时间</td>
+                            <td>操作</td>
+                        </tr>
+
+                           <?php
+                           // debug($Orders);
+                             foreach($Orders as $List){
+                                 $ebay_id_old=$List['ebay_id'];
+                                 $skus=$List['skus'];
+                                 $combineid=$List['skus'][0]['combineid']; // 盒子号
+                                 $baletime=date('y-m-d H:i:s',$List['baletime']);
+                                 if($combineid){
+                                    $combineid_str='盒子号：'.$combineid;
+                                 }else{
+                                    $combineid_str='';
+                                 }
+                            ?>
+                        <tr>
+                            <td class="bolds">
+                                {$ebay_id_old}
+                                <br>{$combineid_str}
+                            </td>
+                            <td>{$List['ebay_tracknumber']}<br>{$List['pxorderid']}</td>
+                            <td class="bolds">
+                                <?php
+                                    foreach($skus as $skulist){
+                                        echo '<p class="length_breaks">'.$skulist['sku'].'*'.$skulist['qty'];
+                                        echo '&nbsp;&nbsp;'.$skulist['goods_name'];
+                                        if($skulist['is_no_packaging']){
+                                            echo '<font color="red">需去包装</font>';
+                                        }
+                                        echo '</p>';
+                                    }
+                                ?>
+                            </td>
+                            <td>{$baletime}</td>
+                            <td><button class="btn btn-sm btn-primary" onclick="RePrint({$ebay_id_old})">重新打印</button></td>
+                        </tr>
+                            <?php
+                             }
+                           ?>
+
+                    </table>
+                </td>
+                <td id="print_iframe">
+                    <!--
+                    <iframe onload="autoChecks()" name="print_iframe" style="width:116mm;max-height:200px;overflow-y:scroll;" src=""></iframe>
+                    --->
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<audio  id="10" autoplay="autoplay">
+    <source src='' type='audio/mp3'>
+</audio>
+<audio id="failSound" >
+    <source src='' type='audio/mp3'>
+</audio>
+<audio id="scanSound" >
+    <source src='' type='audio/mp3'>
+</audio>
+
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<?php
+?>
+<script>
+    var OrderSKUCache='over';
+    var OrderSkuLen=0;
+
+    var ebay_id='{$ebay_id}';
+
+    var print_mod='{$print_mod}';
+
+    //TODO  测试订单 的干活
+
+    <?php
+        if(isset($SKUInfoArr['status'])){
+            $RsStatus=$SKUInfoArr['status'];
+            if($RsStatus==1){
+                echo 'OrderSKUCache='.json_encode($SKUInfoArr['data']).';';
+                echo 'OrderSkuLen='.$SKUInfoArr['len'].';';
+            }else{
+                $msg=$SKUInfoArr['msg'];
+                echo 'layer.msg("'.$msg.'", {icon: 5});';
+                echo 'OrderSKUCache=[];';
+            }
+        }
+
+    ?>
+
+
+</script>
+<script type="application/javascript">
+
+
+
+
+    $(function(){
+        $("#order").select().focus();
+        $('.peel_message_box').hide();
+        //
+        // if(''!=OrderSKUCache&&OrderSKUCache!='over'){
+        //     $("#process1").addClass('processbg_success');
+        //     $("#process2").addClass('processbg_success');
+        // }
+
+        setInterval(function(){
+            updateTodayWork(3); // Package/MakeBale/ajaxGetToday
+        },6000);
+    });
+
+
+    function updateTodayWork(type){
+        var url="{:U('Package/MakeBale/ajaxGetToday')}";
+        $.post(url,{type:type},function(data){
+            $("#sku_total").html("多品SKU总数："+data.sku_total);
+        },'json');
+
+    }
+
+    function deletesku(sku){
+        $("#tr_"+sku).remove();
+        $("#order").select().focus();
+    }
+
+
+    function ViewSKUAndModelPic(data){
+        //console.info(data)
+        var goods_sn=data.goods_sn;
+        var goods_pic=data.goods_pic; //sku_img
+        var modelid=data.modelid; //model_img
+        var goods_name=data.goods_name;
+        var model_note=data.model_note;
+        var accessories=data.accessories;
+        var model=data.model;
+        var isnopackaging=data.isnopackaging;
+        var modelhtml='<b style="font-size:17px;">'+model+'</b>：'+accessories;
+        var trhtml='';
+        trhtml+='<tr id="tr_'+goods_sn+'">';
+        trhtml+='<td><img src="http://image.spocoo.com/'+goods_pic+'" style="height:60px;width:60px;"></td>';
+        trhtml+='<td><p class="length_break">'+goods_name+'</p></td>';
+        trhtml+='<td><p class="font20">'+goods_sn+'</p></td>';
+        trhtml+='<td><span class="readyscan font20" style="color:#0099CC" id="scan'+goods_sn+'">1</span></td>';
+        trhtml+='<td><div class="delete_sku" onclick="deletesku(\''+goods_sn+'\')">X</div></td>';
+
+        var isremovepack='<span style="font-size:30px;color:#911">'+isnopackaging+'</span>';
+
+        $("#mytbody").append(trhtml);
+
+        var url="http://hkerp.wisstone.com/Public/uploads/packimg/"+modelid+".jpg";
+        var html='<img onerror="this.src=\'no_picture.gif\'" src="'+url+'"/>';
+
+        $("#model_img").html(html);
+        $("#current_pk_attr").html('<p class="length_break_model">'+modelhtml+'</p>');
+        $("#current_pk_remove").html(isremovepack);
+
+        var imgurl='http://image.spocoo.com/'+goods_pic;
+
+        $("#sku_img").html("<img src='"+imgurl+"'/>");
+
+        $("#order").select().focus();
+    }
+
+
+
+    function check(event){
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return '';
+        }
+
+        var ordersn='{$ordersn}';
+        var bzuser='{$_SESSION["truename"]}';
+
+        if(bzuser==''){
+            layer.alert('包装人员获取失败,您需要重新登录', {
+                skin: 'layui-layer-molv' //样式类名
+                ,closeBtn: 0
+            });
+            return false;
+        }
+        var order	= $.trim($("#order").val());
+        order=order.toUpperCase();
+        if(order==''){
+            return '';
+        }
+        //扫描二维码替换输入框值 Shawn 2018-09-04
+        if(order.indexOf("$") >= 0){
+            var orderStr = order.split("$");
+            order = orderStr[1];
+            document.getElementById('order').value = order;
+        }
+
+        $("#order").blur(); // 连续不断扫描扫错
+
+        if(order=='OVER'){
+            // 发送sku 找订单 TODO
+            getOrderBySKUInfo();
+
+            return false;
+        }
+
+        //一个一个地塞进去 SKU
+
+        var chk=$("#scan"+order).html();
+
+        if(!chk){ //这sku 是第一次扫描的！ 要把一些乱七八糟的信息 搞出来
+            getSKUInfo(order);
+        }else{
+            chk=parseInt($.trim(chk))+1;
+            $("#scan"+order).html(chk);
+            $("#order").select().focus();
+            return false;
+        }
+
+
+
+
+    }
+
+
+
+    // 一定要用同步
+    function getSKUInfo(sku){
+        $.ajax({
+            type: "POST",
+            url: "{:U('Package/MakeBale/getOneSKUinfo')}",
+            data:"sku="+sku,
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                if(data.status){
+                    ViewSKUAndModelPic(data); //,modelid,model+' '+accessories
+                }else{
+                    layer.msg("请求SKU信息失败:"+data.msg, {icon: 5});
+                }
+               // alert(data.goods_name)
+            }
+        });
+    }
+
+
+    /**
+    *测试人员谭 2018-08-03 16:25:32
+    *说明:扫描完最后一个sku 开始找订单子
+    */
+    function getOrderBySKUInfo(){
+        // $("#process3").addClass('processbg_success');
+        var str='';
+        var i=0;
+        $("#mytbody tr").each(function(){
+            var sku=$(this).attr("id").replace('tr_','');
+            var qty=$("#scan"+sku).html();
+            str+=sku+'*'+qty+',';
+            i++;
+        });
+
+        if(str==''||i<2){
+            layer.msg("请扫描至少两个SKU", {icon: 5});
+            $("#order").select().focus();
+            playm('fail');
+            return '';
+        }
+
+        $("#order").blur();
+
+        Loadindex = layer.load(1, {
+            shade: [0.1,'#fff'] //0.1透明度的白色背景
+        });
+
+        // 同步获取
+        $.ajax({
+            type: "POST",
+            url: "{:U('Package/MakeBale/GetOrderInfoBySKUS')}",
+            data:"sku="+str+'&type='+'{$type}',
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                if(data.status){
+                    var print_url=data.print_url;
+                    var html='<iframe onload="autoPrint()" src="'+print_url+'" name="print_iframe" style="width:116mm;max-height:200px;overflow-y:scroll;"></iframe>';
+                    $("#print_iframe").html(html);
+                    $("#ebay_id").html(data.ebay_id);
+                    $("#ebay_layer").html(data.layer+"层");
+                    $("#ordersn").html(data.ordersn);
+
+                }else{
+                    playm('fail');
+                    if(undefined!==data.ebay_id){
+                        $("#ebay_id").html(data.ebay_id);
+                    }
+                    layer.msg("获取面单信息失败:"+data.msg+",您可以重置界面或者跳过订单", {icon: 5});
+                    layer.close(Loadindex);
+                    $("#order").select().focus();
+                }
+            }
+        });
+
+
+    }
+
+
+    function autoPrint(){
+        ajaxsetover($("#ebay_id").html(),'{$_SESSION["truename"]}','{$_SESSION["truename"]}');
+        print();
+        // $("#process3").addClass('processbg_success');
+        // $("#process4").addClass('processbg_success');
+        $("#mytbody").html("");
+        $("#order").select().focus();
+        layer.close(Loadindex);
+    }
+
+
+
+
+    function playm(id){
+        var video=null;
+        if(id=="fail"){
+            video	=	document.getElementById("failSound");
+            video.src="capi/number/error.mp3";
+            video.play();
+        }else {
+            video	=	document.getElementById("10");
+            video.src="capi/number/"+id+".mp3";
+            video.play();
+        }
+    }
+
+
+    function ajaxsetover(ebayid,baozhuangUser,auditUser){
+        var ordersn=$("#ordersn").html();
+
+        var type=3; // 多品多货 =3  单品单货=1  单品多货=2  验货出库=4
+
+        $.ajax({
+            type : "post",
+            url : "t.php?s=/Package/MakeBale/updatePackUser",
+            data : "ebayid="+ebayid+"&baozhuangUser="+baozhuangUser+"&auditUser="+auditUser+"&ordersn="+ordersn+"&type="+type,
+            async : false,
+            success : function(data){
+                //TODO 出单 出单
+                $("#succ").html('<font color="green" size="9">校验成功! 请注意打印机是否出单!</font>');
+            }
+        });
+    }
+
+
+
+    function  checkOver(){ // 验证 是否完毕
+
+    }
+
+
+    /**
+     * 判断是否去除原有包装，并展示信息
+     * @param is_peel
+     */
+    function check_peel_packaging(is_peel)
+    {
+        var message_box = $('.peel_message_box');
+        if (is_peel == 1) {
+            message_box.show('fast');
+            message_box.html('请拆掉外包装');
+        } else {
+            message_box.hide('fast');
+            message_box.html('');
+        }
+    }
+
+
+
+    function print(){
+        window.frames[0].print();
+        return false;
+    }
+
+    // 跳转到 后台获取到地址， windows.open 出来
+    function RePrint(ebayid){
+        var url='{:U("MakeBale/getPrintLink")}';
+        $.post(url,{"ebay_id":ebayid},function(data){
+            if(data.status==1){
+                var printurl=data.data;
+                window.open(printurl,"_blank");return '';
+            }else{
+                layer.msg("重新打印失败了", {icon: 5}); return '';
+            }
+        },'json')
+    }
+
+
+    /**
+     *测试人员谭 2017-06-05 20:37:35
+     *说明: 查看包装进度
+     */
+
+    function  baozhuang_jindu(){
+        var url='{:U("MakeBale/getBaleProcessNew")}';
+        layer.open({
+            type: 2,
+            skin: 'layui-layer-rim', //加上边框
+            title : "今日包装进度",
+            area: ['770px', '480px'], //宽高
+            content: url
+        });
+
+    }
+
+
+
+
+    function reloadPage(){
+        var url=location.href;
+        url=url.replace(/\&boxid\=\$\d+\$/,'');
+        location.href=url;
+    }
+
+    var FristError='{$FristError}';
+    if(FristError==1){
+        playm('fail');
+    }
+
+    function jumpOrder(){
+
+        var ebay_id=$("#ebay_id").html();
+        var ordersn=$("#ordersn").html();
+
+        if(ebay_id==''){
+            layer.msg("系统检测不到订单号", {icon: 5}); return '';
+        }
+
+        if(ordersn==''){
+            layer.msg("系统检测不到拣货单", {icon: 5}); return '';
+        }
+
+        if(!confirm("跳过订单之后,订单只能重新捡货,请确定订单不能放在等待扫描!")){
+            return '';
+        }
+
+
+        var url='{:U("MakeBale/jumpOrder")}';
+
+        $.post(url,{ordersn:ordersn,ebay_id:ebay_id},function(data){
+            if(data.status==1){
+                layer.msg("跳过成功", {icon: 6});
+                setTimeout(function(){
+                    reloadPage();
+                },1200);
+                return '';
+
+            }else{
+                layer.msg("跳过失败："+data.msg, {icon: 5}); return '';
+            }
+        },'json')
+    }
+
+
+    /**
+     * 选择不同的物流渠道
+     * @param that
+     * @author Shawn
+     */
+    function changeCarrierGroup(that) {
+        var type = $(that).val();
+        var url = '{:U("MakeBale/newWorkbenchMoreSKU")}&type='+type;
+        location.href = url;
+    }
+
+
+</script>
+
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        table{width:80%;margin:0 auto;margin-top: 50px}
+        table tr td{border:1px solid #ccc;line-height: 50px;height: 50px}
+        .layui-layer-btn{background-color: #eee !important}
+        .title{font-size: 14px;font-weight: 800}
+        .layui-layer-btn{text-align: center !important;}
+        .layui-layer-btn0{width:100px !important;text-align: center;height: 30px !important;line-height: 30px !important;background-color: #5cb85c !important;border:none !important}
+        .layui-layer-btn1{width:100px !important;text-align: center;height: 30px !important;line-height: 30px !important;background-color: red!important;border:none !important;color:#fff !important}
+        .bg{background-color: #ccc;font-weight: 800}
+    </style>
+</head>
+
+<body>
+		<table cellpadding="0" cellspacing="0">
+            <tr class="title">
+                <td style="width:15%">sku</td>
+                <td style="width:15%">库位</td>
+                <td style="width:10%">应拣货数量</td>
+                <td style="width:20%">异常数量</td>
+                <td style="width:10%">实拣货数量</td>
+                <td style="width:30%">品名</td>
+            </tr>
+
+            <volist name="lists" id="vo">
+                <tr>
+                    <td>{$vo['sku']}</td>
+                    <td>{$vo.location}</td>
+                    <td>{$vo.counts}</td>
+                    <td><span style="color:red"><if condition="$vo['not_picked'] eq 0">请确认未捡数量 <else/>{$vo['not_picked']}</if></span></td>
+                    <td><?php echo  $vo['counts'] - $vo['not_picked'];?></td>
+                    <td>{$vo.goods_name}</td>
+                </tr>
+           </volist>
+        </table>
+</body>
+</html>
+
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script>
+    ;$(function(){
+        $("tr").mouseover(function(){
+            $(this).addClass('bg');
+        }).mouseout(function(){
+            $("tr").removeClass("bg");
+        })
+    })
+</script>

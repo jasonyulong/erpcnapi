@@ -1,0 +1,492 @@
+<?php
+/**
+ * @Copyright (C), 2018-2019, 卓士网络科技有限公司, shawn.sean@foxmail.com
+ * @Name inspectionScanningController.class.php
+ * @Author Shawn
+ * @Version v1.0
+ * @Date: 2018/7/21
+ * @Time: 9:29
+ * @Description 订单扫描核对 s_auditorder.php 迁移入框架
+ */
+namespace Package\Controller;
+
+use Common\Controller\CommonController;
+use Common\Model\ErpEbayGoodsModel;
+use Common\Model\OrderDetailModel;
+use Common\Model\OrderModel;
+use Mid\Model\MidEbayProductCombineModel;
+use Mid\Service\BaseService;
+use Mid\Service\OrderService;
+use Order\Model\GoodsLocationModel;
+use Package\Model\BeltLayerModel;
+use Package\Model\CheckScanOrderModel;
+use Package\Model\GoodsSaleDetailModel;
+use Package\Model\OrderslogModel;
+use Package\Model\TopMenuModel;
+use Package\Model\ApiCheckskuModel;
+use Package\Model\EbayGoodsModel;
+use Package\Model\OrderPackageModel;
+use Package\Model\PickOrderDetailModel;
+use Package\Model\PickOrderModel;
+use Package\Service\MakeBaleService;
+use Products\Model\ProductsCombineModel;
+use Think\Cache\Driver\Redis;
+use Think\Page;
+
+/**
+ * Class inspectionScanningController
+ * @package Package\Controller
+ * @author Shawn
+ * @since 2018/7/21 9:33
+ * @final 2018/7/21 9:33
+ * @desc 验货扫描
+ */
+class InspectionScanningController extends CommonController
+{
+    public function _initialize()
+    {
+        //验证是否登陆
+        parent::_initialize();
+        //验证是否有权限
+        $power = explode(",", $_SESSION['power']);
+        if(!in_array('newchecksku',$power)) {
+            $this->error('您没有【验货并出库的权限】');
+        }
+    }
+
+    public function index()
+    {
+        $scanNumber = trim($_REQUEST['scanNumber']);//扫描订单条码
+        $baleUser = session("truename");//包装人
+        $msgInfo['msg'] = '';//提示信息
+        $msgInfo['status'] = '';//状态
+        //获取今日统计
+        $todayTotal = $this->getTodayPickCount($baleUser);
+        $this->assign("todayTotal",$todayTotal);
+        if(empty($scanNumber)){
+            $msgInfo['msg'] = '请扫描订单条码，或输入订单跟踪号或pxid';
+            $msgInfo['status'] = 1;
+            $this->assign('msgInfo', $msgInfo);
+            $this->display();exit;
+        }
+
+        $ebay_id = '';
+        $ebay_noteb = '';
+        $status_name = '';
+        $skuData = array();
+        $floor = 0;
+        //不在等待扫描状态
+        $notInStatus = false;
+        $trackNumber = $this->getTrackNumber($scanNumber);
+        $ebayOrderModel = new OrderModel();
+        if(!empty($trackNumber)){
+            $map['ebay_tracknumber'] = $trackNumber;
+            $map['ebay_status'] = array('gt',0);
+            $fields = 'a.ebay_id,a.ebay_ordersn,a.ebay_userid,a.ebay_carrier,a.ebay_tracknumber,a.ebay_noteb,a.ebay_status';
+            $orderData = $ebayOrderModel->alias('a')->where($map)
+//                ->join('left join erp_order_type as b on a.ebay_id = b.ebay_id')
+                ->field($fields)
+                ->find();
+            if(!empty($orderData)){
+                $ebay_id = $orderData['ebay_id'];
+                $ebay_status = $orderData['ebay_status'];
+                $ebay_noteb = $orderData['ebay_noteb'];
+                if($orderData['ebay_carrier']){
+                    $beltModel = new BeltLayerModel();
+                    $floor = $beltModel->getLayerByCarrier($orderData['ebay_carrier']);
+                }
+                //获取erp订单信息
+                if($ebay_status != '1724'){
+                    $orderService = new OrderService();
+                    $data = $orderService->getOrderByEbayId($ebay_id);
+                    if($data['status'] == 1 && $data['data']['ebay_status'] == 1724){
+                        $ebayOrderModel->where("ebay_id='$ebay_id'")->save(['ebay_status'=>'1724']);
+                    }else{
+                        $notInStatus = true;
+                    }
+                }
+                $topMenu = $this->getTopMenu();
+                $status_name = $topMenu[$ebay_status];
+                $apiCheckSkuModel = new ApiCheckskuModel();
+                $checkData = $apiCheckSkuModel->where("ebay_id='$ebay_id'")->getField("id");
+                if(!empty($checkData)){
+                    $msgInfo['msg'] = "已经验过货了!订单现在在【".$status_name."】";
+                }
+            }else{
+                $msgInfo['msg'] = '没有找到订单';
+            }
+        }else{
+            $msgInfo['msg'] = "没有找到扫描的订单";
+        }
+        if($notInStatus == false && $msgInfo['msg'] == ""){
+            $skuData = $ebayOrderModel->OrderResolve($ebay_id);
+//            var_dump($skuData);
+            $skuData = $this->_infoSku($skuData);
+        }
+
+        $count = count($skuData);
+        $store_id = C('CURRENT_STORE_ID');
+        $onHandleModel = M("ebay_onhandle_{$store_id}");
+        $locationModel = new GoodsLocationModel();
+        foreach($skuData as $key => $val){
+            $location = $onHandleModel->field('g_location')->where(['goods_sn'=>$val[0]])->find();
+            $skuData[$key]['location']= $location['g_location'];
+            if($count == 1){
+                $detil = $locationModel->alias('a')->field('a.shelves_id,b.picker')
+                    ->join("left join goods_shelves as b on a.shelves_id=b.id")
+                    ->where(['a.location'=>$location['g_location'],'a.storeid'=>$store_id])
+                    ->find();
+                $pick = $detil['picker'];
+             }
+        }
+        $this->assign('pick', $pick);
+        $this->assign('msgInfo', $msgInfo);
+        $this->assign('notInStatus', $notInStatus);
+        $this->assign('baleUser', $baleUser);
+        $this->assign('ebay_id', $ebay_id);
+        $this->assign('ebay_noteb', $ebay_noteb);
+        $this->assign('status_name', $status_name);
+        $this->assign('scanNumber', $scanNumber);
+        $this->assign('skuData', $skuData);
+        $this->assign('floor', $floor);
+        $this->display();
+    }
+
+    public function _infoSku($skuData)
+    {
+        $data = [];
+        if(empty($skuData)){
+            return $data;
+        }
+        foreach($skuData as $k => $v){
+
+            $num    =   $v[0];
+            if(is_array($data[$k])){
+                $num	=	$data[$k][1]+$num;
+                $data[$k] = array($k,$num,$v[1],$v[7],$v[12]);
+            }else{
+                $data[$k] = array($k,$v[0],$v[1],$v[7],$v[12]);
+            }
+
+        }
+        return $data;
+
+    }
+    /**
+     * 根据扫描获取跟踪号
+     * @param $scanNumber 扫码
+     * @return mixed|string
+     * @author Shawn
+     * @date 2018/7/25
+     *
+     */
+    private function getTrackNumber($scanNumber)
+    {
+        if(empty($scanNumber)){
+            return '';
+        }else{
+            //
+            $ebayOrderModel = new OrderModel();
+            $map['ebay_status'] = '1724';
+            $map['ebay_id|ebay_tracknumber'] = $scanNumber;
+            $trackNumber = $ebayOrderModel->where($map)->getField("ebay_tracknumber");
+            if(empty($trackNumber)){
+                unset($map['ebay_tracknumber']);
+                $map['pxorderid'] = $scanNumber;
+                $trackNumber = $ebayOrderModel->where($map)->getField("ebay_tracknumber");
+                if(!empty($trackNumber)){
+                    return $trackNumber;
+                }
+
+            }
+            return $trackNumber;
+        }
+    }
+
+    /**
+     * 获取订单状态信息
+     * @return array
+     * @author Shawn
+     * @date 2018/7/25
+     */
+    function getTopMenu()
+    {
+        $TopMenuM = new TopMenuModel();
+        $RR       = $TopMenuM->field('id,name')->select();
+        $Arr      = [];
+        foreach ($RR as $List) {
+            $Arr[$List['id']] = $List['name'];
+        }
+        $Arr[0] = '未付款';
+        $Arr[1] = '等待处理';
+        $Arr[2] = '已经发货';
+        return $Arr;
+    }
+
+    /**
+     * 获取erp订单信息
+     * @param $ebay_id
+     * @return array
+     * @author Shawn
+     * @date 2018/7/26
+     */
+    public function getErpData($ebay_id)
+    {
+        $orderService = new OrderService();
+        $data = $orderService->getOrderByEbayId($ebay_id);
+        return $data;
+    }
+
+    /**
+     * 获取sku信息
+     * @param $goods_sn_b
+     * @param $c
+     * @return array
+     * @author Shawn
+     * @date 2018/7/26
+     */
+    public function resolveCom($goods_sn_b,$c){
+        $arr = array();
+        $map['goods_sn'] = $goods_sn_b;
+        //不在goods表 是否在组合表
+        $productModel  = new ProductsCombineModel();
+        $goodsModel = new ErpEbayGoodsModel();
+        $goods_sncombine = $productModel->where($map)->getField("goods_sncombine");
+        if(!empty($goods_sncombine)){
+            $goods_sncombine    = explode(',',$goods_sncombine);
+            foreach($goods_sncombine as $v){
+                $pline			= explode('*',$v);
+                $goods_sn		= $pline[0];
+                $goods_number	= $pline[1];
+                $map['goods_sn'] = $goods_sn;
+                $fromGoods      = $goodsModel->where($map)->field("goods_name,goods_sn,goods_id,goods_location,goods_pic,isnopackaging")->find();
+                $cc             = $goods_number*$c;
+                $goods_name     = $fromGoods['goods_name'];
+                $goods_pic      = $fromGoods['goods_pic'];
+                $isnopackaging  = $fromGoods['isnopackaging'];
+                $arr[]          = array($goods_sn,$cc,$goods_name,$goods_pic,$isnopackaging);
+            }
+        }
+        return $arr;
+    }
+
+    /**
+     * 分解订单为单个sku
+     * @param $ebay_id
+     * @return array
+     * @author Shawn
+     * @date 2018/7/26
+     */
+    function orderResolve($ebay_id){
+        $arr = array();
+        $data =	array();
+        $goodsDetailModel = new GoodsSaleDetailModel();
+        $detailData = $goodsDetailModel->where("ebay_id='$ebay_id'")
+            ->field("sku,qty")
+            ->select();
+        if(empty($detailData)){
+            return $data;
+        }
+        $goodsModel = new ErpEbayGoodsModel();
+        foreach($detailData as $v){
+            $goods_sn   = $v['sku']; //sku
+            $c          = $v['qty'];   //数量
+            $fromGoods = $goodsModel->where("goods_sn='$goods_sn'")
+                ->field("goods_sn,goods_pic,goods_name,isnopackaging")
+                ->find();
+            if(!empty($fromGoods)){
+                $goods_pic  = $fromGoods['goods_pic'];
+                $goods_name = $fromGoods['goods_name'];
+                $isnopackaging = $fromGoods['isnopackaging'];
+                $arr[] = array($goods_sn,$c,$goods_name,$goods_pic,$isnopackaging);
+            }else{
+                if($goods_sn != ''){
+                    $a = $this->resolveCom($goods_sn,$c);
+                    $arr = array_merge_recursive($arr,$a);
+                }
+            }
+        }
+
+        foreach($arr as $v){
+            $k		=	trim($v[0]);
+            $num    =   $v[1];
+            if(is_array($data[$k])){
+                $num	=	$data[$k][1]+$num;
+                $data[$k] = array($k,$num,$v[2],$v[3],$v[4]);
+            }else{
+                $data[$k] = array($k,$v[1],$v[2],$v[3],$v[4]);
+            }
+
+        }
+        return $data;
+    }
+
+    /**
+     * 验货扫描完成
+     * @param $ebay_id
+     * @return bool
+     * @author Shawn
+     * @date 2018/7/26
+     */
+    public function updatePackUser(){
+        $ebay_id = I("ebay_id");
+        if($ebay_id == ''){
+            return false;
+        }
+        $apiCheckSkuModel = new ApiCheckskuModel();
+        $checkData = $apiCheckSkuModel->where("ebay_id='$ebay_id'")->getField("id");
+        if(!empty($checkData)){
+            return true;
+        }
+        $checkScanOrderModel = new CheckScanOrderModel();
+        $userName = session("truename");
+        $addData['ebay_id'] = $ebay_id;
+        $addData['packinguser'] = $userName;
+        $addData['packagingstaff'] = $userName;
+        $addData['addtime'] = time();
+        $result = $apiCheckSkuModel->add($addData);
+        if($result){
+            $orderPage['ebay_id'] = $ebay_id;
+            $orderPage['scan_user'] = $userName;
+            $orderPage['scan_time'] = time();
+            $notes = $userName.',验货扫描成功!';
+            $checkSaveResult = $checkScanOrderModel->add($orderPage);
+            //更新统计数据
+            //更新包装数量
+            $count_key = "today_pick_count4:".$userName;
+            $redis = new Redis();
+            $count = $redis->get($count_key);
+
+            // 如果不存在 就啥都不干 存在 就更新redis
+            if($count){
+                $goodsSaleModel = new GoodsSaleDetailModel();
+                $count['total']++;
+                $Rs = $goodsSaleModel->where("ebay_id='$ebay_id'")->field('sum(qty) as cc')->find();
+                $qty = $Rs['cc'];
+                $count['sku_total'] += (int)$qty;
+                //计算过期时间
+                $today_end = strtotime(date("Y-m-d")." 23:59:59");
+                $limitTime = $today_end - time();
+                $redis->set($count_key,$count,$limitTime);
+            }
+            $info = $checkSaveResult ? '加入扫描统计表成功' : '加入扫描统计表失败';
+            $notes = $notes.$info;
+            $this->addorderslog($ebay_id,$notes,12);
+        }
+
+    }
+
+
+    /**
+     * 添加日志记录
+     * @param $ebayid
+     * @param $notes
+     * @param int $types
+     * @return mixed
+     * @author Shawn
+     * @date 2018/7/26
+     */
+    public function addorderslog($ebayid,$notes,$types=99){
+        $ordersLogModel = new OrderslogModel();
+        $result = $ordersLogModel->addordernote($ebayid,$notes,$types);
+        return $result;
+    }
+
+    /**
+     * 获取今日验货扫描数据
+     * @param $userName
+     * @return mixed
+     * @author Shawn
+     * @date 2018/8/3
+     */
+    private function getTodayPickCount($userName)
+    {
+        $userName = trim($userName);
+        $key = "today_pick_count4:".$userName;
+        $redis = new Redis();
+        $count = $redis->get($key);
+        if(!$count){
+            $data['total'] = 0;
+            $data['sku_total'] = 0;
+            //今日开始、结束时间
+            $today_begin = strtotime(date("Y-m-d")." 00:00:00");
+            $today_end = strtotime(date("Y-m-d")." 23:59:59");
+            $checkScanModel = new CheckScanOrderModel('', '', C('DB_CONFIG_READ'));
+            $goodsSaleDetailModel = new GoodsSaleDetailModel('', '', C('DB_CONFIG_READ'));
+            $map['scan_time']        = array("BETWEEN",array($today_begin,$today_end));
+            $map['scan_user']        = $userName;
+            $map['status']           = 1;
+            //查找今日所有扫描订单
+            $ebay_ids = $checkScanModel->where($map)
+                ->getField("ebay_id",true);
+
+            if(!empty($ebay_ids)){
+                $goodsMap['ebay_id'] = array("in",$ebay_ids);
+                $sku_total = $goodsSaleDetailModel->where($goodsMap)
+                    ->field("sum(qty) as total")
+                    ->find();
+                $data['total'] = count($ebay_ids);
+                if(!empty($sku_total)){
+                    $data['sku_total'] = $sku_total['total'];
+                }
+            }
+            $limitTime = $today_end-time();
+            $isSet = $redis->set($key,$data,$limitTime);
+            return $data;
+        }else{
+            return $count;
+        }
+
+    }
+
+    public function printsku()
+    {
+
+        $store_id = C('CURRENT_STORE_ID');
+        $locationModel = new GoodsLocationModel();
+        $onHandleModel = M("ebay_onhandle_{$store_id}");
+
+        $skustr = trim($_REQUEST['sku'],',');
+        $skuArr = explode(',',$skustr);
+        $newArr = [];
+        foreach($skuArr as $key=>$skus){
+            $data = explode('.',$skus);
+            $location = $onHandleModel->field('g_location')->where(['goods_sn'=>$data[0]])->find();
+            $data['g_location'] = $location['g_location'];
+            $field = 'a.shelves_id,b.picker';
+            $detil = $locationModel->alias('a')->field($field)
+                ->join("left join goods_shelves as b on a.shelves_id=b.id")
+                ->where(['a.location'=>$data['g_location'],'a.storeid'=>$store_id])
+                ->find();
+            $data['picker'] = $detil['picker'];
+            $newArr[] = $data;
+        }
+
+
+        $newArr = $this->newSkuArr($newArr);
+        $this->assign('newArr', $newArr);
+        $this->assign('ebayid', $_REQUEST['ebayid']);
+        $this->display();
+    }
+
+    /**
+     * @desc 数据分页
+     * @Author leo
+     */
+    public function newSkuArr($printSkuArr){
+
+        $num = 1;
+        $k = 0;
+        $newPrint_skuArr = [];
+        foreach($printSkuArr as $skuArr){
+            $newPrint_skuArr[$k][] = $skuArr;
+            $num++;
+            if($num > 12){
+                $num = 1;
+                $k++;
+            }
+        }
+        return $newPrint_skuArr;
+    }
+
+}

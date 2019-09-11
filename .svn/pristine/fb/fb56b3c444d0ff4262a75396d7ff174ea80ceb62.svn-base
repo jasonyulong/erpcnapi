@@ -1,0 +1,38 @@
+<css href="/newerp/Public/css/fonts.css" />
+<?php
+    if($Order['ebay_carrier']=='出口易小包挂号'){
+        $imgstyle="position: relative; margin: -15px 0px 0px -8px; width: 104mm; height: 160mm;";
+    }elseif($Order['ebay_carrier']=='出口易小包平邮'){
+        $imgstyle="position: relative; margin: -15px 0px 0px -8px; width: 110mm; height: 148mm;";
+    }else{
+        $imgstyle="height:150mm;width:100mm;";
+    }
+    if(in_array($Order['ebay_carrier'], ['欧速通英国专线挂号', '欧速通英国专线挂号(带电)']))
+    {
+        $codeCss = "position: absolute;right: 55px;bottom: 255px;";
+    }
+    else
+    {
+        $codeCss = "position: absolute;right: 5px;bottom: 3px;";
+    }
+?>
+<div style="position:relative;width:100mm;min-height:150mm;max-height:150mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <if condition="in_array($Order['ebay_carrier'], ['欧速通英国专线挂号', '欧速通英国专线挂号(带电)'])">
+        <img style="height:154mm;width:109mm;margin-left: -5mm;margin-top: -2mm;" class="view" src="{$Order['pdfimg'][0]}"/>
+    <else/>
+        <img style="{$imgstyle}" class="view" src="{$Order['pdfimg'][0]}"/>
+    </if>
+
+    <!--添加拣货代码-->
+    <div style="{$codeCss}">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<div style="position:relative;width:100mm;min-height:150mm;max-height:150mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="{$imgstyle}" class="view" src="{$Order['pdfimg'][1]}"/>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 5px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>

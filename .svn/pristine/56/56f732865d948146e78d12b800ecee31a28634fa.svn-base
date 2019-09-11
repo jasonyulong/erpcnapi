@@ -1,0 +1,254 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: leo
+ * Date: 2018年7月31日14:58:44
+ */
+
+namespace Package\Controller;
+
+use Common\Controller\CommonController;
+use Order\Model\SynTwoPickModel;
+
+
+/**
+ * @desc 二次拣货统计
+ */
+class TwoPickCountController extends CommonController
+{
+
+    /**
+     * @desc  二次拣货统计list
+     * @Author leo
+     */
+    public function index($param = '')
+    {
+
+        if(empty($param)){
+            $conditions = $_POST;
+        }else{
+            $conditions = $param;
+        }
+        # 组织时间搜索条件
+        $between = [];
+        if (trim($conditions['timeArea_start'])) {
+            $between[] = strtotime($conditions['timeArea_start']);
+        } else {
+            $between[] = strtotime(date('Y-m-d', strtotime('-15 day')).' 00:00:00');
+            $conditions['timeArea_start'] = date('Y-m-d', strtotime('-15 day'));
+        }
+
+        if (trim($conditions['timeArea_end'])) {
+            $between[] = strtotime($conditions['timeArea_end'].' 23:59:59');
+        } else {
+            $between[] = time();
+            $conditions['timeArea_end'] = date('Y-m-d');
+        }
+
+        $synPickModel = new SynTwoPickModel();
+        $map['scantime']= ['between', $between];
+
+        $field = "from_unixtime(scantime, '%Y-%m-%d') as time_date,sum(qty) as count,username";
+        $qualityCountResult = $synPickModel->where($map)->group('username,time_date')->field($field)->select();
+        $qualityCounts = $synPickModel->where($map)->group('time_date')->field($field)->select();
+        $countsArr     = [];
+
+        foreach ($qualityCounts as $counts) {
+            $countsArr['arr'][$counts['time_date']] = $counts['count'];
+        }
+        $Qcuser = array_unique(array_column($qualityCountResult, 'username'));
+
+        $dataArr = [];
+        $userIdModel = M('erp_ebay_user');
+        foreach ($Qcuser as $key => $val) {
+            $userId        = $userIdModel->field('id')->where(['username' => $val])->find()['id'];
+            $dataArr[$val] = [];
+            foreach ($qualityCountResult as $reKey => $reVal) {
+                if ($reVal['username'] == $val) {
+                    $dataArr[$val]['QCuserId']                   = $userId;
+                    $dataArr[$val]['arr'][$reVal['time_date']] = $reVal['count'];
+                }
+            }
+        }
+        $days=ceil(($between[1]-$between[0])/3600/24)-1;
+
+        if(!empty($param)){
+            $arr =[
+                'countsArr' => $countsArr,
+                'dataArr'   => $dataArr,
+                'days'      => $days,
+            ];
+            return $arr;
+        }
+
+        $this->assign('countsArr', $countsArr);
+        $this->assign('dataArr', $dataArr);
+        $this->assign('conditions',$conditions);
+        $this->assign('days',$days);
+        $this->display();
+    }
+
+    /**
+     * 导出Excel csv
+     */
+    public function towPickExport()
+    {
+        ini_set('memory_limit', '500M');
+        $conditions = $_REQUEST;
+        $result     = $this->index($conditions);
+        $fileName = "二次分拣统计数据导出-";
+        $this->csv($result, $conditions, $fileName,"分拣人员");
+    }
+
+    public function csv($dataArr,$conditions,$fileName,$head=''){
+
+        $output = fopen('php://output', 'w') or die("can't open php://output");
+        $filename = $fileName . date('Y') . "-" . date('m') . "-" . date('d');
+        header("Content-Type: application/csv");
+        //判断浏览器，输出双字节文件名不乱码
+        $ua = $_SERVER["HTTP_USER_AGENT"];
+        if (preg_match("/MSIE/", $ua)) {
+            header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+        }
+        else if (preg_match("/Firefox/", $ua)) {
+            header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '.csv"');
+        }
+        else {
+            header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+        }
+
+        $table_head[] = $head;
+        for($i=$dataArr['days'];$i>=0;$i--) {
+            $table_head[] = date('Y-m-d', strtotime($conditions['timeArea_end']." -{$i}day"));
+        }
+        $table_head[] = "合计：";
+        //输出Excel列名信息
+        foreach ($table_head as $key => $value) {
+            //CSV的Excel支持GBK编码，一定要转换，否则乱码
+            $table_head[$key] = iconv('utf-8', 'gbk', $value);
+        }
+        fputcsv($output, $table_head);
+        $dataArr['dataArr']['总计：']  = $dataArr['countsArr'];
+
+        foreach ($dataArr['dataArr'] as $k => $v) {
+            $arr=[];
+            $k = iconv('utf-8', 'gbk', $k);
+            $v['QCuserId']  = iconv('utf-8', 'gbk', $v['QCuserId']);
+            $arr[] = $k.' '.$v['QCuserId'];
+            $count = 0;
+            for($i=$dataArr['days'];$i>=0;$i--) {
+                $date = date('Y-m-d', strtotime($conditions['timeArea_end']." -".$i."day"));
+                if(in_array($date,array_keys($v['arr']))){
+                    $num = $v['arr'][$date];
+                    $num = iconv('utf-8', 'gbk', $num);
+                    $arr[] = $num;
+                    $count = $count + $num;
+                }else{
+                    $arr[] = 0;
+                }
+
+            }
+            $arr[] = $count;
+            fputcsv($output, array_values($arr));
+        }
+
+        fclose($output) or die("can't close php://output");
+        exit;
+    }
+
+
+    //扫描统计导出
+    public function putsmExcel()
+    {
+        $start = $_REQUEST['start'];
+        $end   = $_REQUEST['end'];
+        $start_s=strtotime($start);
+        $end_s=strtotime($end);
+        $days=ceil(($end_s-$start_s)/3600/24)-1 ?: 1;
+
+        $dbconLocal=M('api_orderweight');
+
+        $field = "count(id) as cc,scan_user,from_unixtime(scantime, '%Y-%m-%d') as time_date";
+        $map['scantime'] = ['between', [$start_s,$end_s]];
+
+
+        $sql=$dbconLocal->field($field)->where($map)->group("scan_user,time_date")->select();
+
+        $sqlCounts=$dbconLocal->field($field)->where($map)->group("time_date")->select();
+        $countsArr     = [];
+
+        foreach ($sqlCounts as $counts) {
+            $countsArr['arr'][$counts['time_date']] = $counts['cc'];
+        }
+
+        $userdd = array_unique(array_column($sql, 'scan_user'));
+        $dataArr = [];
+        $userIdModel = M('erp_ebay_user');
+        foreach ($userdd as $key => $val) {
+            $userId        = $userIdModel->field('id')->where(['username' => $val])->find()['id'];
+            $dataArr[$val] = [];
+            foreach ($sql as $reKey => $reVal) {
+                if ($reVal['scan_user'] == $val) {
+                    $dataArr[$val]['QCuserId']                   = $userId;
+                    $dataArr[$val]['arr'][$reVal['time_date']] = $reVal['cc'];
+                }
+            }
+        }
+
+        $fileName = "订单扫描数据导出-";
+        $output = fopen('php://output', 'w') or die("can't open php://output");
+        $filename = $fileName . date('Y') . "-" . date('m') . "-" . date('d');
+        header("Content-Type: application/csv");
+        //判断浏览器，输出双字节文件名不乱码
+        $ua = $_SERVER["HTTP_USER_AGENT"];
+        if (preg_match("/MSIE/", $ua)) {
+            header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+        }
+        else if (preg_match("/Firefox/", $ua)) {
+            header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '.csv"');
+        }
+        else {
+            header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+        }
+
+        $head='扫描人';
+        $table_head[] = $head;
+        for($i=$days;$i>=0;$i--) {
+            $table_head[] = date('Y-m-d', strtotime($end." -{$i}day"));
+        }
+        $table_head[] = "合计：";
+        //输出Excel列名信息
+        foreach ($table_head as $key => $value) {
+            //CSV的Excel支持GBK编码，一定要转换，否则乱码
+            $table_head[$key] = iconv('utf-8', 'gbk', $value);
+        }
+        fputcsv($output, $table_head);
+        $dataArr['总计：']  = $countsArr;
+
+        foreach ($dataArr as $k => $v) {
+            $arr=[];
+            $k = iconv('utf-8', 'gbk', $k);
+            $v['QCuserId']  = iconv('utf-8', 'gbk', $v['QCuserId']);
+            $arr[] = $k.' ['.$v['QCuserId'].']';
+            $count = 0;
+            for($i=$days;$i>=0;$i--) {
+                $date = date('Y-m-d', strtotime($end." -".$i."day"));
+                if(in_array($date,array_keys($v['arr']))){
+                    $num = $v['arr'][$date];
+                    $num = iconv('utf-8', 'gbk', $num);
+                    $arr[] = $num;
+                    $count = $count + $num;
+                }else{
+                    $arr[] = 0;
+                }
+
+            }
+            $arr[] = $count;
+            fputcsv($output, array_values($arr));
+        }
+
+        fclose($output) or die("can't close php://output");
+        exit;
+    }
+
+}

@@ -1,0 +1,99 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;font-family:Arial;height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="nobottom">
+                <div style="float:left;width:90mm;padding-left:30px;height:20px;margin-top:25px;text-align: left">
+                    <div style="height:40px;width:100%;font-size: 17px;">
+                        订单编号:{$Order['recordnumber']}
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="nobottom">
+                <div style="float:left;width:100mm;height:40px;margin-top:5px;text-align: center">
+                    <div style="height:40px;width:100%;">
+                        <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" height="35" alt="">
+                    </div>
+                    <div style="width:100%;font-size:18px;text-align:center;margin-top:0px;">
+                        {$Order['ebay_tracknumber']}
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="nobottom">
+                <div style="float:left;width:90mm;padding-left:30px;height:20px;margin-top:25px;text-align: left">
+                    <div style="height:40px;width:100%;font-size: 16px;">
+                        Shopee TW - {$Order['yuantong_shopee']['carrier']} {$Order['yuantong_shopee']['mode']} - {$Order['yuantong_shopee']['goods_to_declare']}
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="nobottom">
+                <div style="float:left;width:90mm;padding-left:30px;height:20px;margin-top:25px;text-align: left">
+                    <div style="height:40px;width:100%;font-size: 16px;">
+                        收件人: {$Order['ebay_username']}
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="nobottom">
+                <div style="float:left;width:90mm;padding-left:30px;height:40px;margin-top:25px;text-align: left">
+                    <div style="height:40px;width:100%;font-size: 16px;">
+                        收貨地址: {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="nobottom">
+                <div style="float:left;width:90mm;padding-left:30px;height:20px;margin-top:25px;text-align: left">
+                    <div style="height:40px;width:100%;font-size: 16px;">
+                        訂單總值:
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <!--<tr>-->
+            <!--<td class="">-->
+                <!--<div style="float:left;width:90mm;padding-left:30px;height:20px;margin-top:25px;text-align: left">-->
+                    <!--<div style="height:40px;width:100%;font-size: 16px;">-->
+                        <!--配貨信息 * 數量<br>-->
+                        <!--<{peihuo}>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</td>-->
+        <!--</tr>-->
+    </table>
+
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 5px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;font-family:Arial;height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

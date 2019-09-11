@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>验货扫描</title>
+    <style type="text/css">
+        body {
+            margin-left: 0px;
+            margin-top: 0px;
+            margin-right: 0px;
+            margin-bottom: 0px;
+            background-color: #F8F9FA;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        input[type='text'], select {
+            width: 80%;
+            border: 1px solid #3f6bc3;
+        }
+
+        .peel_message_box {
+            position: absolute;
+            left: 82.4%;
+            top: 0;
+            background-color: rgba(255, 0, 0, 1);
+            width: 200px;
+            height: 40px;
+            text-align: center;
+            border-radius: 2px;
+            font-family: 微软雅黑;
+            vertical-align: middle;
+            font-size: 25px;
+            font-weight: bold;
+            color: #fff;
+            padding: 10px 20px;
+            letter-spacing: 2px;
+            display: none;
+        }
+
+        .STYLE1 {
+            font-size: 12px;
+        }
+
+        #mytips_show_hide_for_action h1 {
+            margin-top: 0;
+            font-size: 12px;
+        }
+
+        .scanNumber {
+            margin: 10px 0 10px 0;
+            /*background: #30b2e6;*/
+            font-size: 26px;
+            width: 100%;
+            height: 50px;
+            float: left;
+            line-height: 2;
+        }
+
+        .scanNumber input[type='text'] {
+            font-size: 26px;
+        }
+
+        .scanNumber input[type='button'] {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            border: 1px solid #2e6da4;
+            border-radius: 4px;
+            color: #fff;
+            background-color: #337ab7;
+        }
+
+        select {
+            border: none;
+            height: 30px;
+            vertical-align: middle;
+        }
+
+        .left {
+            float: left;
+            margin-left: 2%;
+            width: 18%;
+            padding: 1%;
+            position: relative;
+        }
+
+        .right {
+            width: 80%;
+            float: right;
+            padding: 1%;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<div class="left">
+    <table width="98%" border="0" align="center" cellpadding="0" cellspacing="0" style="text-align: left">
+        <tr class="scanNumber">
+            <td>
+                <input type="button" onclick="reloadUrl()" value="重置页面"/>
+                <table width="100%" height="31" border="0" cellpadding="0" cellspacing="0" class="nowtable">
+                    <tr>
+                        <td class="left_bt2">
+                            <font size="6"> 扫描单号</font>
+                            <br>
+                            订单号/跟踪号：
+                            <input name="order" type="text" id="order" onKeyPress="check(event)"
+                                   value="{$scanNumber}"/>
+                            <br>
+                            SKU：
+                            <input name="sku" type="text" id="sku" onKeyPress="checksku(event)"
+                                   value=""/>
+                            <br>
+                            数量：
+                            <input name="number" type="text" id="number" disabled="disabled" style="background:#CCCCCC"
+                                   value="1"/>
+                        </td>
+                    </tr>
+                </table>
+                <input style="background-color: brown;margin-top: 20px" type="button" onclick="printSku()"
+                       value="打印剩余SKU"/>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="content" class="contect right">
+    <if condition="$msgInfo.status eq 1">
+        <div style="font-size:40px;color:#08ca77">{$msgInfo.msg}</div>
+        <else/>
+        <div style="font-size:40px;color:#911">{$msgInfo.msg}</div>
+    </if>
+    <div style="font-size:22px;color:#911;float:left;margin-left:2%;">
+        今日已包装sku总数 <span>：{$todayTotal['sku_total']}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span style="font-size: 40px">
+             <if condition="$floor gt 0">
+                 {$floor}层
+             </if>
+        </span>
+    </div>
+    <div id="succ" style="text-align:center"></div>
+    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="17" height="71" valign="middle">&nbsp;</td>
+            <td width="1138" valign="top" bgcolor="#fff">
+                <div style="font-size:26px;color:red;float:left;margin-left:1%;">
+                    订单号：<span id="ebay_id">{$ebay_id}</span>&nbsp;
+                    <if condition="$pick">
+                        拣货员：<span id="pick">{$pick}</span>
+                    </if>
+                </div>
+                <table width="100%" height="138" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td valign="top">
+                            <table width="98%" border="0" align="center" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td>
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                            <td width="100%">
+                                                <table width="100%" border="1" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td colspan="5" valign="top">
+                                                            <div class="titlebt">
+                                                                <table width="100%" border="1" cellpadding="0"
+                                                                       cellspacing="0">
+                                                                    <eq name="notInStatus" value="1">
+                                                                        <tr>
+                                                                            <td colspan="7"><h1 style="color:#911">警告: 该订单不在等待扫描!
+                                                                                在{$status_name}中!</h1></td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td colspan="7"><h3 style="color:#911">备注:
+                                                                                {$ebay_noteb}</h3></td>
+                                                                        </tr>
+                                                                    </eq>
+                                                                    <tr>
+                                                                        <td colspan="7" valign="top">
+                                                                            <if condition="$ebay_noteb neq ''">
+                                                                                订单备注:<font
+                                                                                    color="#d2691e">{$ebay_noteb}</font>
+                                                                            </if>
+                                                                        </td>
+                                                                    </tr>
+                                                                    </tr>
+
+                                                                    <td>
+                                                                        <div align="center">图片</div>
+                                                                    </td>
+
+                                                                    <td>购买数量</td>
+                                                                    <td>剩余扫描数量</td>
+                                                                    <td>sku</td>
+                                                                    <td>库位</td>
+                                                                    <td>物品名称</td>
+                                                                    <td>是否扫描</td>
+                                                                    </tr>
+                                                                    <?php
+                                                $skustr	 =	'';
+                                                $countstr=  '';
+                                                foreach($skuData as $v){
+                                                    $sku = strtoupper(trim($v[0]));
+                                                    $skustr.= $sku.',';
+                                                    $countstr.=$v[1].',';
+                                                    $isnopackagingstr .= ','.$v[4];
+
+                                            ?>
+
+                                                                    <tr>
+
+                                                                        <td>
+                                                                            <div align="center"><img id="showimg{$sku}"
+                                                                                                     src="http://hkerp.wisstone.com/images/small/{$v[3]}"
+                                                                                                     width="120"
+                                                                                                     height="120"
+                                                                                                     onclick="funsTool.showImg(this)">
+                                                                            </div>
+                                                                        </td>
+
+                                                                        <td><h1><font id="{$sku}"
+                                                                                      size="888px">{$v[1]}</font> &nbsp;
+                                                                        </h1></td>
+                                                                        <td><h1 style="color: red" id="sacn{$sku}"
+                                                                                data-id="{$sku}" name="sacn{$sku}"
+                                                                                class="readyscan">{$v[1]}</h1></td>
+                                                                        <td>{$sku}</td>
+                                                                        <td>{$v['location']}</td>
+                                                                        <td>
+                                                                            <a href="http://cgi.ebay.com/ws/eBayISAPI.dll?ViewItem&item=<?php echo $qitemid; ?>"
+                                                                               target="_blank">{$v[2]}</a>&nbsp;</td>
+                                                                        <td><input style="color:red" disabled="true"
+                                                                                   type="text" id="scan{$sku}"
+                                                                                   value="NO"/></td>
+                                                                    </tr>
+                                                                    <?php }
+                                                                $isnopackagingstr = trim($isnopackagingstr,',');
+                                                                ?>
+                                                                </table>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <tr>
+                                                    <td width="80%" height="17" colspan="4" align="right">&nbsp;</td>
+                                                </tr>
+
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td width="21">&nbsp;</td>
+        </tr>
+        <tr>
+            <td valign="middle">&nbsp;</td>
+            <td height="17" valign="top">&nbsp;</td>
+            <td></td>
+        </tr>
+
+    </table>
+</div>
+<div class="peel_message_box">
+
+</div>
+
+<audio src="capi/number/2.mp3" preload="auto">
+
+</audio>
+<audio id="10" autoplay="autoplay">
+    <source src='' type='audio/mp3'>
+</audio>
+<audio id="failSound">
+    <source src='' type='audio/mp3'>
+</audio>
+<audio id="scanSound">
+    <source src='' type='audio/mp3'>
+</audio>
+</body>
+</html>
+<script language="javascript" src="js/jquery.js"></script>
+<script language="javascript">
+    var skustr = '<?php echo $skustr;?>';
+    var ebay_id = '<?php echo $ebay_id;?>';
+    skustr = skustr.substring(0, skustr.length - 1);
+    var strs = new Array(); //定义一数组
+    strs = skustr.split(","); //字符分割
+    var countstr = '<?php echo $countstr;?>';
+    countstr = countstr.substring(0, countstr.length - 1);
+    var countstrs = new Array(); //定义一数组
+    countstrs = countstr.split(","); //字符分割
+    var sacncount = new Array();
+    sacncount = countstr.split(","); //字符分割
+    var isnopackaging_str = "<?php echo $isnopackagingstr;?>";
+    var isnopackaging_arr = isnopackaging_str.split(",");
+    var qrcode_all = '';
+    $(function () {
+        document.getElementById('order').select();
+        document.getElementById('order').focus();
+        if (skustr) {
+            $("#sku").select().focus();
+        }
+    });
+
+    /**
+     * 刷新页面
+     */
+    function reloadUrl() {
+        var url = "{:U('InspectionScanning/index')}";
+        location.href = url;
+    }
+
+    /**
+     * 提示音
+     * @param id
+     */
+    function playm(id) {
+        var video = null;
+        if (id == "fail") {
+            video = document.getElementById("failSound");
+            video.src = "capi/number/error.mp3";
+            video.play();
+        } else {
+            video = document.getElementById("10");
+            video.src = "capi/number/" + id + ".mp3";
+            video.play();
+        }
+    }
+    /**
+     * 判断是否去除原有包装，并展示信息
+     * @param is_peel
+     */
+    function check_peel_packaging(is_peel) {
+        var message_box = $('.peel_message_box');
+        if (is_peel == 1) {
+            message_box.show('fast');
+            message_box.html('请拆掉外包装');
+        } else {
+            message_box.hide('fast');
+            message_box.html('');
+        }
+    }
+
+    /**
+     * 扫描
+     * @param event
+     * @returns {boolean}
+     */
+    function check(event) {
+        var order = $.trim($("#order").val());
+        var isie = (document.all) ? true : false;//判断是IE内核还是Mozilla
+        var keyCode;
+        if (isie) {
+            keyCode = window.event.keyCode;//IE使用windows.event事件
+        } else {
+            keyCode = event.which;//3个按键函数有一个默认的隐藏变量，这里用e来传递。e
+        }
+
+        if (keyCode == 13) {
+
+            var order = $.trim($("#order").val());
+            order = order.toUpperCase();
+            document.getElementById('order').select();
+            document.getElementById('order').focus();
+            var sucsize = $("#successid").html();
+            if (skustr == '' || sucsize == 'SUCCESS') {
+                var url = "{:U('InspectionScanning/index')}&scanNumber=" + order;
+                location.href = url;
+                return false;
+            }
+        }
+    }
+
+    function checksku(event) {
+        var sku = $.trim($("#sku").val());
+        var qrcode = sku;
+        sku=sku.toUpperCase();
+        //扫描二维码替换输入框值 Shawn 2018-09-04
+        if(sku.indexOf("$") >= 0){
+            var skuStr = sku.split("$");
+            sku = skuStr[1];
+            document.getElementById('sku').value = sku;
+        }
+        var isie = (document.all) ? true : false;//判断是IE内核还是Mozilla
+        var keyCode;
+        if (isie) {
+            keyCode = window.event.keyCode;//IE使用windows.event事件
+        } else {
+            keyCode = event.which;//3个按键函数有一个默认的隐藏变量，这里用e来传递。e
+        }
+        if (keyCode == 13) {
+
+            $("#sku").select().focus();
+
+            var isSKU = false;
+            for (var i = 0; i < strs.length; i++) {
+                if (sku == strs[i]) {
+                    isSKU = true;
+                    check_peel_packaging(isnopackaging_arr[i]);
+                    var num = $("#" + sku).html();
+                    countstrs[i] = 'over';
+                    var scannum = $("#sacn" + sku).html();
+                    scannum--;
+                    if (scannum < 0) {
+                        playm('dy');
+                        return;
+                        scannum = 0;
+                    }
+                    $("#sacn" + sku).html(scannum);
+
+                    if ($("#showImgOff").val() == 1) {
+                        funsTool.showImg($("#showimg" + sku));
+                    }
+
+                    if (scannum == 0) {
+                        $("#scan" + sku).val("YES");
+                        $("#scan" + sku).attr("style", "color:#66CC00");
+                        $("#sacn" + sku).attr("style", "color:#66CC00");
+
+                    }
+                    playm(scannum)
+                }
+            }
+            var v = 0;
+            $(".readyscan").each(function () {
+                if ($(this).html() == 0) {
+                    v++;
+                }
+            });
+            qrcode_all += ','+ qrcode;
+            if (v == countstrs.length && isSKU) {
+                ajaxsetover($("#ebay_id").html());
+            }
+
+            if (isSKU == false) {
+
+
+                if (v == countstrs.length) {
+                    //location.href = 's_auditorder.php?value=' + sku;
+                } else {
+                    playm('fail');
+                }
+            }
+        }
+    }
+
+    function printSku() {
+        var v = '';
+        $(".readyscan").each(function () {
+            if ($(this).html() != 0) {
+                var sku = $(this).attr('data-id');
+                var num = $("#sacn" + sku).html()
+                v += sku + '.' + num + ',';
+            }
+        });
+        window.open("t.php?s=/Package/InspectionScanning/printsku/ebayid/"+ebay_id+"/sku/" + v)
+    }
+    /**
+     * 扫描完成
+     * @param ebayid
+     * @param baozhuangUser
+     * @param auditUser
+     */
+    function ajaxsetover(ebayid) {
+
+        var baozhuangUser = '{:session("truename")}';
+        
+        var type=4; // 多品多货 =3  单品单货=1  单品多货=2  验货出库=4
+
+        $.ajax({
+            type : "post",
+            url : "t.php?s=/Package/MakeBale/updatePackUser",
+            data : "ebayid="+ebayid+"&baozhuangUser="+baozhuangUser+"&auditUser="+baozhuangUser+"&ordersn=&type="+type+'&qrcode='+qrcode_all,
+            async : false,
+            success : function(data){
+                $("#succ").html('<font id="successid" color="green" size="9">SUCCESS</font>');
+                setTimeout("playm('cg')", 1500);
+            }
+        });
+
+        $("#order").select().focus();
+    }
+</script>

@@ -1,0 +1,34 @@
+<div style="position: relative; width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <?php if(is_array($Order['pdfimg']) && isset($Order['pdfimg'][0])):?>
+    <img style="height:110mm;width:105mm;margin-left: -2mm" class="view" title="0" src="{$Order['pdfimg'][0]}"/>
+    <?php else:?>
+    <img style="height:110mm;width:105mm;margin-left: -2mm" class="view" src="{$Order['pdfimg']}"/>
+    <?php endif;?>
+    <div style="background: #fff; margin-left: 1mm; width: 29mm; position: relative; z-index: 999998; margin-top: -95mm; height: 20mm; font-size: 11px;line-height: 11px;">From: jinniu Wu <br>Chengdu shi shawan road NO.71
+        <br>(E453)
+        <br>Chengdu Sichuan China
+        <br>Phone:18576746775
+    </div>
+    <div style="position: absolute; margin-top: 230px; margin-left: 332px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

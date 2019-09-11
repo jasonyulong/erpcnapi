@@ -1,0 +1,37 @@
+body{margin:0;padding:0;font-family:'微软雅黑'}
+body form.pure-form-stacked{margin:0.5em;margin-top:1.5em;}
+#user_submit{background:#69cbc3;margin-left:auto;margin-right:auto;width:100%}
+#loginimg{height:4em;width:4em;background:#7FDADB;border:2px solid #5bccd1;margin:0.5em auto;border-radius:2em;overflow:hidden;}
+#loginimg .arc{height:2em;width:2em;background:#fff;margin:0.5em auto 0 auto;border-radius:1em;position:relative;z-index:2}
+#loginimg .arc-btm{height:3.6em;width:3.6em;background:#fFDADB;margin:-0.4em auto 0 auto;border-radius:1.8em;position:relative;z-index:0}
+#wst_name,#user_password,#skuinput,#bag_code,#company{width: 100%;height:3em;}
+#mob-hander{height:2em;background:#69cbc3;line-height:2em;text-align:center;color:#fff;}
+div.tan_link a{margin-left: 0.5em;color:#999;text-decoration:none;}
+
+#login-message{color:#c33;font-size:0.6em;height:1.8em;}
+
+
+/*#top*/
+
+.erp-top-hander{
+    background-color: #94c1e8;
+    background-image: -moz-linear-gradient(top, #323A3D,#1E1F21);
+    background-image: -ms-linear-gradient(top, #323A3D,#1E1F21);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#323A3D), to(#1E1F21));
+    background-image: -webkit-linear-gradient(top, #323A3D, #1E1F21);
+    background-image: -o-linear-gradient(top, #323A3D, #1E1F21);
+    background-image: linear-gradient(top, #323A3D, #1E1F21);
+    background-position: 0 0;
+   /* height: 32px;*/
+}
+.erp-top-hander .pure-menu-allow-hover a.pure-menu-link{color:#aaa;}
+#one-line{height: 0.2em;background:#5AAC4A}
+.erp-top-hander .pure-menu-link{width:8em;}
+.erp-top-hander .pure-menu-children{border:0.2em solid #5AAC4A;border-top: none;margin-left:-0.2em;}
+.erp-top-hander .pure-menu-children a.pure-menu-link{color:#222;}
+.erp-top-hander .pure-menu-children a.pure-menu-link:hover{background:aquamarine;}
+#welcome{font-size:0.7em;text-align:right;}
+.img-title,.check-img,.img-title,.zhijian-note,.mob-title{margin-left:1em;}
+
+#zhijian-note{font-size:1em;color: #933;padding:1em;}
+.show_msg{font-size: 3rem;text-align: center;}

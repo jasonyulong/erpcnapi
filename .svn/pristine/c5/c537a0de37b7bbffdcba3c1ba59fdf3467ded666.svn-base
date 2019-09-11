@@ -1,0 +1,14 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="position: absolute; padding: 1mm; font-size: 12px; overflow: hidden; margin-top: -11px; margin-left: -12px; width: 105mm; height: 106mm;" class="view" src="{$Order['pdfimg'][0]}"/>
+    <div style="position: absolute;right: 25px;bottom: 0px;">
+      <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="margin-left: -8px; margin-top: -8px; width: 105mm; height: 104mm; position: absolute;" class="view" src="{$Order['pdfimg'][1]}"/>
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 25px;bottom: 0px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>

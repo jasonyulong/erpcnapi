@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redis面板</title>
+</head>
+<body>
+    <table>
+        <tbody>
+        <tr>
+            <th>key</th>
+            <th>length</th>
+        </tr>
+        <volist name="data" id="vo">
+            <tr>
+                <td align="center">{$key}</td>
+                <td align="center">{$vo['length']}</td>
+            </tr>
+        </volist>
+        </tbody>
+    </table>
+</body>
+</html>

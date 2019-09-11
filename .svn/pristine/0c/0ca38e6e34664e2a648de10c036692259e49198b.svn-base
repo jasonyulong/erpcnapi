@@ -1,0 +1,188 @@
+<block name="top">
+    <php>include ROOT_PATH."/include/config.php";</php>
+    <php>require_once ROOT_PATH.'/top.php'</php>
+</block>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link href="/newerp/Public/css/plugins/iCheck/custom.css" rel="stylesheet">
+<!-- morris -->
+
+<!-- fullcalendar -->
+<link href="/newerp/Public/css/plugins/fullcalendar/fullcalendar.css" rel="stylesheet">
+<link href="/newerp/Public/css/plugins/fullcalendar/fullcalendar.print.css" rel="stylesheet">
+
+<link href="/newerp/Public/css/animate.css" rel="stylesheet">
+<link href="/newerp/Public/css/style.css" rel="stylesheet">
+
+<!-- Data Tables -->
+<!--<link href="/newerp/Public/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">-->
+<link href="/newerp/Public/css/custom.css" rel="stylesheet">
+<link rel="stylesheet" href="/Public/css/pure-min.css" />
+<link rel="shortcut icon" href="/newerp/img/favicon.ico" />
+<block name="linkrel"></block>
+<style>
+    .headerList{padding:0!important;border-bottom:none!important;}
+    .nav>li>a.J_menuItem{padding: 6px 20px 6px 25px;}
+    .nav>li>a.J_menuItem:hover{background:#E0E0E0!important;}
+    .form-control{padding:2px 0 2px 2px;height: 28px;}
+</style>
+
+<div id="wrapper">
+    <!-- 侧边菜单-开始 -->
+    <nav class="navbar-default navbar-static-side " role="navigation" style="width: 18%">
+        <div class="sidebar-collapse">
+            <ul class="nav" id="side-menu">
+                <!--右侧菜单重写-->
+                <block name="menu">
+
+                    <foreach name="groupedItems" item="group" key="groupName">
+                        <li>
+                            <a href="javascript:void(0);" data-url="{:U('Package/OrderGroup/listOrders', ['groupId' => $group['id']])}" class="parent_group_class">
+                                <i class="fa fa-bookmark-o"></i>
+                                <span class="nav-label">{$groupName}</span>
+                                <span class="label label-warning" style="float: right">{$group['orderCounts'] ? $group['orderCounts'] : 0}</span>
+                            </a>
+                            <ul class="nav nav-second-level">
+                                <foreach name="group['sub_carrier']" item="_carrier">
+                                    <php> $split = explode('_split_', $_carrier); </php>
+                                    <li>
+                                        <a class="J_menuItem carrier_{$group.id}" href="{:U('Package/OrderGroup/listOrders', ['groupId' => $group['id'], 'carrier' => $split[0]])}" data-index="0" style="margin: 0 5px;" data-val="{$id}">
+                                            <span style="position: relative;display:inline-block;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;width: 130px;line-height: 1.2em;text-align: left;" title="{$split[0]}">
+                                                <i class="fa fa-cubes"></i> {$split[0]}
+                                            </span>
+                                            <span class="label label-info" style="margin-right: 5%;float: right">{$split[1]}</span>
+                                        </a>
+                                    </li>
+                                </foreach>
+                            </ul>
+                        </li>
+                    </foreach>
+
+                </block>
+            </ul>
+        </div>
+    </nav>
+    <!-- 侧边菜单-结束 -->
+
+    <!-- 头部导航-开始 -->
+    <div id="page-wrapper" style="background: #fff;width: 82%;float: right">
+        <div class="row">
+            <div class="col-sm-12" style="padding: 0 !important;">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom:0;min-height:30px;">
+                    <ul class="nav navbar-top-links navbar-left" style="margin:0px;">
+                        <block name="bread">
+                            <li>
+                                <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+                            </li>
+                            <li>
+                                <a class="m-r-xs"> 物流管理 &gt; 仓库信息</a>
+                            </li>
+                        </block>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <!-- 头部导航-结束 -->
+
+        <block name="content">
+
+        </block>
+
+    </div>
+</div>
+
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/jquery-ui-1.10.4.min.js"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+
+<script src="/newerp/Public/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="/newerp/Public/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="/newerp/Public/js/inspinia.js"></script>
+<script src="/newerp/Public/js/plugins/pace/pace.min.js"></script>
+
+<!-- Data Tables -->
+<script src="/newerp/Public/js/plugins/dataTables/jquery.dataTables.js"></script>
+<script src="/newerp/Public/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+
+<!--layer-->
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<!-- 菜单 -->
+<script>
+    echo = console.log.bind(console);
+    var currentUri = window.location.search;
+    var uriPieces  = currentUri.split('/');
+
+    var block      = uriPieces[1] ? uriPieces[1] : 'Index';
+    var controller = uriPieces[2] ? uriPieces[2] : 'Index';
+    var method     = uriPieces[3] ? uriPieces[3] : 'index';
+    var groupIdPar = uriPieces[5] ? uriPieces[5] : '';
+    var carrier    = uriPieces[7] ? (uriPieces[7]).split('.')[0] : '';
+    echo([block, controller, method, groupIdPar, carrier]);
+    var allLinkLists = $('a.J_menuItem');
+
+    var alinkHrefPiece = [];
+
+    var parentGroups = $('.parent_group_class');
+
+    if (!carrier) {  // 在只是选择分组的情况下
+        try {
+            $.each(parentGroups, function (key, item) {
+                var splitPieces = $(item).attr('data-url').split('/');
+                echo(splitPieces);
+                if (
+                        block      == splitPieces[2] &&
+                        controller == splitPieces[3] &&
+                        method     == splitPieces[4] &&
+                        groupIdPar.split('.')[0] == splitPieces[6].split('.')[0]
+                ) {
+                    $(item).parent().addClass('active');
+                    $(item).parents('ul').addClass('active');
+                    throw new Error('找到父分组');
+                }
+            });
+        } catch (e) {
+            echo(e.message);
+        }
+    } else {
+        try {
+            $.each(allLinkLists, function (key, item) {
+                alinkHrefPiece = $(item).attr('href').split('/');
+
+                if (
+                        alinkHrefPiece[2] == block &&
+                        alinkHrefPiece[3] == controller &&
+                        alinkHrefPiece[4] == method &&
+                        alinkHrefPiece[6] == groupIdPar &&
+                        alinkHrefPiece[8].split('.')[0] == carrier
+                ) {
+                    $(item).parent().addClass('active');
+                    $(item).parents('li').addClass('active');
+                    $(item).parents('ul').addClass('in');
+                    throw new Error('已找到'); // 用于退出这个循环
+                }
+            });
+        } catch (e) { // 找到之后就停止搜索，这种回调形式的循环只有通过抛出异常才能将之退出掉
+            echo(e.message);
+        }
+    }
+
+    parentGroups.on('click', function() {
+        location.href = $(this).attr('data-url');
+    });
+
+</script>
+
+
+<!--模态框html-->
+<block name="modai_html"></block>
+
+<!--额外js-->
+<block name="src_js">
+</block>
+
+<block name="bottom">
+    <!-- <php>require_once ROOT_PATH.'/bottom.php'</php> -->
+</block>

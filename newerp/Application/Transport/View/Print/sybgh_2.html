@@ -1,0 +1,147 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <!--TODO 注意 这个文件 承担了 顺邮宝挂耗 的 第2种格式
+'BR','CA','US', 面单格式一
+'AU','DE','RU','SG','DK','NL','GB', 面单格式二
+'HU','NZ','PL','ES','FR','NO','CH','IN','JP','TR','AT','BE','IE','CZ','PT','IT'
+-->
+    <div class="row">
+        <div class="col" style="display: inline-block;width: 55%;font-size: 15px;font-weight: bold;line-height: 1em">
+            TO : {$Order['ebay_username']} <br>
+            {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+            {$Order['ebay_city']} {$Order['ebay_state']} {$Order['ebay_postcode']}<br>
+            {$Order["ebay_countryname"]}({$Order['countrycn']})<br>
+            {$Order['ebay_phone']}
+        </div>
+        <div class="col" style="display: inline-block;width: 43%">
+            <div class="box font8" style="border: 1px solid #000;line-height: 0.9em;padding: 2px">
+                Return to:<br>
+                {$Order['backAddress']}
+            </div>
+            <div class="box font8" style="border: 1px solid #000; border-top: none;line-height: 0.9em;padding: 2px;">
+                BAYARAN POS JELAS POSTAGE PAID POS MALAYSIA INTERNATIONAL HUB MALAYSIA PMK 1348
+            </div>
+        </div>
+    </div>
+
+    <div class="row font8">
+        <div style="float: right;right: 20px;top: 5px;line-height: 1em;padding-right: 40px">
+            {$Order['ebay_id']}<br>
+            {$Order['ebay_tracknumber']}<br>
+            <span style="font-weight: bold;font-style: 12px;">SYTRAM({$Order['countrycode']})</span>
+        </div>
+    </div>
+
+    <div class="row" style="text-align: center">
+        <div style="display:inline-block;font-size: 30px;font-weight: bold;position: relative;top: 40px;right: 60px"> R </div>
+        <div style="display: inline-block">
+            <p style="text-align: center;display: inline-block"><img src="../barcode128.class.php?data={$Order['pxorderid']}" alt="" width="75%" height="40"/></p>
+            <p style="font-size: 12px;font-weight: bold;text-align: center;line-height: 1em">{$Order['pxorderid']}</p>
+        </div>
+    </div>
+
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="5" width="90%" style="line-height: 0.9;" class="font7">
+                <div style="float: left">CUSTOMS DECLARATION CN 23</div>
+                <div style="float: right;margin-right: 20px">May be opened officially</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="font7" colspan="2" width="40%" style="line-height: 0.9em">Desoription of Contents</td>
+            <td class="font7" width="20%" style="line-height: 0.9em;">Qty</td>
+            <td class="font7" width="20%" style="line-height: 0.9em;">Weight(kg)</td>
+            <td class="font7" width="20%" style="line-height: 0.9em">Value($)</td>
+        </tr>
+
+        <php>
+            $roundnum = round((3.00+mt_rand()/mt_getrandmax()*(7.00-0.01)),2);
+            $Value = $roundnum;
+            $Weight = round((0.08+mt_rand()/mt_getrandmax()*(0.33-0.01)),2);
+        </php>
+
+        <tr>
+            <td colspan="2" class="font7" style="line-height: 0.9em;">{$Order['shenbao']}</td>
+            <td class="font7" style="line-height: 0.9em;">1</td>
+            <td class="font7" style="line-height: 0.9em;">{$Weight}</td>
+            <td class="font7" style="line-height: 0.9em;">{$Value}</td>
+        </tr>
+
+        <tr>
+            <td colspan="3">
+                <img src="../themes/Sugar5/images/ShunYouTongPingYou1.png" alt="" height="32" width="220">
+            </td>
+            <td class="font7" style="line-height: 1em">Total Wt(kg) {$Weight}</td>
+            <td class="font7" style="line-height: 1em">Total Value($) {$Value}</td>
+        </tr>
+
+        <tr>
+            <td colspan="5" class="font7" style="line-height: 0.9em">
+                For commercial items only
+            </td>
+        </tr>
+
+
+        <tr>
+            <td rowspan="2" class="font7" style="line-height: 0.9em">HS Tariff No:</td>
+            <td rowspan="2" class="font7" style="line-height: 0.9em">Country of origin:China</td>
+            <td colspan="3" class="font7" style="line-height: 0.9em">
+                Certificate No:
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="3" class="font7" style="line-height: 0.9em">
+                Invoice No:
+            </td>
+        </tr>
+        <tr>
+            <td colspan="5" class="font7" style="line-height: 0.9em">
+                SKU/Qty:
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="5" class="font7" style="line-height: 0.9em">
+                {$Order['skustr']}
+            </td>
+        </tr>
+
+        <tr>
+            <td style="line-height: 0.9em" class="font7 nobottom" colspan="5">
+                <div>
+                    I certify that the particulars given in this customs declaration are correct and that this item doesnot
+                    contain any dangerous article prohibited by legislation or by postal or customs regulations.
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="font8 noright">Signature of sender:<span class="blod">Jeoshi</span></td>
+            <td colspan="3" align="right"><span style="padding: 1px;border: 1px solid #000;">已验视</span>
+                Date: {:date('Y-m-d')} </td>
+        </tr>
+    </table>
+</div>
+
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>
+
+

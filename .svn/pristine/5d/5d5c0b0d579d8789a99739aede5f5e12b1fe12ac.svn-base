@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.css" rel="stylesheet">
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <div class="col-xs-12" style="margin-top: 10px">
+            <label for="carrier_name">分组名称:</label>
+            <input type="text" id="carrier_name" class="form-control" value="{$carrierInfo.group_name}"/>
+        </div>
+
+        <div class="col-xs-12" style="margin-top: 10px">
+            <label for="carriers">包含运输方式:</label>
+            <select id="carriers" multiple class="chosen-select-no-results form-control account chzn-select" data-placeholder="选择分组包含的运输方式" style="width:100%;">
+                <foreach name="avaliable" item="carrier">
+                    <if condition="in_array($carrier, $groupCarrier)">
+                        <option value="{$carrier}" selected>{$carrier}</option>
+                        <else/>
+                        <option value="{$carrier}">{$carrier}</option>
+                    </if>
+                </foreach>
+            </select>
+        </div>
+
+        <div class="col-xs-12" style="margin-top: 10px">
+            <label for="carrier_memo">运输方式分组备注信息:</label>
+            <textarea name="carrier_memo" id="carrier_memo" class="form-control" cols="30" rows="3">{$carrierInfo.memo}</textarea>
+        </div>
+
+        <div class="col-xs-12" style="margin-top: 10px;text-align: center">
+            <button class="btn btn-sm btn-success" id="update_carrier_group" data-id="{$carrierInfo.id}"> 修改运输方式分组 </button>
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="text/javascript" src="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.jquery.js"></script>
+
+<script type="application/javascript">
+    $('#carriers').chosen();
+
+    $('#update_carrier_group').on('click', function() {
+        var name        = $.trim($('#carrier_name').val());
+        var carrier     = $.trim($('#carriers').val());
+        var carrierMemo = $.trim($('#carrier_memo').val());
+        var id = $(this).attr('data-id');
+
+        if (!name) {
+            layer.msg('[分组名称] 不能为空.');
+            return null;
+        }
+
+        if (!carrier) {
+            layer.msg('[包含运输方式] 不能为空.');
+            return null;
+        }
+        var loadIndex = layer.load(1, {shade:0.5});
+
+        $.ajax({
+            url  : '{:U("CarrierGroup/doUpdateGroup")}',
+            type : 'post',
+            data : {groupId:id, name:name, carrier:carrier, carrierMemo:carrierMemo},
+            dataType : 'json'
+        }).done(function(result) {
+            layer.msg(result.data);
+            if (result.status) {
+                setTimeout(function() {
+                    window.parent.location.reload();
+                }, 1000);
+            }
+
+        }).fail(function(){
+            layer.msg('访问失败。');
+        }).always(function() {
+            layer.close(loadIndex);
+        });
+
+    });
+
+</script>
+
+</html>

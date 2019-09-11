@@ -1,0 +1,408 @@
+<?php
+die('<meta charset="UTF-8">功能已被禁用，请访问新页面!');
+include "include/config.php";
+include "top.php";
+include "include/dbconf.php";
+include "include/dbmysqli.php";
+
+$dbconLocal =new DBMysqli($LOCAL);
+
+
+$start=$_GET['start'];
+$end=$_GET['end'];
+
+if($start==''){
+    $start=date('Y-m-d', strtotime('-15 day'))." 00:00:00";
+}
+
+if($end==''){
+    $end=date('Y-m-d 23:59:59');
+}
+
+$start_s=strtotime($start);
+$end_s=strtotime($end);
+$days=ceil(($end_s-$start_s)/3600/24) ?: 1;
+$days=$days-1;
+$total = 0;
+$sql="select count(id) as cc,scan_user,from_unixtime(scantime, '%Y-%m-%d') as time_date from api_orderweight where scantime>$start_s and scantime<$end_s GROUP by scan_user,time_date;";
+$sql=$dbconLocal->getResultArrayBySql($sql);
+
+$sqlCounts="select count(id) as cc,scan_user,from_unixtime(scantime, '%Y-%m-%d') as time_date from api_orderweight where scantime>$start_s and scantime<$end_s GROUP by time_date;";
+$sqlCounts=$dbconLocal->getResultArrayBySql($sqlCounts);
+$countsArr     = [];
+
+foreach ($sqlCounts as $counts) {
+    $countsArr['arr'][$counts['time_date']] = $counts['cc'];
+}
+$userdd = array_unique(array_column($sql, 'scan_user'));
+
+$dataArr = [];
+foreach ($userdd as $key => $val) {
+    $userSql ="select id from ebay_user where username='{$val}'";
+    $userSql =$dbconLocal->getResultArrayBySql($userSql);
+    $userId        = $userSql[0]['id'];
+    $dataArr[$val] = [];
+    foreach ($sql as $reKey => $reVal) {
+        if ($reVal['scan_user'] == $val) {
+            $dataArr[$val]['QCuserId']                   = $userId;
+            $dataArr[$val]['arr'][$reVal['time_date']] = $reVal['cc'];
+        }
+    }
+}
+ ?>
+<style>
+    #yichang b{color:#a11;}
+</style>
+<div id="main">
+    <div id="content" >
+        <table style="width:100%"><tr><td><div class='moduleTitle'>
+<h2><?php echo "订单扫描".$status;?> </h2>
+</div>
+
+<div class='listViewBody'>
+<div id='Accountsadvanced_searchSearchForm' style='display:none' class="edit view search advanced"></div>
+<div id='Accountssaved_viewsSearchForm' style='display: none';></div>
+</form>
+
+<table cellpadding='0' cellspacing='0' width='100%' border='0' class='list view'>
+	<tr class='pagination'>
+		<td width="65%">
+			<table border='0' cellpadding='0' cellspacing='0' width='100%' class='paginationTable'>
+				<tr>
+				  <td nowrap="nowrap" class='paginationActionButtons'><form action="orderloadcsv.php" enctype="multipart/form-data" method="post" >
+				    <table width="71%" border="1" align="center" cellpadding="5" bordercolor="#999999">
+                        <tr>
+                            <td>04.<strong><a href="./t.php?s=Order/Scan" target="_blank">称重(新秤)</a></strong></td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>*.<strong><a href="beweight.php" id="yichang" target="_blank">已过秤无重量()</a></strong></td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+				      <tr>
+				        <td colspan="2"></td>
+				        <td>
+			          </tr>
+
+			        </table>
+				  </form>
+				  </td>
+			    </tr>
+			</table>
+            <table border='0' cellpadding='0' cellspacing='0' width='100%' class='paginationTable'>
+                <tr>
+                    <td colspan="33">扫描时间:<input type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="<?php echo $start;?>" id="start" />
+                    <input type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="<?php echo $end;?>" id="end" />
+                        仓库：
+                        <select name="store" class="pure-select-pd">
+                            <option value="">一号仓</option>
+                        </select>
+                        <input type="button" onclick="searchs()" value="查找"/><input type="button" onclick="putExcel()" value="导出"/></td>
+                </tr>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>扫描人</th>
+                    <?php $I=1; for($i=$days;$i>=0;$i--) {?>
+                        <th><?php echo date('m-d', strtotime($end." -{$i}day")) ?></th>
+                    <?php }?>
+                    <th>合计</th>
+                </tr>
+
+                <?php
+                foreach($dataArr as $ak => $a){?>
+                    <tr>
+                        <td><?php echo $I++;?></td>
+                        <td><?php echo $ak;?>[<?php echo $a['QCuserId'];?>]</td>
+                        <?php $count = 0; for($i=$days;$i>=0;$i--) {
+                            $date = date('Y-m-d', strtotime($end." -".$i."day"));
+                            ?>
+                            <td>
+                                <?php
+                                if(in_array($date,array_keys($a['arr']))){
+                                    $num = $a['arr'][$date];
+                                    $count = $count + $num;
+                                    echo $num;
+                                }else{
+                                    echo 0;
+                                }
+                                ?>
+                            </td>
+                        <?php }?>
+                        <td><?php echo $count;?></td>
+                    </tr>
+                <?php }?>
+
+                <tr>
+                    <td></td>
+                    <td style="font-weight: bold">总计</td>
+                    <?php $counts = 0; for($i=$days;$i>=0;$i--) {
+                        $date = date('Y-m-d', strtotime($end." -".$i."day"));
+                        ?>
+                        <td>
+                            <?php
+                            if(in_array($date,array_keys($countsArr['arr']))){
+                                $num = $countsArr['arr'][$date];
+                                $counts = $counts + $num;
+                                echo $num;
+                            }else{
+                                echo 0;
+                            }
+                            ?>
+                        </td>
+                    <?php }?>
+                    <td style="font-weight: bold"> <?php echo $counts;?> </td>
+                </tr>
+            </table>
+        </td>
+	</tr>
+		<tr class='pagination'>
+		<td>
+			<table border='0' cellpadding='0' cellspacing='0' width='100%' class='paginationTable'>
+				<tr>
+					<td nowrap="nowrap" class='paginationActionButtons'></td>
+					</tr>
+			</table>		</td>
+	</tr></table>
+
+
+    <div class="clear"></div>
+<?php
+
+include "bottom.php";
+?>
+
+<script language="javascript" src="My97DatePicker/WdatePicker.js"></script>
+<script language="javascript" src="js/jquery.js"></script>
+<script language="javascript">
+
+    function searchs(){
+
+        var start = $("#start").val ();
+        var end = $("#end").val ();
+
+        var time3 = new Date(start).getTime();
+        var time2 = new Date(end).getTime();
+        if(time2 < time3){
+            alert('起始时间不得超过结束时间');return false;
+        }
+
+        //判断时间跨度是否大于1个月
+        var arr1 = start.split('-');
+        var arr2 = end.split('-');
+        arr1[1] = parseInt(arr1[1]);
+        arr1[2] = parseInt(arr1[2]);
+        arr2[1] = parseInt(arr2[1]);
+        arr2[2] = parseInt(arr2[2]);
+        var flag = true;
+        if(arr1[0] == arr2[0]){ //同年
+            if(arr2[1]-arr1[1] > 1){ //月间隔超过1个月
+                flag = false;
+            }else if(arr2[1]-arr1[1] == 1){ //月相隔1个月，比较日
+                if(arr2[2] > arr1[2]){ //结束日期的日大于开始日期的日
+                    flag = false;
+                }
+            }
+        }else{ //不同年
+            if(arr2[0] - arr1[0] > 1){
+                flag = false;
+            }else if(arr2[0] - arr1[0] == 1){
+                if(arr1[1] < 12){ //开始年的月份小于12时，不需要跨年
+                    flag = false;
+                }else if(arr1[1]+1-arr2[1] < 12){ //月相隔大于1个月
+                    flag = false;
+                }else if(arr1[1]+1-arr2[1] == 12){ //月相隔1个月，比较日
+                    if(arr2[2] > arr1[2]){ //结束日期的日大于开始日期的日
+                        flag = false;
+                    }
+                }
+            }
+        }
+        if(!flag){
+            alert("查询区间不能超过一个月");
+            return false;
+        }
+        var url="scanorder_baoiao.php?module=orders&action=&start="+start+"&end="+end;
+        window.location.href=url;
+    }
+
+    function putExcel(){
+        var start = $ ("#start").val ();
+        var end = $ ("#end").val ();
+        var purl="/t.php?s=/Package/TwoPickCount/putsmExcel/start/"+start+"/end/"+end;
+        window.open(purl);
+    }
+    
+    var dateSave=[];
+
+	function salestoproducts(){
+
+		var start		= document.getElementById('start').value;
+		var end			= document.getElementById('end').value;
+
+
+		var url			= 'xlsbaobiaopcsost.php?start='+start+"&end="+end;
+		window.open(url,"_blank");
+
+
+	}
+
+	function newbaobiao(){
+		var typevalue 	= document.getElementById('filesid').value;
+		var ebay_carrier= document.getElementById('ebay_carrier').value;
+		var start		= $.trim(document.getElementById('start').value);
+		var end			= $.trim(document.getElementById('end').value);
+		var account		= '';
+
+        if(start==''){alert('请选择开始时间');return;}
+        if(end==''){alert('请选择结束时间');return;}
+        if(ebay_carrier==''){alert('请选择运送方式');return;}
+        //if(typevalue==''&&ebay_carrier!=''){alert('请选择开始时间');return;}
+
+		var len			= document.getElementById('account3').options.length;
+		 for(var i = 0; i < len; i++){
+		   if( document.getElementById('account3').options[i].selected){
+			var e =  document.getElementById('account3').options[i];
+
+			account	+= e.value+'#';
+
+		   }
+		  }
+
+        if(ebay_carrier=='北京小包平邮'){
+            var url			= 'ywbj.php?mark=baobiao&start='+start+"&end="+end+"&account="+encodeURIComponent(account)+"&ebay_carrier="+ebay_carrier;
+            window.open(url,"_blank");
+            return;
+        }
+
+		  if(typevalue	== '1'){
+
+		        var url		= 'labelto1001.php?start='+start+"&end="+end+"&account="+encodeURIComponent(account)+"&ebay_carrier="+ebay_carrier+"&mark="+"baobiao";
+		        //alert(url);return;
+		     }
+		    if(typevalue	== '01'){
+
+		        var url		= 'labelto1111.php?start='+start+"&end="+end+"&account="+encodeURIComponent(account)+"&ebay_carrier="+ebay_carrier+"&mark="+"baobiao";
+		    }
+
+
+		   if(typevalue	== '1028'){
+
+		        var url		= 'ywbj.php?start='+start+"&end="+end+"&account="+encodeURIComponent(account)+"&ebay_carrier="+ebay_carrier+"&mark="+"baobiao";
+		    }
+
+		    if(typevalue	== '001'){
+		        var url		= 'labelto2222.php?start='+start+"&end="+end+"&account="+encodeURIComponent(account)+"&ebay_carrier="+ebay_carrier+"&mark="+"baobiao";
+		    }
+		    if(typevalue	== '130413'){
+		    	 var url	= 'toxls/labelto130413.php?start='+start+"&end="+end+"&account="+encodeURIComponent(account)+"&ebay_carrier="+ebay_carrier+"&mark="+"baobiao";
+    		}
+		 	if(typevalue=='1304233'){
+		        var url			= 'toxls/labelto1304233.php?module=order';
+
+    		}
+        if(typevalue=='0925'){
+            var url    =   'toxls/niuniuche.php?start='+start+"&end="+end+"&account="+encodeURIComponent(account)+"&ebay_carrier="+ebay_carrier+"&mark="+"baobiao";
+        }
+        if(typevalue=='0921'){
+            var url    =   'toxls/jmstypeexport.php?start='+start+"&end="+end+"&ebay_carrier="+ebay_carrier+"&mark=baobiao";
+        }
+
+		window.open(url,"_blank");
+
+	}
+
+	function xlsbaobiao(){
+
+		var ebay_carrier		= document.getElementById('ebay_carrier').value;
+		var start		= document.getElementById('start').value;
+		var end			= document.getElementById('end').value;
+		var account		= '';
+
+
+
+
+		var len			= document.getElementById('account3').options.length;
+		 for(var i = 0; i < len; i++){
+		   if( document.getElementById('account3').options[i].selected){
+			var e =  document.getElementById('account3').options[i];
+
+			account	+= e.value+'#';
+
+		   }
+		  }
+
+
+		var url			= 'xlsbaobiao.php?start='+start+"&end="+end+"&account="+encodeURIComponent(account)+"&ebay_carrier="+ebay_carrier;
+		window.open(url,"_blank");
+
+
+	}
+
+
+    function autoChangeXlsFormat(that){
+        var ebay_carrier=that.value;
+        var arr={};
+        arr['深圳小包挂号']='001';
+        arr['哈尔滨小包挂号']='1';
+        arr['香港小包挂号']='001';
+        arr['中邮北京挂号小包']='1028';
+        arr['北京小包平邮']='1028';
+        if(ebay_carrier=='北京小包平邮'){
+            backUpStartTime();
+        }else{
+            backUpStartTime();
+        }
+
+        if(undefined!=arr[ebay_carrier]){
+            var index=arr[ebay_carrier];
+            document.getElementById('filesid').value=index;
+
+        }
+
+
+
+    }
+
+    function setTimeStartAndEnd(start,end){// 设置开始时间  北京小包平邮  //lastday.getTime()-24*3600*1000
+        if(!end){
+          var dates=new Date();
+          var endYear=dates.getFullYear();
+          var endMon=(dates.getMonth()+1)<10?'0'+(dates.getMonth()+1):(dates.getMonth()+1);
+          var endDay=dates.getDate()<10?'0'+(dates.getDate()):dates.getDate();
+          end=endYear+'-'+endMon+'-'+endDay+'  '+'18:00';
+        }
+
+       if(!start){
+         var lastday = new Date();
+         lastday.setTime(lastday.getTime()-24*3600*1000);
+         var startYear=lastday.getFullYear();
+         var startMon=(lastday.getMonth()+1)<10?'0'+(lastday.getMonth()+1):(lastday.getMonth()+1);
+         var startDay=lastday.getDate()<10?'0'+lastday.getDate():lastday.getDate();
+         start= startYear+'-'+startMon+'-'+startDay+'  '+'18:00';
+       }
+        document.getElementById('start').value=start;
+        document.getElementById('end').value=end;
+
+    }
+
+    function backUpStartTime(){ // 恢复时间
+        var start=window.dateSave[0];
+        var end=window.dateSave[1];
+        document.getElementById('start').value=start;
+        document.getElementById('end').value=end;
+    }
+
+    function getYIchangCount(){
+        $.post('getajax3.php',{"type":'get_scancount'},function(data){
+            $("#yichang").html("已过秤无重量(<b>"+data+"</b>)");
+        })
+    }
+
+    getYIchangCount();
+    setInterval(function(){
+        getYIchangCount();
+    },5000)
+
+</script>

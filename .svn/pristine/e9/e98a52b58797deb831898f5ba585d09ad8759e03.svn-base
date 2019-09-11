@@ -1,0 +1,40 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative; width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <?php
+       if(in_array($Order['ebay_carrier'], ['SLS-shopee专用(越南)', 'SLS-shopee （印度尼西亚）', 'SLS-shopee（马来西亚）', 'SLS-shopee（泰国）']))
+        {
+            $cssstr = 'margin-top: -53px;margin-left: -55px;width: 128mm;height:190mm;';
+        }
+        else
+        {
+            $cssstr='height:100mm;width:100mm;';
+        }
+    ?>
+    <?php if(is_array($Order['pdfimg'])):?>
+    <img style="margin-top: -53px;margin-left: -55px;width: 128mm;height:190mm;" class="view" src="{$Order['pdfimg'][0]}"/>
+    <?php else:?>
+    <img style="margin-top: -53px;margin-left: -55px;width: 128mm;height:190mm;" class="view" src="{$Order['pdfimg']}"/>
+    <?php endif;?>
+    <div style="width: 4mm;height: 6mm;margin-top: -85mm;margin-left: 85mm;font-size: 20px;font-weight: ;font-weight: 800;">
+        <span class="fonts">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<div class="<?php echo in_array($Order['ebay_carrier'],['荷兰邮政小包平邮','荷兰邮政小包挂号','台湾小包挂号-GY','台湾小包平邮-GY'])?'':'mod_second_lables'?>" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

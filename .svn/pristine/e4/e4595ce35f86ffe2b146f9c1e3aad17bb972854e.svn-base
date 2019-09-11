@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport"/>
+    <title>{$sortingTime}次分拣</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+    body{padding:0;margin: 0;}
+    .container{width:100%;padding:0;margin: 0;}
+
+    .SecondPick_error{font-size:26px;}
+    .ebay_sku_table{width:100%}
+    .show_location{font-size:180px;width:200px;text-align:center;line-height:200px;height:200px;border:10px solid #0066cc;margin:10px;}
+    .fenjian_location{font-size:20px;background:#286090;color:#fff;}
+    .tr_second_bg td{background:#CCCACA}
+
+    #box_show{padding: 10px;}
+    #box_show div.box_item_show{
+        width: 100px;
+        height: 100px;
+        overflow: hidden;
+        border:1px solid #900;
+        float: left;
+        background:#aaa;
+        cursor: pointer;
+    }
+
+    .box_item_show .boxid{
+        font-size:20px;
+    }
+
+    .box_item_show .noboxid{        font-size:20px;}
+    div.box_sku{font-size: 10px;margin-left:2px;}
+    .Detil_sku{font-size: 10px;margin-left:2px;}
+    #box_show div.box_success{background:#0a0;}
+
+    #msg_flash{width:100%;height:100%;background:#f9f9f9;position:fixed;right:0px;}
+    #msg_flash_content{margin:10px;}
+    #msg_flash_content .mainsss{height:300px;overflow:auto}
+    #msg_flash_content th{
+        text-align:center;
+        width: 33%;
+    }
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="padding: 8px 5px;background-color:orange">
+        <div class="col-xs-12">
+            <input type="text" style="font-size:25px;width:178px;" placeholder="拣货单号" id="ordersn" onkeyup="selectPickOrder(event)" value="{$ordersn}">
+            <input type="text" style="font-size:25px;width:150px;" placeholder="请扫描SKU" id="sku" onkeyup="FillSKUPickOrder(event)" value="">
+            <span style="font-size:30px;"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {$sortingTime}次分拣</span>
+        </div>
+    </div>
+
+    <div style="float: left;width: 30%;">
+        <div class="row" style="padding: 0 24px">
+                <div id="myTbody" style="height:230px;">
+
+                </div>
+                    <!--<div date="22:41" sku="AAGF098" class="show_location">1</div>-->
+                <!--<div id="mySuccess" style="height:230px;margin-left: 1000px;margin-top: -200px">-->
+
+                <!--</div>-->
+
+            <!--最近的几个sku -->
+            <div class="pageInfo" style="margin:10px;max-height: 300px;overflow-y: auto;" id="bottom_info">
+
+            </div>
+
+            <div class="pageInfo" id="bottom_handle">
+                <!--<a style="font-size:18px;margin-top:-4px;" onclick="view_fenjian_step()" class="btn btn-sm btn-primary" >分拣进度</a>-->
+                <!--<a style="font-size:18px;margin-top:-4px;" onclick="repeat_fenjian()" class="btn btn-sm btn-danger" >重新分拣</a>-->
+                <a style="font-size:18px;margin-top:-4px;" onclick="print_remainder()" class="btn btn-sm btn-info" >打印剩余SKU</a>
+                <a style="font-size:18px;margin-top:-4px;" onclick="lookSku_order()" class="btn btn-sm btn-warning" >分拣记录查找</a>
+                <!--<a style="font-size:18px;margin-top:-4px;" onclick="print_exception()" class="btn btn-sm btn-warning" >打印异常标签</a>-->
+                <?php
+                 if($sortingTime==2){
+                 ?>
+                <!--<a style="font-size:18px;margin-top:-4px;" onclick="over_secondPick()" class="btn btn-sm btn-warning" >结束二次分拣</a>-->
+
+                 <?php
+                    }
+                ?>
+
+
+                <?php
+                 if($sortingTime==3){
+                 ?>
+                <a style="font-size:18px;margin-top:-4px;" onclick="Forced_to_end()" class="btn btn-sm btn-danger" >强制结束</a>
+                <?php
+                    }
+                ?>
+
+
+
+            </div>
+        </div>
+
+        <div style="color:#911;font-size:15px;margin:10px;font-weight: bold;"><!--分拣前,必须将多余的库存全部归位!-->&nbsp;</div>
+
+        <div style="font-size:20px;margin-left:10px;">
+        <?php
+         if($sortingTime==2){
+            echo '<a href="./t.php?s=/Package/SecondPick/thirdTime">转到3次分拣</a>';
+         }else{
+            echo '<a href="./t.php?s=/Package/SecondPick/index">转到2次分拣</a>';
+        }
+        ?>
+            </div>
+
+        <audio  id="10" autoplay="autoplay">
+            <source src='' type='audio/mp3'>
+        </audio>
+        <audio id="failSound" >
+            <source src='' type='audio/mp3'>
+        </audio>
+        <audio id="scanSound" >
+            <source src='' type='audio/mp3'>
+        </audio>
+    </div>
+
+    <div style="float: left;width: 69.9%;display:block;word-break: break-all;word-wrap: break-word;">
+        <php>
+            print_r($html)
+        </php>
+    </div>
+</div>
+
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<script type="application/javascript">
+    $(function(){
+
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            $("#ordersn").select().focus();
+        }else{
+            $("#sku").select().focus();
+        }
+    });
+    function selectPickOrder(event){
+        //var keyCode = event.keyCode;
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        //$("#code").val($("#code").val()+"###"+keyCode);
+        if (keyCode !==13) {
+            return false;
+        }
+
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            return false;
+        }
+        var sortingTime = '{$sortingTime}';
+        if(sortingTime == '2'){
+            var url = "{:U('SecondPick/index')}&ordersn=" + ordersn;
+        }else{
+            var url = "{:U('SecondPick/thirdTime')}&ordersn=" + ordersn;
+        }
+
+
+        location.href = url;
+
+        $("#sku").select().focus();
+
+    }
+
+
+    // 填写 sku 该岛哪里去
+    function FillSKUPickOrder(event){
+        //var keyCode = event.keyCode;
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return false;
+        }
+
+        var ordersn=$("#ordersn").val();
+        var sku=$("#sku").val();
+
+        if(ordersn==''){
+            return false;
+        }
+
+        if(sku==''){
+            return false;
+        }
+        //扫描二维码替换输入框值 Shawn 2018-09-04
+        var qrcode = sku;
+        if(sku.indexOf("$") >= 0){
+            var skuStr = sku.split("$");
+            sku = skuStr[1];
+            document.getElementById('sku').value = sku;
+        }
+
+        $("#sku").select();
+
+        var url="{:U('SecondPick/getSecondPickLocation')}";
+        var sortingTime='{$sortingTime}';
+
+        $.post(url,{ordersn:ordersn,sku:sku,sortingTime:sortingTime,qrcode:qrcode},function(data){
+            var number='fail';
+            var msg=data.msg;
+            var ss = data.success;
+            if(data.status==1){
+
+                var chenggonghtml = $("#chenggong");
+                var chenggong = chenggonghtml.html();
+                chenggong =  parseInt(chenggong)+1;
+                chenggonghtml.html(chenggong);
+                number=data.data;
+                var myLocation=$("#myTbody").html();
+                //alert(myLocation);
+                if ($.trim (myLocation) != '') {
+                    myLocation = $ (myLocation);
+
+                    var date = myLocation.attr("date");
+                    var sku = myLocation.attr("sku");
+                    var location = myLocation.html ();
+
+                    if(undefined!=sku){
+                        var html = '<div style="font-size:14px;">' + date + '&nbsp;&nbsp;&nbsp;' + sku + '&nbsp;&nbsp;&nbsp;分拣位：' + location + '</div>';
+                        $ ("#bottom_info").prepend (html);
+                    }
+                }
+               // alert(myLocation);
+            }
+
+            var jishu = $("#jishu");
+            var countshu = jishu.html();
+            countshu =  parseInt(countshu)+1;
+            $("#myTbody").html(msg);
+
+            playm(number);
+            if(ss){
+                var box = $("#box_"+number);
+                box.attr('class','box_item_show box_success');
+                box.find(".box_sku").remove();
+                jishu.html(countshu);
+                setTimeout("playm('cg')", 1500);
+            }else{
+                var box = $("#box_"+number);
+                box.find(".box_sku").remove();
+                box.append(data.skuHtml);
+            }
+        },'json')
+
+
+    }
+
+
+    function playm(id){
+        var video=null;
+        if(id=="fail"){
+            video	=	document.getElementById("failSound");
+            video.src="capi/number/error.mp3";
+            video.play();
+        }else {
+            video	=	document.getElementById("10");
+            video.src="capi/number/"+id+".mp3";
+            video.play();
+        }
+    }
+
+
+    function repeat_fenjian(){
+       // alert('这功能还没开花!');
+
+        if(!confirm("重新分拣之后,会完全清空订单(小格子)与sku的关联\n需要将现有小格子里面的SKU全部拿出来\n请确保没有开始打包")){
+            return '';
+        }
+        var ordersn=$("#ordersn").val();
+        var url="{:U('SecondPick/RePick')}";
+        $.post(url,{ordersn:ordersn},function(data){
+            if(undefined===data.status){
+                 layer.alert("请求失败!");
+                return '';
+            }
+
+            if(data.status>=0){
+                layer.alert(data.msg);
+            }
+        },'json')
+    }
+
+
+    function view_fenjian_step(){
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('SecondPick/getPickStstus')}&ordersn="+ordersn;
+
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '分拣进度',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+    }
+
+    // 打印剩余的sku
+    function print_remainder(){
+        var ordersn=$("#ordersn").val();
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+        var url="{:U('SecondPick/printRemainder')}&ordersn="+ordersn;
+        var sorting_status = '{$sorting_status}';
+        var sortingTime='{$sortingTime}';
+        if(sorting_status == '0' && sortingTime!="3"){
+            var succ = true_over_secondPick();
+            if(succ == false){
+                return false;
+            }
+        }
+
+        window.open(url);
+//        print_exception();
+
+    }
+
+    //打印异常标签
+    function print_exception(){
+        var ordersn=$("#ordersn").val();
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+        var url="{:U('SecondPick/printException')}&ordersn="+ordersn;
+        window.open(url);
+    }
+
+
+    /**
+    *测试人员谭 2018-08-04 10:49:36
+    *说明:借宿二次分拣的 拣货单
+    */
+    function over_secondPick(){
+        var ordersn=$("#ordersn").val();
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+        var url="{:U('SecondPick/overSecondPickView')}&ordersn="+ordersn;
+
+        $.post(url,{},function(data){
+
+            var index=layer.open({
+                type: 1,
+                title: '结束二次分拣',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                maxmin: true,
+                area: ['1180px', '610px'],
+                content: data
+            });
+            layer.full(index);
+        });
+
+    }
+
+    function true_over_secondPick(){
+
+        if(!confirm("确定结束二次分拣吗?请确保所有配出来的货都扫描了!")){
+            return false;
+        }
+
+        var ordersn=$("#ordersn").val();
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+        var url="{:U('SecondPick/overSecondPick')}&ordersn="+ordersn;
+
+        $.post(url,{},function(data){
+            if(data.status){
+                layer.alert(data.msg);
+            }else{
+                layer.alert(data);
+            }
+        });
+    }
+
+    function showFullSKU(that){
+        var html='';
+        var id=$(that).find('.boxid').eq(0).html();
+
+        var ordersn=$("#ordersn").val();
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        // 剩余的的sku
+        $(that).find('.box_sku').each(function(){
+            html+=$(this).html()+'<br>';
+        });
+
+        var Detilhtml='';
+        // 所有的sku
+        $(that).find('#skuDetil').find('.Detil_sku').each(function(){
+            Detilhtml+=$(this).html()+'<br>';
+        });
+
+        if(!Detilhtml){
+            var url="{:U('SecondPick/pickOrderDetil')}";
+            $.post(url,{ordersn:ordersn,id:id},function(data){
+                Detilhtml='<div style="font-size:15px;margin-top: 20px;">'+data+'</div>';
+                html='<div style="font-size:25px">'+html+'</div>';
+                var id_div='<div style="font-size: 40px">'+id+'</div>';
+                var Mainhtml='<div style="width:250px;min-height:250px;padding:10px;">'+id_div+html+Detilhtml+'</div>';
+
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    shadeClose: true,
+                    content: Mainhtml
+                });
+            });
+        }else{
+            Detilhtml='<div style="font-size:15px;margin-top: 20px;">'+Detilhtml+'</div>';
+            html='<div style="font-size:25px">'+html+'</div>';
+            var id_div='<div style="font-size: 40px">'+id+'</div>';
+            var Mainhtml='<div style="width:250px;min-height:250px;padding:10px;">'+id_div+html+Detilhtml+'</div>';
+
+            layer.open({
+                type: 1,
+                title: false,
+                closeBtn: 0,
+                shadeClose: true,
+                content: Mainhtml
+            });
+        }
+    }
+
+    /**
+    *测试人员谭 2017-06-10 10:12:20
+    *说明: 强制结束的情况是这样的: 如果捡货单确认的时候发生了问题！
+     * 你以为全部捡到货了，实际上根本没捡到，也就是说,剩下的一些sku 根本没法二次分拣了
+     * （你以为没有捡到货，即使捡到了 也要退回去，因为已经确认了）
+    */
+    function Forced_to_end(){
+        if(!confirm("强制结束之后,将不能进行扫描分拣，请确保所有配出来的货都扫描了再结束！！！如确认，结束后请将错误的SKU还回去!")){
+            return '';
+        }
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('SecondPick/ForcedEnd')}&ordersn="+ordersn;
+
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '强制结束',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+    }
+
+
+    function lookSku_order(){
+        var ordersn=$("#ordersn").val();
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var html = '<div id="msg_flash"> '
+                + '<div id="msg_flash_content"> ' +
+                '<div style="margin-left: 5%"><strong>SKU：</strong><input style="width: 60%" type="text" value="" id="s_sku" onkeyup="selectPickSku(event)"></div>'+
+                '<p style="margin: 2% 5%;">分拣记录：</p>' +
+                '<div class="mainsss"><div><table style="font-size: 14px; text-align:center;width: 90%;margin-left: 5%"><thead> ' +
+                '<tr> ' +
+                '<th>时间</th> ' +
+                '<th>SKU</th> ' +
+                '<th>分拣位</th> ' +
+                '</tr> </thead> ' +
+                '<tbody id="msg_flash_bodysss"></tbody></table></div></div></div></div>';
+
+        layer.open({
+            type: 1,
+            title: '分拣记录查找',
+            closeBtn: 1,
+            shadeClose: true,
+            area: ['600px', '400px'],
+            content: html,
+            end: function () {
+                $("#sku").select().focus();
+            }
+        });
+        $("#s_sku").select().focus();
+    }
+
+    function selectPickSku(event){
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return false;
+        }
+        var s_sku=$("#s_sku").val();
+        //扫描二维码替换输入框值 Shawn 2018-09-04
+        if(s_sku.indexOf("$") >= 0){
+            var s_skuStr = s_sku.split("$");
+            s_sku = s_skuStr[1];
+            document.getElementById('s_sku').value = s_sku;
+        }
+        var ordersn=$("#ordersn").val();
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+        var url="{:U('SecondPick/getSkuPickLocation')}";
+        $.post(url,{ordersn:ordersn,s_sku:s_sku},function(data){
+            if(data == false){
+                layer.msg('sku信息未找到',{icon: 2});
+            }
+            $('#msg_flash_bodysss').html(data);
+        },'json');
+        
+        $("#s_sku").select().focus();
+    }
+</script>
+
+</html>

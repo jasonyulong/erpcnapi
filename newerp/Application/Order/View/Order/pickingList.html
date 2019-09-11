@@ -1,0 +1,332 @@
+<extend name="Public:index" />
+<block name="main">
+    <style type="text/css">
+      .pagination{width:100%}
+
+    </style>
+    <div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+        <div style="color: red">注意：未分配运输方式分组的运输方式，无法进入捡货单</div>
+        <form>
+            <div class="form-inline">
+                <div class="input-group">
+                   <!-- <div class="input-group-addon">订单号</div>
+                    <input type="text" name="content" class="form-control input-sm" style="width:120px" value=<?php echo $_GET['content']; ?>   >
+                    <select name="field" data-placeholder="" >
+                        <php>foreach($fields as $fieldVal=>$fieldName){</php>
+                        <option value="{$fieldVal}"  <php>if($fieldVal == $request['field'])echo 'selected'</php>>{$fieldName}</option>
+                        <php>}</php>
+                    </select>
+                </div>-->
+
+                <div class="input-group">
+                    <div class="input-group-addon">进erp时间</div>
+                    <input type="text" class="form-control input-sm" name="ebay_addtime_start" style="width: 100px;" placeholder="开始日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"    value="{$request.ebay_addtime_start}">
+                    <div class="input-group-addon">至</div>
+                    <input type="text" class="form-control input-sm" name="ebay_addtime_end" style="width: 100px;" placeholder="结束日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request.ebay_addtime_end}">
+                </div>
+
+                <div class="input-group">
+                    <div class="input-group-addon">进wms时间</div>
+                    <input type="text" class="form-control input-sm" name="w_add_time_start" style="width: 100px;" placeholder="开始日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request.w_add_time_start}">
+                    <div class="input-group-addon">至</div>
+                    <input type="text" class="form-control input-sm" name="w_add_time_end" style="width: 100px;" placeholder="结束日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" value="{$request.w_add_time_end}">
+                </div>
+                    &nbsp;&nbsp;&nbsp;
+               <!--类型选择-->
+               <select style="height: 29px"  name="types" id="typest">
+                   <option value="1723"  <if condition="$request['types'] eq 1723">selected="selected"</if> >可打印时间</option>
+                   <option value="1745"  <if condition="$request['types'] eq 1745">selected="selected"</if> >等待打印时间</option>
+                   <option value="1724"  <if condition="$request['types'] eq 1724">selected="selected"</if> >等待扫描时间</option>
+                   <option value="2009"  <if condition="$request['types'] eq 2009">selected="selected"</if>>出库待称重</option>
+               </select>
+
+
+               <select style="height: 29px;margin-top: 5px !important" name="mtype" onchange="changeType($(this));return false">
+                  <option value="1" <if condition="$request['mtype'] eq 1">selected="selected"</if> >滞留时间</option>
+                  <option value="2" <if condition="$request['mtype'] eq 2">selected="selected"</if>>日期</option>
+               </select>
+
+                <input type="hidden" name="sort_name"  value="{$request.sort_name}">
+                <input type="hidden" name="sort_value" value="{$request.sort_value}">
+
+
+               <!--时间啊转化-->
+                    <div class="input-group" id="ch1"  <if condition="$request['mtype'] neq 1">style="display:none"</if> >
+                        <input type="text" class="form-control input-sm print_time_start" name="print_time_start" style="width: 100px;" placeholder="停留时间(h)"  value="{$request['print_time_start']}" >
+                        <div class="input-group-addon">至</div>
+                        <input type="text"  class="form-control input-sm print_time_end" name="print_time_end" style="width: 100px;" placeholder="停留时间"  value="{$request['print_time_end']}"  >
+                    </div>
+
+
+
+                    <div class="input-group" id="ch2" <if condition="$request['mtype'] neq 2"> style="display: none" </if> >
+                        <div class="input-group-addon">滞留时间</div>
+                        <input type="text" id="zstart" class="form-control input-sm print_time_start2" name="print_time_start1" style="width: 100px;" value="{$request['print_time_start1']}" placeholder="开始日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" >
+                        <div class="input-group-addon">至</div>
+                        <input type="text" id="zend" class="form-control input-sm print_time_end2" name="print_time_end1" style="width: 100px;"  value="{$request['print_time_end1']}" placeholder="结束日期" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" >
+                    </div>
+
+            <div class="input-group" id="ch1"  >
+                <div class="input-group-addon">运输方式</div>
+                <select id="ebay_carrier"  multiple="multiple" >
+                    <option value="">--运输方式--</option>
+                    <?php
+                    foreach($CarrierList as $list){
+                        $s='';
+                        if(in_array($list['name'],$ebayCarrier)){
+                        $s='selected="selected" ';
+                        }
+                        echo '<option '.$s.' value="'.$list['name'].'">'.$list['name'].'</option>';
+                        }
+                    ?>
+                </select>
+            </div>
+               <!--end-->
+
+
+                <button onclick="searchForm(this)" class="btn btn-primary btn-sm" id="search-btn" type="button" style="margin-left:50px">搜索</button>
+                    &nbsp;&nbsp;&nbsp;
+                <button   class="btn btn-primary btn-sm" id="expload" type="button" >导出</button>
+            </div>
+        </form>
+
+        <ul class="pagination">{$show}</ul>
+        <table class="table custom-table">
+            <thead>
+            <th width="5%" style="text-align: left;"><input type="checkbox" id="checkds"> </th>
+            <th width="10%" style="text-align: left;">订单号</th>
+            <th width="18%" style="text-align: left;">运输方式</th>
+            <th width="18%" style="text-align: left;">跟踪号</th>
+            <th width="18%" style="text-align: left;">客户姓名</th>
+
+            <th width="18%" style="text-align: left;">
+                <a href="javascript:;" onclick="sort(this)" data-name="ebay_addtime" data-value="{$request['sort_value'] =='desc' ? 'asc' : 'desc'}">
+                    进erp时间
+                    <php>if($request['sort_name'] == 'ebay_addtime'){</php>
+                    <switch name='request.sort_value'>
+                        <case value="asc">
+                            <i class="glyphicon glyphicon-arrow-up"></i>
+                        </case>
+                        <case value="desc">
+                            <i class="glyphicon glyphicon-arrow-down"></i>
+                        </case>
+                    </switch>
+                    <php>}</php>
+                </a>
+            </th>
+
+            <th width="18%" style="text-align: left;">
+                <a href="javascript:;" onclick="sort(this)" data-name="w_add_time" data-value="{$request['sort_value'] == 'desc' ? 'asc' : 'desc'}">
+                    进wms时间
+                    <php>if($request['sort_name'] == 'w_add_time'){</php>
+                    <switch name='request.sort_value'>
+                        <case value="asc">
+                            <i class="glyphicon glyphicon-arrow-up"></i>
+                        </case>
+                        <case value="desc">
+                            <i class="glyphicon glyphicon-arrow-down"></i>
+                        </case>
+                    </switch>
+                    <php>}</php>
+                </a>
+            </th>
+
+            <th width="18%" style="text-align: left;">
+                <a href="javascript:;" onclick="sort(this)" data-name="print_add_time" data-value="{$request['sort_value'] =='desc' ? 'asc' : 'desc'}">
+                {$topMenus[$request['types']] }
+                    <php>if($request['sort_name'] == 'print_add_time'){</php>
+                    <switch name='request.sort_value'>
+                        <case value="asc">
+                            <i class="glyphicon glyphicon-arrow-up"></i>
+                        </case>
+                        <case value="desc">
+                            <i class="glyphicon glyphicon-arrow-down"></i>
+                        </case>
+                    </switch>
+                    <php>}</php>
+                </a>
+            </th>
+
+            <th width="18%" style="text-align: left;">状态</th>
+            </thead>
+
+            <php>foreach($orders as $v){</php>
+            <tr>
+                <td  style="text-align: left;"><input type="checkbox" value="{$v['ebay_id']}" name="ordersn"></td>
+                <td style="text-align: left;">{$v['ebay_id']}</td>
+                <td style="text-align: left;">{$v['ebay_carrier']}</td>
+                <td style="text-align: left;">{$v['ebay_tracknumber']}<php>if(!empty($v['pxorderid'])){</php><br>(<font color="red">pxId:{$v['pxorderid']})</font><php>}</php></td>
+                <td style="text-align: left;">{$v['ebay_username']}</td>
+                <td style="text-align: left;">{:date('Y-m-d H:i:s',$v['ebay_addtime'])}</td>
+                <td style="text-align: left;">{$v['w_add_time']}</td>
+                <td style="text-align: left;">
+                    <?php
+                              echo $v['to_time_'.$v['ebay_status']];
+                    ?>
+                </td>
+                <td style="text-align: left;">{$topMenus[$v['ebay_status']]}</td>
+                <td style="text-align: left;">{$allStatus[$v['status']]}</td>
+            </tr>
+            <php>}</php>
+        </table>
+
+        <ul class="pagination" >{$show}</ul>
+    </div>
+
+    <script>
+
+        $(function () {
+            $('select[name="ebay_status[]"]').chosen({search_contains: true, width: '120px', allow_single_deselect: true});
+            $('select[name=field]').chosen({search_contains: true, width: '120px', allow_single_deselect: true});
+            $('#ebay_carrier').chosen({search_contains: true, width: '200px', allow_single_deselect: true});
+        })
+        /*
+         * 搜索
+         */
+        function searchForm(obj) {
+            var carrier=$("#ebay_carrier").val();
+            var data = $(obj).closest('form').serialize();
+            data     = data.replace(/(&|^)(\w*?\d*?\-*?_*?)*?=?((?=&)|(?=$))/g, '');
+            data     = data.replace(/^&/g, '');
+            var url = '/t.php?s=/Order/Order/pickingList';
+            if (url.indexOf('?') > 0) {
+                url += '&' + data;
+            } else {
+                url += '?' + data;
+            }
+
+            var carriers = '';
+            if(carrier){
+               for(var i=0;i< carrier.length;i++){
+                   carriers += carrier[i]+",";
+               }
+
+                carriers = carriers.substring(0,carriers.length-1);
+                url += '&ebay_carrier=' + carriers;
+            }
+
+
+
+            location.href = url;
+        }
+
+        /**
+         * 排序
+         * @author Simon 2017-11-30
+         * @return{[type]}[description]
+         */
+        function sort(obj){
+            var sort_name = $(obj).data('name');
+            var sort_value = $(obj).data('value');
+            $('input[name=sort_name]').val(sort_name);
+            $('input[name=sort_value]').val(sort_value);
+
+            $('#search-btn').click();
+        }
+
+        function printSelect(_this){
+            var id  = parseInt(_this.find("option:selected").val());
+            var txt = id == 1 ? "可打印时间" : (id == 2 ? "等待打印时间" : (id == 3 ? "等待扫描时间" :'出库待称重' ));
+            $("#txt").text(txt);
+        }
+
+        ;$(function(){
+            $("#expload").click(function(){
+                //进erp时间
+                var carrier=$("#ebay_carrier").val();
+                var ebay_addtime_start = $("input[name='ebay_addtime_start']").val();
+                var ebay_addtime_end = $("input[name='ebay_addtime_end']").val();
+
+                //进wms时间
+                var  w_add_time_start =  $("input[name='w_add_time_start']").val();
+                var  w_add_time_end =  $("input[name='w_add_time_end']").val();
+
+                //类型
+                var types = $("#typest").find("option:selected").val();
+                var print_time_start =  $("input[name='print_time_start']").val();
+                var print_time_end  =  $("input[name='print_time_end']").val();
+                var bill = '';
+                $("input[name='ordersn']").each(function(){
+                    if($(this).is(":checked")){
+                        bill += $(this).val() + ",";
+                    }
+                })
+
+                var  carriers = '';
+                if(carrier){
+                    if(carrier){
+                        for(var i=0;i< carrier.length;i++){
+                            carriers += carrier[i]+",";
+                        }
+                        carriers = carriers.substring(0,carriers.length-1);
+                    }
+                }
+
+                bill = bill.substring(0,bill.length-1)
+                ebay_addtime_start  = ebay_addtime_start    == "" ? "" : "/ebay_addtime_start/"+ebay_addtime_start;
+                ebay_addtime_end =  ebay_addtime_end  == '' ? "" : "/ebay_addtime_end/"+ebay_addtime_end;
+                w_add_time_start = w_add_time_start == "" ? "" :  "/w_add_time_start/"+w_add_time_start;
+                w_add_time_end = w_add_time_end == "" ? "" : "/w_add_time_end/"+w_add_time_end;
+                print_time_start = print_time_start == "" ? "" :  "/print_time_start/"+print_time_start;
+                print_time_end = print_time_end == "" ? "" : "/print_time_end/"+print_time_end;
+                bill   = bill == "" ? "" : "/ebay_id/"+bill;
+                types  = "/types/"+ types;
+                carriers = carriers == '' ? "" : "/ebay_carrier/"+carriers;
+                combination = ebay_addtime_start + ebay_addtime_end + w_add_time_start + w_add_time_end + print_time_start + print_time_end + bill + types + carriers;
+                var url="t.php?s=/Order/Order/exportOrder"+combination;
+                window.open(url,'_blank');
+
+            })
+        })
+
+
+        $("#checkds").click(function() {
+            $("input[name='ordersn']").each(function (i,o) {
+                this.checked = !this.checked;
+            })
+        })
+
+        function changeType(_this){
+             //ajax获取 js转换太蛋疼了 蛋疼！！！
+            var num         = parseInt(_this.find("option:selected").val());
+            var start_time  = $(".print_time_start").val();
+            var end_time    = $(".print_time_end").val();
+            //
+            var start_time2  = $(".print_time_start2").val();
+            var end_time2    = $(".print_time_end2").val();
+             if(num == 1){
+                 start_time = start_time2 == "" ? "" : "/print_time_start/"+start_time2;
+                 end_time   = end_time2   == "" ? "" : "/print_time_end/"+end_time2;
+
+             }else{
+                 start_time = start_time == "" ? "" : "/print_time_start/"+start_time;
+                 end_time   = end_time   == "" ? "" : "/print_time_end/"+end_time;
+             }
+
+            var cnum   = "/types/"+num;
+            var data = $.ajax({
+                url : "__URL__/getDateInfo"+start_time+end_time+cnum,
+                type:'get',
+                dataType:'json',
+                async: false,
+                success:function(){}
+            })
+
+            var cstr = data.responseJSON;
+            var start = cstr.start ;
+            var end   = cstr.end;
+            if(num == 1){
+                    $("#ch1").show();
+                    $("#ch2").hide();
+                    $(".print_time_start").val(end);
+                    $(".print_time_end").val(start);
+                }else{
+                    $("#ch2").show();
+                    $("#ch1").hide();
+                    $(".print_time_start2").val(end);
+                    $(".print_time_end2").val(start);
+                }
+        }
+    </script>
+</block>
+

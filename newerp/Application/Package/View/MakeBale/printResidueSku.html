@@ -1,0 +1,77 @@
+<include file="Public/printbase" />
+<style>
+    div.mod_second_lables{display:none;}
+    .print_sku{
+        text-align: center;
+        line-height: 2;
+    }
+    .print_sku .border_show td,th{
+        border: 1px solid #000000;
+    }
+</style>
+<body>
+    <div style="width: 93%;text-align: center;margin: 0 auto;padding-top: 10px">
+        <p style="width: 100%;text-align: left;">订单号：{$pickDetailData['ebay_id']}<br>拣货人：{$pickDetailData['picker']}<br />打印人：{$pickDetailData['userName']}</p>
+        <table class="print_sku" width="98%" cellpadding="0" cellspacing="0">
+            <tr class="border_show">
+                <th style="width:18%">sku*数量</th>
+                <th style="width:18%">库位</th>
+                <th style="width:60%">品名</th>
+            </tr>
+            <tr class="border_show">
+                <td>{$pickDetailData['sku']}*<span style="font-weight: bold">{$pickDetailData['count']}</span></td>
+                <td>{$pickDetailData['location']}</td>
+                <td>{$pickDetailData['goods_name']}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script>
+    function print(){
+        jsPrintSetup.setSilentPrint(1);
+        jsPrintSetup.setOption('headerStrCenter','');
+        jsPrintSetup.setOption('headerStrRight','');
+        jsPrintSetup.printWindow(window);
+    }
+
+    function rePrint(){
+        jsPrintSetup.setOption('orientation', jsPrintSetup.kPortraitOrientation);
+        jsPrintSetup.setOption('marginTop', 0);
+        jsPrintSetup.setOption('marginBottom', 0);
+        jsPrintSetup.setOption('marginLeft', 0);
+        jsPrintSetup.setOption('marginRight', 0);
+        // 设置页头
+        jsPrintSetup.setOption('headerStrLeft', '');
+        jsPrintSetup.setOption('headerStrCenter', '');
+        jsPrintSetup.setOption('headerStrRight', '');
+        // 设置页脚
+        jsPrintSetup.setOption('footerStrLeft', '');
+        jsPrintSetup.setOption('footerStrCenter', '');
+        jsPrintSetup.setOption('footerStrRight', '');
+        jsPrintSetup.clearSilentPrint();
+        jsPrintSetup.setOption('printSilent', 1);
+        jsPrintSetup.print();
+    }
+
+
+    (function(){
+
+        /**
+         *测试人员谭 2017-06-05 20:32:15
+         *说明: 重新打
+         */
+
+        var reprint='{$_GET["reprint"]}'; // 成功打印的
+        if(reprint){
+            rePrint();
+        }
+
+    })();
+
+
+
+
+</script>
+</body>
+</html>

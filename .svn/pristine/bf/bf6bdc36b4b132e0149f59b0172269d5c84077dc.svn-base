@@ -1,0 +1,84 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="height:100mm;width:100mm;" class="view" src="{$Order['pdfimg']}"/>
+</div>
+<div class="" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+
+    <table width="100%" cellpadding="0" cellspacing="0">
+
+        <tr style="text-align:center">
+            <td colspan="4" class="blod">
+                <div class="line_break" style="width:80mm;">
+                    {$Order['skustr']}
+                </div>
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr style="text-align:center">
+                        <td class="blod"><div style="border: 2px solid #000;height:20px;width:20px;"></div></td>
+                        <td  class="blod">Gift\Cadeau</td>
+                        <td class="blod"><div style="border: 2px solid #000;height:20px;width:20px;"></div></td>
+                        <td  class="blod" align="left">Commercial sample\Echantillon <br>commercial</td>
+                    </tr>
+                    <tr style="text-align:center">
+                        <td class="blod"><div style="border: 2px solid #000;height:20px;width:20px;"></div></td>
+                        <td  class="blod" align="left">Documents</td>
+                        <td class="blod"><div style="border: 2px solid #000;height:20px;width:20px;font-size:20px;">X</div></td>
+                        <td  class="blod" align="left">Other\Autre<br>Tick one or more boxes</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+
+
+        <tr style="text-align:center">
+            <td colspan="2"  align="left" class="blod font7">
+                Quantity and detailed description of contents (1)<br>
+                Quantité et description détaillée du contenu</td>
+            <td style="line-height: 9pt;"  class="blod">Weight(in kg)(2) Poids</td>
+            <td style="line-height: 9pt;"  class="blod">Value(3) Valeur</td>
+        </tr>
+        <tr align="center">
+            <td colspan="2">{$Order['shenbao']}</td>
+            <td style="line-height: 8pt;" >
+                <?php
+                $roundnum    = round((3.00+mt_rand()/mt_getrandmax()*(7.00-0.01)),2);
+                $Value 	     = $roundnum;
+                $Weight 	 = round((0.08+mt_rand()/mt_getrandmax()*(0.33-0.01)),2);
+                echo $Weight;
+        ?>
+            </td>
+            <td style="line-height: 8pt;" >
+                <?php
+        echo $Value;
+        ?>
+            </td>
+        </tr>
+        <tr align="center">
+            <td colspan="2" align="left"><B class="blod">For commercial items only</B><br>
+                <span class="font8">if known,HS taniff number(4) and country of origian of goods (5)<br>
+                N'tarifaire du SH et pays áorigine des marchandises(si connus)</span></td>
+            <td style="line-height: 8pt;" >Total Weight <br>Poids total<br>(in kg)(6)<br><br>
+                {$Weight}
+            </td>
+            <td style="line-height: 8pt;" >Total Value(7) <br>Valeur totale <br><br>{$Value}
+            </td>
+        </tr>
+        <tr>
+            <td  colspan="4">
+                <p style="line-height:11px;">
+                    I, the undersigned,whose name and address are given on the item,certify that the particulars given in this declaration are correct and that this item does not contain any danergous article or articles prohibited by legislation or by postal or customs regulations Date and sender's signature(8)
+                </p>
+                <div style="margin-top:10px;">
+                        <p class="font9 blod">
+                            <?php echo date('m/d/Y');?>
+                        </p>
+
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

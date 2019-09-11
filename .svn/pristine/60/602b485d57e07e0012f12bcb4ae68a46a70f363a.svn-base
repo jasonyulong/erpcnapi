@@ -1,0 +1,28 @@
+
+<div class="pageInfo" style="float: right">
+    <ul class="pagination" style="margin: 5px 0;">{$pageStr}</ul>
+</div>
+<table class="table table-responsive table-condensed table-hover" style="padding: 10px 15px">
+    <tr>
+        <th>
+            <label><input type="checkbox" name="checkAllPage" id="check_all_pages"> 所有页 </label>
+            /
+            <label><input type="checkbox" name="checkAll" id="check_all_items"> 全选 </label>
+        </th>
+        <th>订单编号</th>
+        <th>买家ID</th>
+        <th>国家</th>
+        <th>重量(Kg)</th>
+        <th>入系统时间</th>
+    </tr>
+    <foreach name="orderInfo" item="order">
+        <tr>
+            <td><input type="checkbox" name="orderItem[]" value="{$order.ebay_id}"></td>
+            <td>{$order.ebay_id}</td>
+            <td>{$order.ebay_username}</td>
+            <td>{$order.ebay_countryname}</td>
+            <td>{$order.orderweight}</td>
+            <td>{:date('Y-m-d H:i:s', $order['ebay_addtime'])}</td>
+        </tr>
+    </foreach>
+</table>

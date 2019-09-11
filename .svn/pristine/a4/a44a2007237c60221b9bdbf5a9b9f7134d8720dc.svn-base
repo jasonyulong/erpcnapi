@@ -1,0 +1,48 @@
+<css href="/newerp/Public/css/fonts.css" />
+<?php
+   $imgCss = "height: 173mm;width: 105mm;margin-left: -2mm; position: absolute;";
+?>
+<if condition="!in_array($Order['ebay_couny'], ['FR'])">
+    <if condition="is_array($Order['pdfimg'])">
+        <div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+            <img style="height: 100mm;width: 100mm;position: absolute;" class="view" src="{$Order['pdfimg'][0]}"/>
+            <div style="position: absolute;right: 25px;bottom: 1px;">
+                <span class="fonts" style="margin-right: 280px">{$countriest[$Order['ebay_carrier']]}</span>
+            </div>
+        </div>
+        <div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+            <img style="height: 100mm;width: 100mm;position: absolute;" class="view" src="{$Order['pdfimg'][1]}"/>
+            <!--添加拣货代码-->
+            <div style="position: absolute;right: 25px;bottom: 1px;">
+                <span class="fonts" style="margin-right: 280px">{$countriest[$Order['ebay_carrier']]}</span>
+            </div>
+        </div>
+        <else/>
+        <div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+            <img style="height: 100mm;width: 100mm;position: absolute;" class="view" src="{$Order['pdfimg']}"/>
+            <!--添加拣货代码-->
+            <div style="position: absolute;right: 25px;bottom: 1px;">
+                <span class="fonts" style="margin-right: 280px">{$countriest[$Order['ebay_carrier']]}</span>
+            </div>
+        </div>
+    </if>
+    <else/>
+    <div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+        <?php if(is_array($Order['pdfimg'])):?>
+        <img style="{$imgCss}" class="view" src="{$Order['pdfimg'][0]}"/>
+        <?php else:?>
+        <img style="{$imgCss}" class="view" src="{$Order['pdfimg']}"/>
+        <?php endif;?>
+        <!--添加拣货代码-->
+        <div style="position: absolute;right: 25px;bottom: 3px;">
+            <span class="fonts" style="margin-right: 280px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    </div>
+    <div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+        <?php if(is_array($Order['pdfimg'])):?>
+        <img style="height: 98mm;width: 201mm;margin-left: -99mm;" class="view" src="{$Order['pdfimg'][0]}"/>
+        <?php else:?>
+        <img style="height: 250mm;width: 105mm;margin-left: -2mm;margin-top: -144mm" class="view" src="{$Order['pdfimg']}"/>
+        <?php endif;?>
+    </div>
+</if>

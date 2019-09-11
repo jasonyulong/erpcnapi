@@ -1,0 +1,265 @@
+<extend name="Public:index" />
+<block name="main">
+    <style>
+        .delivery_main{
+            width: 100%;
+            height: 100%;
+            background-color: #FFF;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            margin-top: -13px;
+            border-top: 1px solid #4e8ccf;
+            padding-left: 30px;
+        }
+        .main_title{
+            font-size: 30px;
+            font-weight: bold;
+        }
+        .main_left{
+            position: absolute;
+            margin-left: 50px;
+            width: 200px;
+            margin-top: 60px;
+        }
+        .carrers{
+            margin-bottom:50px;
+        }
+        .scan_title{
+            font-size: 28px;
+        }
+        .scan_code{
+            width:200px;
+            height:35px;
+            font-size:24px;
+        }
+        .main_right{
+            margin-left: 330px;
+            width: 800px;
+            height: 400px;
+            position: absolute;
+        }
+        .success_info_left{
+            float: left;
+        }
+        .success_info_right{
+            float: right;
+        }
+        .success_info_right,.success_info_left{
+            font-size: 30px;
+            color: blue;
+            font-weight: bold;
+        }
+        .success_show{
+            color: blue;
+            font-size: 40px;
+            font-weight: bold;
+        }
+        .success_detail_show{
+            border: 1px solid #000;
+            margin-top: 100px;
+            width: 100%;
+            height: 600px;
+            padding: 20px;
+        }
+        .detail_list{
+            border: 1px solid #000;
+            height: 100%;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+        .send_success_left{
+            background-color: green;
+            padding: 8px;
+            border-radius: 5px;
+            color: #FFFFFF;
+        }
+        .detail_list_show{
+            line-height: 2.5;
+            padding: 5px;
+            border-bottom: 1px solid #000;
+            /*word-break: normal;*/
+            /*white-space: nowrap;*/
+            /*width: auto;*/
+        }
+        .send_success_right{
+            float: right;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .send_success_mid span{
+            margin-left: 10px;
+        }
+        .error_msg{
+            text-align: center;
+            font-size: 30px;
+            color: red;
+        }
+    </style>
+    <div class="delivery_main">
+        <div class="main_title">物流发货→发货</div>
+        <div class="main_left">
+            <p class="carrers">
+                <select name="curr" id="curr" onchange="todayStatisticsCount()">
+                    <volist name="carrierData" id="item">
+                        <?php $item['code'] = empty($item['sup_code']) ? '' : '('.$item['sup_code'].')'; ?>
+                        <option value="{$item.id}">{$item.sup_abbr}{$item.code}</option>
+                    </volist>
+
+                </select>
+            </p>
+            <p class="scan_title">
+                扫描包裹编号
+            </p>
+            <p>包裹编号<br/><input id="code" class="scan_code" name="scan_code" onkeyup="makeDelivery(event)" data="" type="text" /></p>
+        </div>
+        <div class="main_right">
+            <p class="success_show">成功：<span class="success_total">0</span></p>
+            <p class="success_info">
+                <span class="success_info_left">物流袋数：<span class="carrier_bag_count">0</span></span>
+                <span class="success_info_right">总物流袋数：<span class="carrier_bag_total">0</span></span>
+            </p>
+            <div class="success_detail_show">
+                <div class="detail_list">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <audio  id="successSound" autoplay="autoplay">
+        <source src='' type='audio/mp3'>
+    </audio>
+    <audio id="failSound" autoplay="autoplay">
+        <source src='' type='audio/mp3'>
+    </audio>
+    <script>
+        $(function(){
+            $ ('select[name=curr]').chosen ({search_contains: true, width: '200px', allow_single_deselect: true});
+            $ ("#code").focus ();
+            todayStatisticsCount();
+            todayStatisticsList();
+        })
+
+        /**
+         * 相关统计信息显示
+         * @author Shawn
+         * @date 2018-08-14
+         */
+        function todayStatisticsCount() {
+            var id = $.trim($("#curr").val());
+            if (id == "")return;
+            var url = '{:U("Delivery/todayStatisticsCount")}';
+            $.ajax ({
+                url:      url,
+                type:     'post',
+                data:{id:id},
+                dataType: 'json'
+            }).done (function (re) {
+                if(re.status == 1){
+                    $(".success_total").html(re.data.company_total);
+                    $(".carrier_bag_count").html(re.data.total);
+                    $(".carrier_bag_total").html(re.data.all_total);
+                }
+                $ ('#code').focus ().select ();
+            }).fail (function () {
+                layer.msg("访问出错了.");
+            })
+        }
+
+        /**
+         * 收包列表数据展示
+         * @author Shawn
+         * @date 2018-08-14
+         */
+        function todayStatisticsList() {
+            var url = '{:U("Delivery/todayStatisticsList")}';
+            $.ajax ({
+                url:      url,
+                type:     'post',
+                dataType: 'json'
+            }).done (function (re) {
+                if(re.status == 1){
+                    var data = re.data;
+                    var html = '';
+                    if(data.length > 0){
+                        for (var i=0;i<data.length;i++){
+                            html += '<p class="detail_list_show"><span class="send_success_left">物流收包成功</span>';
+                            html += '<span class="send_success_mid"><span>包裹编号'+data[i]["mark_code"]+'</span><span>仓库：1仓库</span><span>物流：'+data[i]["carrier"]+'</span></span>';
+                            html += '<span class="send_success_right">重量：'+data[i]["weight"]+'kg</span></p>';
+                        }
+                        $(".detail_list").html(html);
+                    }else{
+                        var error = '<p class="error_msg">今日暂无收包记录！</p>';
+                        $(".detail_list").html(error);
+                    }
+                }else{
+                    var error = '<p class="error_msg">'+re.msg+'</p>';
+                    $(".detail_list").html(error);
+                }
+            }).fail (function () {
+                layer.msg("访问出错了.");
+            })
+        }
+
+        /**
+         * 扫描收包
+         * @author Shawn
+         * @param event
+         * @returns {string}
+         */
+        function makeDelivery(event) {
+            var code = $.trim ($("input[name='scan_code']").val());
+            var id = $.trim($("#curr").val());
+            if (code == "") return;
+
+            if(event!=100){
+                var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+                if (keyCode !==13) {
+                    return '';
+                }
+            }
+            $ ('#code').focus ().select ();
+            var url = '{:U("Delivery/makeDelivery")}';
+            $.ajax ({
+                url:      url,
+                type:     'post',
+                data:{markCode:code,id:id},
+                dataType: 'json'
+            }).done (function (re) {
+                if(re.status == 1){
+                    if($(".detail_list").find(".error_msg").size()>0){
+                        $(".detail_list").find(".error_msg").remove();
+                    }
+                    var html = '<p class="detail_list_show"><span class="send_success_left">物流收包成功</span>';
+                    html += '<span class="send_success_mid"><span>包裹编号'+re['data']["mark_code"]+'</span><span>仓库：1仓库</span><span>物流：'+re['data']["carrier"]+'</span></span>';
+                    html += '<span class="send_success_right">重量：'+re['data']["weight"]+'kg</span></p>';
+                    $(".detail_list").prepend(html);
+                    // $("#curr").val(re['transport']);
+                    // $("#curr").trigger("chosen:updated");
+                    play(true);
+                    todayStatisticsCount();
+                }else{
+                    play(false);
+                    layer.msg(re.msg);
+                }
+            }).fail (function () {
+                play(false);
+                layer.msg("访问出错了.");
+            })
+        }
+
+        /**
+         * 声音提示
+         * @param bool
+         */
+        function play(bool) {
+            if (! bool) {
+                document.getElementById ("failSound").src = 'capi/number/error.mp3';
+            } else {
+                document.getElementById ("successSound").src = 'capi/number/cg.mp3';
+            }
+        }
+    </script>
+</block>

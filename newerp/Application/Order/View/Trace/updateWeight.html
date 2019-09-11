@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+    <link href="/newerp/Public/layer/skin/layer.css" rel="stylesheet">
+</head>
+<style>
+    #body {
+        padding: 20px
+    }
+</style>
+<body id="body">
+<div style="color: #FF6600;margin-top: 5px">操作日志</div>
+<table class="table table-bordered">
+    <tr class="success">
+        <td width="155">记录时间</td>
+        <td width="75">记录用户</td>
+        <td>记录内容</td>
+    </tr>
+    <volist name="dataArr" id="vo">
+        <tr class="active">
+            <td width="155">{$vo.addtime}</td>
+            <td width="120">{$vo.adduser}</td>
+            <td>{$vo.note}</td>
+        </tr>
+    </volist>
+</table>
+
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script>
+    function saveWeight(){
+        var weight = $.trim($('#weight').val());
+        var sku = $.trim($('#sku').val());
+        var ebay_id = $.trim($('#ebay_id').val());
+        var abnormal_id = $.trim($('#abnormal_id').val());
+
+        if(weight == ''){
+            layer.alert('请填写重量！');
+            return false;
+        }
+
+        if(!(/(^[1-9]\d*$)/.test(weight))){
+            layer.alert('请输入正整数！');
+            return false;
+        }
+
+        $.ajax({
+            type : "post",
+            url :  "t.php?s=/Order/Trace/updateWeight",
+            data : {ebay_id:ebay_id,sku:sku,weight:weight,abnormal_id:abnormal_id},
+            success : function(data) {
+                if(data.status){
+                    layer.msg(data.msg, {
+                        icon: 1,
+                        time: 1000
+                    }, function(){
+                        window.parent.location.reload();
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    });
+                }else{
+                    layer.alert(data.msg);
+                }
+            }
+        });
+    }
+</script>
+</html>

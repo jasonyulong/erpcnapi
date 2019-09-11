@@ -1,0 +1,134 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center">
+                <img src="../themes/Sugar5/images/hrb_logo.jpg" height="30" width="80"/>
+                <?php if($Order['countrycode'] == 'US'):?>
+                <br>US22
+                <?php endif;?>
+            </td>
+            <td colspan="2" align="center" valign="top" >
+                <span class="ffa font8 blod">Small Packet</span><br>
+                <span class="ffa font8 blod">BY AIR</span>
+            </td>
+            <td align="center" class="font14">
+                <b>{$Order['countrycode']}</b>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="font8">
+                厦门市鸿华源进出口有限公司(90000010222513)ZS
+                Floor 2,Postal Processing Center,Shengyan Road,Houxi Town,Jimei District, Xiamen
+                TEL：0592-3333533
+            </td>
+            <td colspan="2">
+                {$Order['ebay_username']}<br/>
+                <div style="width:60mm;overflow-wrap: break-word;">
+                    {$Order['ebay_street']}, {$Order['ebay_street1']}
+                </div>
+                {$Order['ebay_city']}, {$Order['ebay_state']} &nbsp;&nbsp;{$Order['ebay_postcode']}<br/>
+                {$Order['ebay_countryname']}<br/><span class="font14"><b>{$Order['countrycn']},{$Order['fenqucode']}</b></span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font8" style="width: 80mm;">
+                <div style="float: left;width: 54mm;">退件单位：厦门市大宗邮件集中处理中心</div>
+                <div style="float: left;width: 44mm;"><b>PHONE: {$Order['ebay_phone']}</b></div>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" valign="middle">
+                <?php echo strpos($Order['ebay_carrier'],'挂号') ===false?'Delivery scan <br>event not required':'<span class="font20">R</span>' ?>
+            </td>
+            <td colspan="3">
+                <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="100%" height="50"/>
+                <p class="pcenter">
+                    <?php
+                        if(strstr($Order['ebay_carrier'],'电')){
+                            echo '↯';
+                        }
+                    ?>
+                    {$Order['ebay_tracknumber']}
+                </P>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="font7">
+                description of contents
+            </td>
+            <td class="font8" class="font7">
+                KG
+            </td>
+            <td class="font8" class="font7">
+                Val (US $)
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"  class="font7">
+                <?php echo substr($Order['skustr'],0,20);?>
+            </td>
+            <td class="font7">
+                0.01
+            </td>
+            <td class="font7">
+                {$Order['sbjz']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2"  class="font7">
+                Total weight(KG)
+            </td>
+            <td class="font7">
+                0.01
+            </td>
+            <td class="font7">
+                {$Order['sbjz']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="last">
+                I certify the particulars given in this customs declaration are correct. This item does not contain any dangerous article, or articles prohibited by legislation or by postal or customs regulations. I have met all applicable export filing requirements under the Foreign Trade Regulations.
+                Senders Signature & Date Signed:   CN22
+            </td>
+        </tr>
+    </table>
+    <!--添加拣货代码-->
+    <div class="fonts" style="position: absolute;rigth:0px;right: 5px;bottom: 3px;">
+        <span style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+
+<div class="<?php echo in_array($Order['ebay_carrier'],['荷兰邮政小包平邮','荷兰邮政小包挂号','台湾小包挂号-GY','台湾小包平邮-GY'])?'':'mod_second_lables'?>" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <?php if(in_array($Order['ebay_carrier'],['荷兰邮政小包平邮','荷兰邮政小包挂号','台湾小包挂号-GY','台湾小包平邮-GY'])):?>
+        <tr>
+            <td colspan="4" class="font13 ffa" align="center">
+                <br/>
+                <br/>
+                <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" width="90%" height="47"/><br/>
+                {$Order['ebay_tracknumber']}
+            </td>
+        </tr>
+        <?php else:?>
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+        <?php endif;?>
+    </table>
+    <div style="margin-top:10px;margin-left:5px">
+        <?php if(in_array($Order['ebay_carrier'],['荷兰邮政小包平邮','荷兰邮政小包挂号','台湾小包挂号-GY','台湾小包平邮-GY'])){ ?>
+        <div>{$Order['skustr']}</div>
+        <?php  } ?>
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

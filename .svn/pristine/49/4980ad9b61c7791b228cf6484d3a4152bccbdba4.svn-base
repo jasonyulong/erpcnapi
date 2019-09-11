@@ -1,0 +1,114 @@
+<extend name="public"/>
+<block name="main">
+    <div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+        <form>
+        <div class="form-inline">
+            <div class="input-group">
+                <div class="input-group-addon btn-primary" style="cursor:pointer;" onclick="searchForm(this,'1')">前一小时</div>
+                <input type="text" class="form-control input-sm" name="start_time" style="width: 100px;" id="start"
+                       placeholder="开始时间" value="{$params.start_time}">
+                <div class="input-group-addon">-</div>
+                <input type="text" class="form-control input-sm" name="end_time" style="width: 100px;"  id="end"
+                       placeholder="结束时间" value="{$params.end_time}">
+                <div class="input-group-addon btn-primary" style="cursor:pointer;" onclick="searchForm(this,'2')">后一小时</div>
+            </div>
+            <button onclick="searchForm(this)" class="btn btn-primary btn-sm" id="search-btn" type="button">显示统计结果</button>
+        </div>
+
+        </form>
+        <div id="container" style="min-width: 310px; height: 400px; margin: 100px auto"></div>
+        <div id="xnum" style="display:none;"><?php echo $fordate ? $fordate : ''; ?></div>
+    </div>
+    <script src="js/highcharts.js"></script>
+    <script type="text/javascript">
+
+        $(function () {
+
+            laydate.render({elem: '#start', type: 'time', theme: 'molv'});
+            laydate.render({elem: '#end', type: 'time', theme: 'molv'});
+
+            var xnum = $('#xnum').html();
+            if (xnum != '') {
+                xnum = JSON.parse(xnum);
+            } else {
+                xnum = [0];
+            }
+
+            var result = {$result};
+            var seriesArr = [];
+            $.each(result,function(index,value){
+                seriesArr.push({name:index,data:value});
+            });
+
+            $('#container').highcharts({
+
+                chart: { //整体控制
+                    renderTo: 'container', //图表容器的DIVbar:横向条形图
+                    defaultSeriesType: 'column' //可选，默认为line【line:折线;spline:平滑的线;area:区域图;bar:曲线图;pie:饼图;scatter:点状图等等;
+                },
+                title: {
+                    text: '连续7天相同时段订单量对比',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: ' ',
+                    x: -20
+                },
+                xAxis: {
+                    categories: xnum
+                },
+                yAxis: {
+                    title: {
+                        text: '订单量'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                tooltip: {
+                    valueSuffix: ' '
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: seriesArr
+            });
+
+        });
+        /*
+         * 搜索
+         */
+        function searchForm(obj,st) {
+            var start	= document.getElementById('start').value;
+            var end  	= document.getElementById('end').value;
+
+            if(start == '' || end == ''){
+                layer.alert('请选择日期');
+                return false;
+            }
+
+            if(end < start){
+                layer.alert('起始时间不得超过结束时间,请重新筛选');return false;
+            }
+            var data = $(obj).closest('form').serialize();
+            data     = data.replace(/(&|^)(\w*?\d*?\-*?_*?)*?=?((?=&)|(?=$))/g, '');
+            data     = data.replace(/^&/g, '');
+            var url = '/t.php?s=/Report/ComingWmsOrderQty/index';
+            if (url.indexOf('?') > 0) {
+                url += '&' + data;
+            } else {
+                url += '?' + data;
+            }
+            url += "&st="+st;
+            location.href = url;
+        }
+
+
+    </script>
+
+</block>

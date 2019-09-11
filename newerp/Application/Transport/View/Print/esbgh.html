@@ -1,0 +1,146 @@
+<?php $countrycode = strtoupper(trim($Order['countrycode']));?>
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="3" >
+                <img src="../themes/Sugar5/images/esblogo.png" height="50" width="120"/>
+            </td>
+            <td align="center">
+                <div style="font-size:20px;font-weight: bold;padding-top: 2mm;">
+                    HK挂号<br>
+                    <?php if(!empty($Order['esbzonecode'])){echo 'Z-'.$Order['esbzonecode'];}?>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" class="font7">
+                if undelivrable.please return to:<br>
+                RM.25-26, BLK B 2/F,FOCAL<br>
+                INDUSTRIAL CENTER,<br>
+                21 MAN LOK ST KLN HongKong
+            </td>
+            <td align="center" class="font12" style="padding-top: 4mm;"><b>E</b></td>
+            <td align="center" class="font8">
+                POSTAGE<br>
+                PAID HONG<br>
+                KONG PORT PAYE
+            </td>
+            <td align="center" class="font8">
+                PERMIT<br>
+                NO.T0238
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <div style="width: 99mm;">
+                    <div style="width: 88mm;float: left;height:30mm;">
+                        <p><b>From:zswl</b></p>
+                        <p>
+                            <b>To: {$Order['ebay_username']}<br>
+                                {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+                                {$Order['ebay_city']}, {$Order['ebay_state']}<br>
+                                {$Order['ebay_countryname']}({$Order['countrycn']}), {$Order['ebay_postcode']}<br>
+                                PHONE: {$Order['ebay_phone']},tel:{$Order['ebay_phone1']}</b>
+                        </p>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <p style="text-align: center;">
+                    <b>No Tracking</b>
+                </p>
+                <p style="text-align: center;">
+                    <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="90%" height="50"/>
+                </p>
+                <p style="text-align: center;">
+                    <b>{$Order['ebay_tracknumber']}</b>
+                </p>
+                <div style="width:98mm;height:6mm;margin-top:2mm;">
+                    <div style="width:30mm;float:left">
+                        {$Order['skustr']}
+                    </div>
+                    <div style="width:30mm;float:right">订单号：{$Order['ebay_id']}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="tab">
+        <tr>
+            <td>
+                <img src="../themes/Sugar5/images/esblogo.png" height="50" width="120"  style="clear:both;"/>
+            </td>
+            <td colspan="3" align="right">
+                <b>CN22</b><br>
+                <b>CUSTOMS DECLARATION</b><br>
+                May be opened officially
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" align="center">
+                please check on approriate option
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" align="center">
+                <div style="float: left;width: 10mm;height: 6mm;">√ Gift</div>
+                <div style="float: left;width: 35mm;height: 6mm;"> □ Commercial sample</div>
+                <div style="float: left;width: 32mm;height: 6mm;"> □ Documents</div>
+                <div style="float: left;width: 20mm;height: 6mm;"> □ OtherOther</div>
+            </td>
+        </tr>
+        <tr style="font-size:10px">
+            <td width="50%">Description of Contents</td>
+            <td width="5%">Quantity</td>
+            <td width="10%">weight(Kg)</td>
+            <td width="16%">Value(US $)</td>
+        </tr>
+        <tr>
+            <td>
+                <div class="sku">
+                    {$Order['yingwen']}
+                    {$Order['zhongwen']}
+                </div>
+            </td>
+            <td>
+                1
+            </td>
+            <td>{$Order['orderweight2']/1000}</td>
+            <td>{$Order['sbjz']}</td>
+        </tr>
+        <tr  style="font-size:10px">
+            <td width="50%">For commercial items only</td>
+            <td width="5%">Total Quantity</td>
+            <td width="10%">Total weight(Kg)</td>
+            <td width="16%">Total Value(US $)</td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                1
+            </td>
+            <td>{$Order['orderweight2']/1000}</td>
+            <td>{$Order['sbjz']}</td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <div class="last">
+                    I, the undersigned ,whose name and address are given on the
+                    item,certify that the particulars given in this declaration are
+                    correct andthat this item does not contain any dangerous article or
+                    articlesprohibited by legislation or by postal or customs
+                    regulations
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <b>Date and sender's signature &nbsp;&nbsp;&nbsp;&nbsp; SZEMS&nbsp;&nbsp;&nbsp;&nbsp; zswl</b>
+            </td>
+        </tr>
+    </table>
+</div>

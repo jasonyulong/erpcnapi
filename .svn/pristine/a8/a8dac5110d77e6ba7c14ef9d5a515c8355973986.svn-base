@@ -1,0 +1,161 @@
+<?php
+
+namespace Order\Controller;
+
+
+use Common\Controller\CommonController;
+use Common\Model\InternalStoreSkuModel;
+use Common\Model\OrderModel;
+use Mid\Model\MidEbayOrderModel;
+use Package\Model\OrderslogModel;
+use Package\Model\TopMenuModel;
+use Think\Controller;
+
+class TestController extends CommonController{
+
+
+
+    /**
+    *测试人员谭 2018-08-15 14:34:50
+    *说明: 简直是超级vip通道 专门同步 缺货订单
+    */
+    public function LoadOrder(){
+        if($_SESSION['truename']!='测试人员谭'){
+            echo '<meta charset="utf-8">';
+            echo '您没有权限操作!';
+            die();
+        }
+        $this->display();
+    }
+
+
+    public function doActionLoadOrder(){
+
+        echo '<meta charset="utf-8">';
+
+        $MidOrderModel=new MidEbayOrderModel();
+        $OrderModel=new OrderModel();
+        $OrderModel=new MidEbayOrderModel();
+        $Orderslog=new OrderslogModel();
+
+        if(!$_SESSION['truename']=='测试人员谭' && !$_SESSION['truename']=='章涛'){
+            echo '您没有权限操作!';
+            return;
+        }
+
+        $ebay_ids=$_POST['ebay_ids'];
+        $ebay_ids=explode("\n",$ebay_ids);
+
+        foreach($ebay_ids as $ebay_id){
+            $ebay_id=(int)trim($ebay_id);
+
+            $ebay_status=$OrderModel->where(compact('ebay_id'))->getField('ebay_status');
+
+            if($ebay_status && !in_array($ebay_status,[1731])){
+                echo '已经在仓库:'.$ebay_id.' （'.$ebay_status.'）中<br>';
+                continue;
+            }
+
+            echo '正在同步:'.$ebay_id.'<br>';
+
+            $ss=file_get_contents("http://127.0.0.1/t.php?s=/Mid/GetOrder/getOrderList/supervip/1/ebay_id/{$ebay_id}");
+
+            //echo $ss;
+
+            $ebay_status=$MidOrderModel->where(compact('ebay_id'))->getField('ebay_status');
+
+            if($ebay_status && $ebay_status!=1731){
+                echo '<div style="color:#191">同步成功!</div><br>';
+                $log='通过超级VIP通道进入仓库';
+                $Orderslog->addordernote($ebay_id,$log);
+            }else{
+                echo '<div style="color:#911">同步失败了</div><br>';
+            }
+
+        }
+
+    }
+
+
+    public function ordercount(){
+        $OrderModel=new OrderModel();
+        $rr=$OrderModel->alias('a')->join('inner join  erp_order_type b using(ebay_id)')
+            ->where($this->getMaps())
+            ->count();
+
+        echo '<h1>'.$rr.'<br>';
+    }
+
+    public function echoOrders(){
+        $OrderModel=new OrderModel();
+        $rr=$OrderModel->alias('a')->join('inner join  erp_order_type b using(ebay_id)')
+            ->where($this->getMaps())->field('a.ebay_id')->select();
+        $str=[];
+        foreach($rr as $List){
+            $str[]=$List['ebay_id'];
+        }
+
+        echo implode(',',$str);
+    }
+
+
+    private function getMaps(){
+        $smtAcc=[930, 938, 939, 940, 941, 943, 957, 959, 1003, 1004, 1012, 1013, 1014, 1044, 1047, 1048, 1049, 1050, 1051, 1067, 1072, 1073, 1075, 1076, 1084, 1097, 1111, 1112, 1113, 1115, 1133, 1134, 1135, 1136, 1138, 1141, 1152, 1157, 1158, 1159, 1167, 1185, 1199, 1200, 1365, 1366, 1388, 1430, 1434, 1456, 1472, 1473, 1474, 1475, 1476, 1477, 1478, 1479, 1480, 1481, 1482, 1483, 1484, 1485, 1486, 1487, 1488, 1489, 1490, 1491, 1492, 1493, 1494, 1495, 1496, 1497, 1498, 1499, 1590, 1591, 1592, 1593, 1594, 1595, 1609, 1610, 1616, 1617, 1648, 1712, 1713];
+        //$map['a.accountid']=['in',$smtAcc];
+        $map['a.ebay_status']=1723;
+        $map['b.type']=['in',[1,2]];
+        return $map;
+    }
+
+
+    //没啥用 只是为了 session 不过期这么快
+    public function ttt(){
+        echo 'ok';
+    }
+
+
+    // 检查仓库是什么
+    function resetWhouse(){
+        $Orderid=[
+
+        ];
+        $map=[];
+        $map['a.ebay_warehouse']=196;
+        $map['b.type']=3;
+        //$map['b.floor']=['gt',2];
+        $map['a.ebay_status']=['in',[1723,1724,1745]];
+       //$map['ebay_id']=['in',$Orderid];
+        $Order=new OrderModel();
+        $InterModel=new InternalStoreSkuModel();
+        $Orders=$Order->alias('a')->join('inner join erp_order_type b using(ebay_id)')->where($map)->field('a.ebay_id,a.ebay_ordersn,a.ebay_status')->select();
+
+
+        print_r($Order->_sql());
+        echo "\n";
+        echo count($Orders);
+        echo "\n";
+        $i=0;
+        foreach($Orders as $List){
+            $ebay_id=$List['ebay_id'];
+            $ebay_ordersn=$List['ebay_ordersn'];
+            $ebay_status=$List['ebay_status'];
+            $skus=$Order->OrderResolve('',$ebay_ordersn);
+            if(empty($skus)){
+                echo 'error';
+                continue;
+            }
+
+            $storeid=$InterModel->getOrderMainStore($skus);
+
+            if($storeid!=196&&$storeid>0){
+                echo $ebay_id.",\n";
+                $i++;
+            }
+
+        }
+        echo $i."\n";
+
+
+    }
+
+}

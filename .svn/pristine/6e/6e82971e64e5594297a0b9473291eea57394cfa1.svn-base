@@ -1,0 +1,59 @@
+<?php
+include "include/config.php";
+include "top.php";
+?>
+<link rel="stylesheet" type="text/css" href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css">
+<link rel="stylesheet" type="text/css" href="/newerp/Public/css/custom.css">
+<script src="/newerp/Public/js/jquery.js"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+    <p>共{:count($data)}条数据&nbsp;&nbsp;&nbsp;&nbsp;
+    (根据 进ERP时间维度 统计)
+    </p>
+<table class="table custom-table">
+    <thead>
+    <tr >
+        <th style="text-align: center">统计日期</th>
+        <th style="text-align: center">预计订单数</th>
+        <th style="text-align: center">wms订单数</th>
+        <th style="text-align: center">wms订单数 (已出库)</th>
+        <th style="text-align: center">wms订单数（可打印）</th>
+        <th style="text-align: center">wms订单数（等待打印）</th>
+        <th style="text-align: center">wms订单数（等待扫描）</th>
+        <th style="text-align: center">wms订单数（已出库待称重）</th>
+        <th style="text-align: center">wms订单数（等待打印贰）</th>
+        <th style="text-align: center">wms订单数（回收站）</th>
+        <th style="text-align: center">更新时间 </th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($data as $item) {?>
+    <tr>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['to_date'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_mid_order_count'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_order_count'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_order_count_2'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_order_count_1723'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_order_count_1745'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_order_count_1724'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_order_count_2009'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_order_count_1733'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['total_order_count_1731'];?> </td>
+        <td scope='row' align='left' valign="top" style="text-align: center"> <?php echo $item['update_time'];?> </td>
+    </tr>
+    <?php }?>
+    </tbody>
+
+</table>
+</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

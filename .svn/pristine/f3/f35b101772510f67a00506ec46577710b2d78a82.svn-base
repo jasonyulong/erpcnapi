@@ -1,0 +1,113 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+<!--TODO 注意 这个文件 承担了 顺友通平邮 的 地4种格式  也就是 国家 是 UA
+IL	面单格式一
+AE	面单格式二
+ZA
+SE
+其他	面单格式三
+UA	面单格式四 -->
+    <table cellspacing="0" cellpadding="0" width="100%">
+        <tr>
+            <td class="noright" style="width:10mm;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDQ5NzIxMzUzMjJDMTFFNzgxNDA5MjNFOUU2NjRDQzMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDQ5NzIxMzYzMjJDMTFFNzgxNDA5MjNFOUU2NjRDQzMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NDk3MjEzMzMyMkMxMUU3ODE0MDkyM0U5RTY2NENDMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NDk3MjEzNDMyMkMxMUU3ODE0MDkyM0U5RTY2NENDMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Prqea7YAAAVNSURBVHjatJZHS2xbEIVfm3MOmBMqYhbFhGEgZgeKII5EHIkTf4I/QpwohpmoKJgxo5gwZ8ScI9ec0/t0y7ndbV99D97bg6b7nNq1qlatqmrZ29vbX//nUVP6fXNzc39//yfrs7Ozp6enr89fXl64xefXVxryP9bX1wcGBvT09GJiYiwtLWUymfTq7u5ubW2tt7fX09MzKipKV1dX/uLKysr4+Li9vX1ERISWlpZqgP39/YqKisbGRkNDw6Wlpbi4OFdXV6yJ6+LiYmJioq2tbXJy0tHRkWCTk5M1ND7vPjw88Kq0tNTb21tbWzs0NFRN7TcxMlEDvJeVleH98PAQp2CYm5tbWFjwhfu/Ps75+TmuSSswMDAvLy8pKUk4am9vLy4uJgMDA4OQkJDCwkIwFDI4Pj6ura2tq6vDOyE8Pz/zZG9vT11dXVNTkwzgHV8A8+Tx8XF0dFRHR8fExARCgOzq6pqamiIh6jc4OMgrkMjm9fX1EwCnRIoFvkiILzjC7u3jiO8iHO5gAxhPuMLP+fn55eVlsuSnsAFSCEGU8B3A2Ng4LS2N3x0dHXNzc0gFFwJGGAHz/HFIiCJHRkampKT4+fnha3h4+OTkhJB5hRnSSE9Pd3NzUwDg8CI3N9fHx4dyzczMcOfq6ur29hanvIUcMzMzU1NTZ2fn6OjoxMREyiPKu7q6SnkIhcwwA54CSNkoy5QSBQQEbGxsoBaUt7u7C61kA90oilcwS/ElkQBwenpKHriGFsxIS967MgCHTD08PIhUUAnLZIpH6gTvRCpvTMEvLy+B4RUZYOPg4CAVTAUAKpqenraysgoKClLqF5UH0oUuPqeCmhpNqhSEhny7NzU11dTUeHl50ah8/giAEIhaeCRRCkZLkjcPlWcRT9Fya2sr7Hd2dlZWVlK9H+cgjlAgnzAJDAVbWFhgqKgYdtfX1w0NDTilRHwnlfLy8qOjo+8BoBHSuUL2otGIcnt7Wz4yNUElo2JkZIQOoMhcA2N2dhb9fQ+Asa+vL5Kl2hSAPHZ2dmgmaqkAIJAZNYJKrJmLtB7R/UgRysZMtAsYKIppsbW1pQBAZRif+IVHsiEQFxcXuklJ0SqPk5MT/WFtbU0VIYpWiI+PF538GwBCGG1iomFE3bCwtbX9JwuLmBirYWFhNAQXs7KyMjMzmQsKMmUkwD6BCwB6lbiU5PzNQdCpqanwzJzIzs5WikxDNCTcidLzSZHpl3+1eNmAeDcyMrKxsVGxk1GY1LckgZDJV35fijZk7Ihifj1MUzs7O3lmFDLQ19dHamIiAgBdjDkhbWkNsDK7u7sZIcHBwVRSIpCMYXhoaGhxcRGuvq7rdxeoBeIQNQOOTwb15ubmwcGBJFN6gt5Gf2xHxnVsbCyEcAvXKLK/v7+np4cvAACMAU4UAJj1zGE2gZjpGDGr2c85OTnkTuxVVVV9fX2IjeTQ9NjYGILBC4zxkLaiJSkkg7KkpAQO2EgS5xrkSFLMcfYJ/SyqTQYtLS20ApCMkPr6eoFNYdhFaBrXmPGTaHiu+XFIiH89eINwOlyo5pNlWhct0+gEyAsC9Pf3F1rCGuGCLWaDOF/ntvjjZf1x5KepelFRkegXMmB9s87wmJGRkZ+fDyrbg+UDwOPHEV7ECpL2mlgJxMTG5SKrV9rJ70eafNjx56m6uprWLygocHd3l6KgyZnDzc3NsM8/GrHsBEVC4gRHxgkJCeHh4Uo9JJMfrcxnhhI1pyRfFU1zwCF/IJEAlsDgnfXH4EJUSE5evqoBhORFu/2paSEK5aAFsa6hm5CVtP8dwH9+/hZgAC+hZEXmumBNAAAAAElFTkSuQmCC"></td>
+            <td class="noright"><span class="ffa bold font14">omniva</span></td>
+            <td class="noright"><span class="ffa bold font16">Small packet</span></td>
+            <td  class="ffa bold font6">
+                <div>TAXE PERCUE</div><div>ESTONIE</div><div>NO. 210</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                Return :<br>
+                <div style="width:40mm;">
+                {$Order['backAddress']}
+                </div>
+            </td>
+            <td colspan="2" class="font10">
+                <b>SHIP TO : </b><br>
+                {$Order['ebay_username']} <br>
+                {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+                {$Order['ebay_city']} {$Order['ebay_state']} {$Order['ebay_postcode']}<br>
+                {$Order["ebay_countryname"]}({$Order['countrycn']})<br>
+                phone: {$Order['ebay_phone']}
+            </td>
+        </tr>
+        <tr>
+            <td class="noright blod">
+                <div style="width:12mm;padding:1mm;">
+                    Untracked
+                </div>
+            </td>
+            <td colspan="3" class="font11">
+                <p style="text-align: center;"><img src="../barcode128.class.php?data={$Order['pxorderid']}" alt="" style="width:70mm;" height="40"/></p>
+                <p class="pcenter1 font9">{$Order['pxorderid']}</p>
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:none;">
+        <tr>
+            <td class="font7" colspan="2" width="40%" style="line-height: 0.9em">Desoription of Contents</td>
+            <td class="font7" width="20%" style="line-height: 0.9em;">Qty</td>
+            <td class="font7" width="20%" style="line-height: 0.9em;">Weight(kg)</td>
+            <td class="font7" width="20%" style="line-height: 0.9em">Value($)</td>
+        </tr>
+
+        <php>
+            $roundnum = round((3.00+mt_rand()/mt_getrandmax()*(7.00-0.01)),2);
+            $Value = $roundnum;
+            $Weight = round((0.08+mt_rand()/mt_getrandmax()*(0.33-0.01)),2);
+        </php>
+
+        <tr>
+            <td colspan="2" class="font7" style="line-height: 0.9em;">{$Order['shenbao']}</td>
+            <td class="font7" style="line-height: 0.9em;">1</td>
+            <td class="font7" style="line-height: 0.9em;">{$Weight}</td>
+            <td class="font7" style="line-height: 0.9em;">{$Value}</td>
+        </tr>
+
+        <tr>
+            <td colspan="3">
+                Total gross Weight(kg)
+            </td>
+            <td class="font7" style="line-height: 1em">Total Wt(kg) {$Weight}</td>
+            <td class="font7" style="line-height: 1em">Total Value($) {$Value}</td>
+        </tr>
+
+
+        <tr>
+            <td style="line-height: 0.9em" class="font7 nobottom" colspan="5">
+                <div>
+                    I certify that the particulars given in this customs declaration are correct and that this item doesnot
+                    contain any dangerous article prohibited by legislation or by postal or customs regulations.<br>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="noright"><div class="bold font10">Sender's signature:Jsoshi</div></td>
+            <td colspan="3"> <div class="blod font10" style="text-align: right">CN 22</div></td>
+        </tr>
+    </table>
+</div>
+
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>
+

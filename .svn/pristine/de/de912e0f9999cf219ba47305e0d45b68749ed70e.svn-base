@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+
+<style type="text/css">
+    table tr td, th {
+        vertical-align: middle !important;
+        text-align: center !important;
+    }
+</style>
+
+<body>
+
+<div class="container-fluid">
+
+    <div class="row" style="margin: 10px auto">
+
+        <table class="table table-responsive table-hover table-condensed">
+            <tr>
+                <th>订单编号</th>
+                <th>添加时间</th>
+                <th>订单状态</th>
+                <th>SKU 详情</th>
+                <th>操作</th>
+            </tr>
+
+            <foreach name="assignOrderInfo" item="orderItem" key="ebayId">
+                <tr class="{$orderItem['is_delete'] == 1 ? 'danger' : ''}">
+                    <td>{$ebayId}</td>
+                    <td>{:date('y/m/d H:i', $orderItem['order_addtime'])}</td>
+                    <td>{$orderItem['is_delete'] == 0 ? '<span class="alert-success">正常</span>' : '<span class="alert-danger">已删除</span>'}</td>
+                    <td>
+                        <table class="table table-responsive table-hover table-condensed" style="margin-bottom: 0">
+                            <foreach name="orderItem['skus']" item="skuItem" key="sku">
+                                <tr title="{$skuItem.info}">
+                                    <td>{$sku}</td>
+                                    <td>{$skuItem.need_qty}</td>
+                                    <td>
+                                        <if condition="$orderItem['is_delete'] == 1">
+                                            --
+                                            <else/>
+                                            {$skuItem['is_success'] == 1 ? '<span class="alert-success">成功</span>' : '<span class="alert-danger">失败</span>'}
+                                        </if>
+                                    </td>
+                                </tr>
+                            </foreach>
+                        </table>
+                    </td>
+                    <td>
+                        <if condition="$orderItem['is_delete'] == 1">
+                            <button title="撤销删除" data-order="{$ebayId}" class="btn btn-sm btn-success reverse-delete-order-btn"><i class="fa fa-refresh"></i></button>
+                            <else/>
+                            <button title="删除订单" data-order="{$ebayId}" class="btn btn-sm btn-danger delete-order-btn"><i class="fa fa-trash"></i></button>
+                        </if>
+                    </td>
+                </tr>
+            </foreach>
+        </table>
+    </div>
+</div>
+</body>
+<script type="application/javascript" src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script type="application/javascript" src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script type="application/javascript" src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript">
+    var ordersn = '{$ordersn}';
+
+    // 撤销删除的按钮事件
+    $('.reverse-delete-order-btn').on('click', function() {
+        var ebayId = $(this).attr('data-order');
+        var url    = '{:U("PrintPickingList/reverseDeleteOrder")}';
+
+        var loadIndex = layer.load(1, {shade:5});
+        $.ajax({
+            url  : url,
+            type : 'post',
+            data : {ordersn: ordersn, ebayId: ebayId},
+            dataType : 'json'
+        }).done(function(result) {
+            layer.msg(result.data);
+            if (result.status) {
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1000);
+            }
+        }).fail(function() {
+            layer.msg('删除访问出错.');
+        }).always(function() {
+            layer.close(loadIndex);
+        });
+
+    });
+
+    // 删除订单的按钮事件
+    $('.delete-order-btn').on('click', function() {
+        var ebayId = $(this).attr('data-order');
+        var url    = '{:U("Confirm/deleteOnOrder")}';
+        var loadIndex = layer.load(1, {shade:0.5});
+
+        $.ajax({
+            url  : url,
+            type : 'post',
+            data : {ordersn: ordersn, ebay_id: ebayId},
+            dataType : 'json'
+        }).done(function(result) {
+            layer.msg(result.msg);
+            if (result.status) {
+                setTimeout(function() {window.location.reload();}, 1000);
+            }
+        }).fail(function() {
+            layer.msg('删除访问出错.');
+        }).always(function() {
+            layer.close(loadIndex);
+        });
+    });
+</script>
+</html>

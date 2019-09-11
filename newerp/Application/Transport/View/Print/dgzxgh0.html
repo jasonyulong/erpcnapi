@@ -1,0 +1,96 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="4" align="left" valign="top">
+                <div style="text-align:center;">
+                    <span class="font14 blod">渠道:德国专线挂号</span>
+                </div>
+            </td>
+        </tr>
+        <tr style="height:50">
+            <td width="30%" class="font14" align="center">Item:1/1</td>
+            <td  width="70%" colspan="3" class="ffa font14" align="center" ><font>国家:{$Order['countrycn']}({$Order['countrycode']})</font></td>
+        </tr>
+        <tr style="height:55">
+            <td colspan="4" class="font9 ffa" align="center">
+                <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="280" height="37"/><br/>
+                {$Order['ebay_tracknumber']}
+            </td>
+        </tr>
+        <tr>
+            <td width="30%" class="noright ffa nobottom" align="right" >SHIP TO:<br><br><br><br><br></td>
+            <td width="70%" class="ffa font11 nobottom blod" colspan="3">
+                {$Order['ebay_username']}<br/>
+                <div style="width:70mm;overflow-wrap: break-word;">
+                    {$Order['ebay_street']}, {$Order['ebay_street1']}
+                </div>
+                {$Order['ebay_city']} ,{$Order['ebay_state']}&nbsp;{$Order['ebay_postcode']}<br/>
+                {$Order['ebay_countryname']}<br/>
+            </td>
+        </tr>
+        <tr>
+            <td align="right" class="noright">
+
+                <?php
+                    if(!empty($Order['ebay_phone1'])){
+                        echo 'Tel:';
+                    }
+                ?>
+            </td>
+            <td colspan="3" class="font10">
+                <?php
+                    if(!empty($Order['ebay_phone1'])){
+                        echo $Order['ebay_phone1'].'&nbsp;&nbsp;&nbsp;&nbsp;';
+                    }
+                ?>
+                phone:{$Order['ebay_phone']}
+            </td>
+        </tr>
+        <tr style="height:35">
+            <td class="font9 noright"> </td>
+            <td colspan="3" class="font9" valign="bottom" align="center">
+                <img src="/barcode128.class.php?data={$Order['ebay_id']}"/><br/>
+                {$Order['ebay_id']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" width="68%" class="font8 noright"></td>
+            <td class="font8" width="15%"><p>C98823&nbsp;
+                <?php echo date('Y-m-d');?>
+            </p></td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font8"><p style="width:355">{$Order['skustr']}</p></td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div class="fonts" style="position: absolute;rigth:0px;right: 5px;bottom: 3px;">
+        <span style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>
+
+
+
+

@@ -1,0 +1,227 @@
+/*
+#moduleList{
+    background-color:#94C1E8;
+    background-position:0 0px;
+    background-image: -moz-linear-gradient(top, #323A3D,#1E1F21);
+    background-image: -ms-linear-gradient(top, #323A3D,#1E1F21);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#323A3D), to(#1E1F21));
+    background-image: -webkit-linear-gradient(top, #323A3D, #1E1F21);
+    background-image: -o-linear-gradient(top, #323A3D, #1E1F21);
+    background-image: linear-gradient(top, #323A3D, #1E1F21);
+    height: 32px;
+}
+
+
+#moduleList ul li span.currentTabLeft, #moduleList ul li span.currentTabRight, #moduleList ul li span.currentTab{
+    background-color:#101010;
+    background-image:none;
+    padding:8px 10px 10px 10px;
+    width:100%;
+}
+#moduleList > ul > li{
+    background-image:none;
+    height: 20px;
+}
+#moduleList ul li span.currentTab{
+    border-bottom:none;
+}
+#moduleList ul li a:link, #moduleList ul li a:visited{
+    color:#aaa;
+}
+#moduleList ul li span:hover{
+    color: #fff;
+}
+#moduleList ul li a:hover{
+    color: #fff;
+}
+#header div.line{
+    background:#5AAC4A;
+    border-bottom-color:#5AAC4A;
+}
+.headerList{
+    border-bottom-color: #ccc;
+}
+*/
+.width130{width:130px!important;}
+.width150{width:150px!important;}
+#moreFilter{text-indent: 48px;margin:3px 0;display:none;}/*#086ed5, #055db5 上下*/
+#orderFilter{text-indent: 14px;}
+#ActionBox,#FilterBox{
+    background-color:#95cfa4;
+    background-repeat: repeat-x;
+    border:1px solid #C7D3E3;
+    padding:8px 5px;
+    margin:5px 0!important;}
+
+div.add_labal{
+    background:#95CFA4;
+    width:190px;border:1px solid #5AAC4A;border-bottom:none}
+.add_basebox{margin:8px;}
+.liucheng_box{border:1px solid #5AAC4A;}
+.liucheng_box i.stepnumber{background:#5AAC4A;}
+.add_basebox{border:4px solid #95CFA4;padding:8px;}
+
+/**Nav**/
+
+/*li div.openDiv{
+    border: 2px solid #5aac4a;
+    margin-top: 9px;
+    -moz-margin-top:8px!important;
+}*/
+li div.openDiv span.childmod a{color:#333!important;}
+li div.openDiv span.childmod a:hover{color:#0364CF!important;text-decoration:underline!important;cursor:pointer}
+
+
+
+
+p.steptital {
+    font: bold 15px arial;
+    margin-top: 6px;
+}
+.informationBox div.item {
+    height: 26px;
+    margin: 10px 0 0 23px;
+}
+.informationBox div.item label {
+    display: inline-block;
+    font-size: 13px;
+    width: 100px;
+}
+.informationBox div.item div.form-group {
+    float: left;
+    margin-right: 10px;
+    width: 330px;
+}
+.informationBox div.text {
+    height: 60px;
+}
+.informationBox div.text div.form-group {
+    width: 657px;
+}
+
+i.stepnumber {
+    border-radius: 10px;
+    color: #fff;
+    display: inline-block;
+    font-size: 14px;
+    font-style: normal;
+    height: 20px;
+    line-height: 20px;
+    margin-right: 6px;
+    text-align: center;
+    width: 20px;
+}
+
+#Filterconditions:hover, #publicAddlink:hover {
+    color: #ffffff;
+}
+
+div.add_labal {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background: none repeat scroll 0% 0% #94c1e8;
+    border-color: #abc3d7 #abc3d7 -moz-use-text-color;
+    border-image: none;
+    border-radius: 5px 5px 0px 0px;
+    border-style: solid solid none;
+    border-width: 1px 1px medium;
+    font-size: 15px;
+    font-weight: bold;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    width: 190px;
+}
+
+.add_basebox {
+    margin: 8px;
+}
+
+.liucheng_box {
+    border: 1px solid #abc3d7;
+}
+
+.liucheng_box i.stepnumber {
+    background: none repeat scroll 0% 0% #4e8ccf;
+}
+
+i.stepnumber {
+    border-radius: 10px;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 14px;
+    font-style: normal;
+    height: 20px;
+    line-height: 20px;
+    margin-right: 6px;
+    text-align: center;
+    width: 20px;
+}
+
+.add_basebox {
+    border: 4px solid #abc3d7;
+    padding: 8px;
+}
+
+p.steptital {
+    font: bold 15px arial;
+    margin-top: 6px;
+}
+
+.informationBox div.item {
+    height: 26px;
+    margin: 10px 0px 0px 23px;
+}
+
+.informationBox div.item label {
+    display: inline-block;
+    font-size: 13px;
+    width: 100px;
+}
+
+.informationBox div.item div.form-group {
+    float: left;
+    margin-right: 10px;
+    width: 330px;
+}
+
+.informationBox div.text {
+    height: 60px;
+}
+
+.informationBox div.text div.form-group {
+    width: 657px;
+}
+
+div.c_list {
+    background: none repeat scroll 0 0 #fff;
+    border: 1px solid #444;
+    height: auto;
+    margin-top: 1px;
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 5px 0;
+    position: absolute;
+    width: 150px;
+}
+div.c_list ul {
+    margin: 0;
+    padding: 0;
+}
+div.c_list ul li:hover, div.c_list ul li.li_hover {
+    background: none repeat scroll 0 0 #79a7d8;
+}
+div.c_list ul li {
+    cursor: pointer;
+    height: 16px;
+    line-height: 16px;
+    list-style: none outside none;
+    margin: 0;
+    text-indent: 5px;
+}
+table.iostoreTable{border-bottom:1px solid #333;border-right:1px solid #333;}
+table.iostoreTable td,table.iostoreTable th{padding:3px;border-top:1px solid #333;border-left:1px solid #333;}
+table.iostoreTable th{background:#44EEee;}

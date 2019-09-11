@@ -1,0 +1,24 @@
+<include file="Public/printbase" />
+
+{$HTML}
+<!--一共打印了{$TotalCount}个订单-->
+
+<script>
+
+
+
+(function(){
+    var bill='{$SuccessPrintStr}'; // 成功打印的
+    var bill2='{$FailurePrintStr}'; // 打印失败的
+    var mod='{$mod}';
+    var from_wms='<?php echo $_REQUEST['from_wms'];?>';
+
+    if(bill!=''||bill2!=''){
+        var url='./toscan.php?hunhe=1&mod='+mod+'&bill='+bill+'&bill2='+bill2+'&from_wms='+from_wms;
+        window.open(url,'_blank');
+    }
+})();
+
+</script>
+</body>
+</html>

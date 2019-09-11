@@ -1,0 +1,74 @@
+<include file="Public/printbase" />
+<style>
+    div.mod_second_lables{display:none;}
+</style>
+{$HTML}
+<?php
+/**
+ *测试人员谭 2017-09-14 17:11:10
+ *说明: 这里判断该死的 白单子
+ */
+ if(trim($HTML)==''){ // 可恶的白单
+     $bill=$_REQUEST['bill'];
+     echo '<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px;margin:1px;overflow:hidden;">';
+     echo '<img src="../barcode128.class.php?data='.$bill.'" alt="" width="160" height="40"/>';
+     echo '<p class="pcenter1 font10"> '.$carrier.'</P>';
+     echo '<p class="pcenter1 font10"> '.date('Y-m-d H:i:s').'</P>';
+     echo '<p id="white_order_mark" class="pcenter1 font10"> 白单:'.$bill.'</P></div>';
+ }
+
+?>
+<!--一共打印了{$TotalCount}个订单-->
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script>
+
+
+
+    function print(){
+        jsPrintSetup.setSilentPrint(1);
+        jsPrintSetup.setOption('headerStrCenter','');
+        jsPrintSetup.setOption('headerStrRight','');
+        jsPrintSetup.printWindow(window);
+    }
+
+
+    function rePrint(){
+        jsPrintSetup.setOption('orientation', jsPrintSetup.kPortraitOrientation);
+        jsPrintSetup.setOption('marginTop', 0);
+        jsPrintSetup.setOption('marginBottom', 0);
+        jsPrintSetup.setOption('marginLeft', 0);
+        jsPrintSetup.setOption('marginRight', 0);
+        // 设置页头
+        jsPrintSetup.setOption('headerStrLeft', '');
+        jsPrintSetup.setOption('headerStrCenter', '');
+        jsPrintSetup.setOption('headerStrRight', '');
+        // 设置页脚
+        jsPrintSetup.setOption('footerStrLeft', '');
+        jsPrintSetup.setOption('footerStrCenter', '');
+        jsPrintSetup.setOption('footerStrRight', '');
+        jsPrintSetup.clearSilentPrint();
+        jsPrintSetup.setOption('printSilent', 1);
+        jsPrintSetup.print();
+    }
+
+
+    (function(){
+
+        /**
+        *测试人员谭 2017-06-05 20:32:15
+        *说明: 重新打
+        */
+
+        var reprint='{$_GET["reprint"]}'; // 成功打印的
+        if(reprint){
+            rePrint();
+        }
+
+    })();
+
+
+
+
+</script>
+</body>
+</html>

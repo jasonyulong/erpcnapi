@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>捡货人</title>
+    <link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+    <style>
+        .colors{font-size:14px;color:#0066cc}
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row" style="width: 90%;margin: 10px auto">
+        <?php
+
+        $typeArr=[
+            '1'=>'单品单件',
+            '2'=>'单品多件',
+            '3'=>'多品多件',
+        ];
+        $total=0;
+        foreach($MainData as $pkuser=>$List){
+
+            ?>
+            <div class="container-fluid">
+                <div class="row" style="width: 90%;margin: 10px auto">
+                    <table class="table table-responsive table-hover table-condensed">
+                        <tr>
+                            <th colspan="4" style="font-size:16px">{$pkuser}：</th>
+                        </tr>
+                        <tr>
+                            <th>包裹类型</th>
+                            <th>包裹数量</th>
+                            <th>费用</th>
+                            <th>费用合计</th>
+                        </tr>
+
+
+                        <?php
+                        $fees=0;
+                        $qtys=0;
+                        foreach($List as $order){
+                            $type=$order['type'];
+                            $qty=$order['cc'];
+                            $typeName=$typeArr[$type];
+                            $qtys+= $qty;
+                            $total+=$qty;
+                            ?>
+                            <tr>
+                                <td>{$typeName}</td>
+                                <td>{$qty}</td>
+                                <td>--</td>
+                                <td>--</td>
+
+                            </tr>
+
+                        <?php }
+                        ?>
+                        <tr>
+                            <td class="colors">合计:</td>
+                            <td class="colors">{$qtys}</td>
+                            <td class="colors"></td>
+                            <td class="colors">--
+                                <?php
+                                //echo round($fees,3);
+                                ?>
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+            </div>
+
+        <?php } ?>
+
+        <table>
+            <tr>
+                <td class="colors">总计:</td>
+                <td class="colors">{$total}</td>
+                <td class="colors">--</td>
+                <td class="colors">--
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+
+</html>

@@ -1,0 +1,65 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="3" style="line-height: 8mm;"  align="left" width="20%" class="notop font9 blod nobottom">Order ID: {$Order.recordnumber}</td>
+        </tr>
+        <tr>
+            <td colspan="3" style="line-height: 8mm;">
+                <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="75%" height="40" style="padding: 0;margin: .8mm 0"/>
+                <b style="font-size: 20px;line-height:5mm;">S- {$Order.countrycode}</b>
+                <p class="pcenter bold">{$Order['ebay_tracknumber']}</P>
+            </td>
+        </tr>
+        <tr>
+            <td  style="height: 23mm;line-height: 23mm;font-size: 10mm;width: 33%"><b>{$Order.countrycode}F1</b></td>
+            <td  style="height: 23mm;line-height: 23mm;font-size: 10mm;width:33%"><b>{$Order.countrycode}L1</b></td>
+            <td  style="height: 23mm;line-height: 23mm;font-size: 10mm;width:33%"><B><?php if($Order['goods_to_declare']){echo "T";
+            }else{echo "P";}?></B></td>
+        </tr>
+        <tr>
+            <td colspan="3" style="height:23mm">
+                <p style="line-height: 5mm;">
+                    Recipient Address:<b>{$Order['ebay_username']}</b><br>
+                    {$Order['ebay_street']} {$Order['ebay_street1']}<br>
+                    {$Order['ebay_state']}  {$Order['ebay_city']}<br>
+                    Tel: {$Order['ebay_phone']}/{$Order['ebay_phone1']}</br>
+                    {$Order['ebay_countryname']}<br>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div style="height:23mm;overflow: hidden;display: block">
+                    <p style="line-height: 5mm;">Items:</p>
+                    <p style="line-height: 5mm;padding:0mm;margin:0mm"><b>{$Order['skustr']}</b></p>
+                    <p style="text-align: right;padding-right: 2mm" class="font11"><b>{$Order['smturl']}</b></p>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="font14 line_break" style="width: 80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>
+
+
+
+
+

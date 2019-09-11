@@ -1,0 +1,159 @@
+<extend name="Public/groupBase"/>
+
+
+<block name="linkrel">
+    <style type="text/css">
+        table tr th,td {text-align: center !important;}
+        .btn {border-radius: 2px;}
+    </style>
+</block>
+
+<block name="bread">
+    <li>
+        <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+    </li>
+    <li>
+        <a class="m-r-xs"> 运输方式分组 &gt; 运输方式分组列表</a>
+    </li>
+</block>
+
+
+<block name="content">
+    <div class="container-fluid">
+        <!-- 查询行 -->
+        <div class="row">
+
+        </div>
+
+        <!-- 分页行 -->
+        <div class="row">
+            <if condition="can('add_pick_carrier_group')">
+                <button class="btn btn-info btn-sm" id="createNewGroup"> 新建运输方式分组 </button>
+            </if>
+            <div class="pageInfo">
+                <ul class="pagination" style="margin: 5px">{$pageString}</ul>
+            </div>
+        </div>
+
+        <!-- 主体内容行 -->
+        <div class="row">
+            <table class="table table-responsive table-hover table-condensed">
+                <tr>
+                    <th>编号</th>
+                    <th>分组名称</th>
+                    <th>创建人</th>
+                    <th>创建时间</th>
+                    <th>备注信息</th>
+                    <th>操作</th>
+                </tr>
+
+                <foreach name="carrierGroups" item="groupItem">
+                    <tr>
+                        <td>{$groupItem.id}</td>
+                        <td>{$groupItem.group_name}</td>
+                        <td>{$groupItem.create_by}</td>
+                        <td>{$groupItem.create_at}</td>
+                        <td style="width: 250px;word-break: break-all;">{$groupItem.memo}</td>
+                        <td>
+                            <if condition="can('update_pick_carrier_group')">
+                                <button class="btn btn-success btn-sm btn-modifyItem" data-id="{$groupItem.id}"> 修改 </button>
+                            </if>
+
+                            <if condition="can('delete_pick_carrier_group')">
+                                <button class="btn btn-danger btn-sm btn-deleteItem" data-id="{$groupItem.id}" data-item="{$groupItem.group_name}"> 删除 </button>
+                            </if>
+                        </td>
+                    </tr>
+                </foreach>
+
+
+            </table>
+        </div>
+    </div>
+</block>
+
+<block name="src_js">
+    <script type="application/javascript">
+        (function(window, $, layer, undefined) {
+
+            /**
+             * 新建运输方式
+             */
+            $('#createNewGroup').on('click', function() {
+                var url = '{:U("CarrierGroup/showCreateGroup")}';
+                var createLoadIndex = layer.open({
+                    type : 2,
+                    area : ['40%', '65%'],
+                    title: '创建新运输方式分组',
+                    shift: 2,
+                    maxmin: true,
+                    scrollbar : false,
+                    content : url,
+                    cancel : function(index, layerOb) {
+                        localStorage.removeItem('createLayerIndex');
+                    }
+                });
+
+                localStorage.setItem('createLayerIndex', createLoadIndex);
+            });
+
+
+            /**
+             * 修改运输方式分组
+             */
+            $('.btn-modifyItem').on('click', function() {
+                var groupId = $(this).attr('data-id');
+
+                layer.open({
+                    content : "{:U('CarrierGroup/showUpdateGroup')}&groupId=" + groupId,
+                    type    : 2,
+                    title   : '修改运输方式分组',
+                    area    : ['50%', '70%'],
+                    maxmin  : true,
+                    shift   : 2
+                });
+            });
+
+
+            /**
+             * 删除运输方式分组
+             */
+            $('.btn-deleteItem').on('click', function() {
+                var groupName = $(this).attr('data-item');
+                var groupId   = $(this).attr('data-id');
+
+                layer.confirm(
+                        '您确认要删除运输方式分组<span class="alert alert-danger" style="padding: 5px 20px">' + groupName + '</span> ？',
+                        {
+                            title : '删除运输方式分组确认',
+                            btn   : ['确认删除', '放弃删除'],
+                            yes   : function(index, layerO) {
+                                var loadIndex = layer.load(1, {shade: 0.5});
+                                $.ajax({
+                                    url      :  '{:U("CarrierGroup/deleteGroup")}',
+                                    type     :  'post',
+                                    data     :  {groupId:groupId},
+                                    dataType :  'json'
+                                }).done(function(result) {
+                                    layer.msg(result.data);
+                                    if (result.status) {
+                                        setTimeout(function() {window.location.reload();}, 1000);
+                                    }
+                                }).fail(function() {
+                                    layer.msg('访问出错.');
+                                }).always(function() {
+                                    layer.close(loadIndex);
+                                });
+                            },
+                            btn2  : function(index, layerO) {
+                                layer.close(index);
+                            }
+                        }
+                );
+            });
+
+        })(window, $, layer);
+    </script>
+</block>
+
+

@@ -1,0 +1,117 @@
+<extend name="Public/groupBase"/>
+
+<block name="linkrel">
+
+    <style type="text/css">
+
+        .btn {
+            border-radius: 2px;
+        }
+        .colors{font-size:14px;color:#0066cc}
+
+    </style>
+
+</block>
+
+
+<block name="bread">
+    <li>
+        <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+    </li>
+    <li>
+        <a class="m-r-xs"> 订单捡货组统计</a>
+    </li>
+</block>
+
+
+
+<block name="content">
+
+    <div class="container-fluid">
+        <!--头部条件搜索框-->
+        <div class="row" style="margin-bottom: 10px">
+            <form action="__CONTROLLER__/pickerStatistic" method="post">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <label for="timeArea_start">开始时间点：</label>
+                        <input type="text" class="form-control"  name="start" value="{$arr['start']}" placeholder="开始时间点" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"  id="timeArea_start"/>
+                    </div>
+
+
+                    <div class="col-xs-3">
+                        <label for="timeArea_start">结束时间点：</label>
+                        <input type="text" class="form-control" name="end" value="{$arr['end']}" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" placeholder="结束时间点" id="timeArea_end"/>
+                    </div>
+
+                    <div class="col-xs-2" style="margin-top: 21px">
+                        <div>
+                            <button class="btn btn-sm btn-info"> 查询 </button>
+                          <!--  <a href="javascript:" onclick="prints()"> 打印 </a>-->
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 统计数据结果 -->
+        <div class="row">
+                 <div class="container-fluid">
+                     <div class="row" style="width: 90%;margin: 10px auto">
+                         <table class="table table-responsive table-hover table-condensed">
+                             <tr>
+                                 <th> 已打印待确认 </th>
+                                 <th> 已捡货 </th>
+                                 <th> 已包装</th>
+                                 <th> 已出库</th>
+                             </tr>
+
+                             <tr>
+                                 <th> <if condition="empty($counts['1'])">0 <else/>{$counts['1']}</if> </th>
+                                 <th> <if condition="empty($counts['2'])">0 <else/><?php echo $counts['2'] + $counts['3']; ?></if> </th>
+                                 <th> <if condition="empty($counts['3'])">0 <else/>{$counts['3']}</if>  </th>
+                                  <th><if condition="empty($counts['4'])">0 <else/>{$counts['4']}</if>  </th>
+                             </tr>
+                         </table>
+                     </div>
+                 </div>
+        </div>
+
+        <!--  -->
+        <div class="row">
+
+        </div>
+    </div>
+
+</block>
+
+<block name="src_js">
+    <!-- laydate -->
+    <script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+
+    <script type="application/javascript">
+
+        function prints(){
+            var url='t.php?s=/Package/UserPackageFee/pickerStatisticPrint'+"&timeArea_start="+$("#timeArea_start").val()+'&timeArea_end='+$("#timeArea_end").val();
+            window.open(url,'_blank')
+        }
+
+        $(".btn-info").click(function(){
+            var start = $('input[name="start"]').val();
+            var end   = $('input[name="end"]').val();
+            start = start == '' ? "" : "/start/"+start;
+            end = end == '' ? "" : "/end/"+end;
+            window.location.href = "__URL__/pickerCount"+start+end;
+            return false;
+        })
+        function showDetail(user){
+
+            return false;
+        }
+    </script>
+</block>
+
+
+
+
+
+

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Print</title>
+    <style>
+        html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, p, blockquote, pre,a, abbr, acronym, address, big, cite, code,del, dfn, em, font, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td,p {  margin: 0;padding: 0;border: 0;outline: 0;font-size: 100%;vertical-align: top;background: transparent;list-style:none;  }
+        body{padding:0;margin:0;font-family:helvetica;}
+        table{border-top:1px #000 solid;border-left:1px #000 solid;word-wrap:break-word;}.mleft{margin-left:5mm;}
+        table td{border-right:1px #000 solid;border-bottom:1px #000 solid;padding:2px;}
+        #next {border-style:none;padding:2px;}
+        #next td{border-style:none;padding:2px;}
+        .next td{border-style:none;padding:2px;}
+        #mytr td{border-top:1px #000 solid;border-left:1px #000 solid}
+        .mytr td{border-top:1px #000 solid;border-left:1px #000 solid}
+        td{padding-top:10px}
+        .view{height:100mm;width:100mm;}
+        .noright{border-right:none}
+        .nobottom{border-bottom:none}
+        .noleft{border-left:none}
+        .notop{border-top:none}
+        .f12{font-size: 12px;}
+        h2,h3{padding:0;margin:0;text-align:center}
+        h3{font-size:10pt;}
+        h2{font-size:9pt;}
+        .font5{font-size:5pt;}
+        .font6{font-size:6pt;}
+        .font7{font-size:7pt;}
+        .font8{font-size:8pt;}
+        .font9{font-size:9pt;}
+        .font10{font-size:10pt;}
+        .font11{font-size:11pt;}
+        .font12{font-size:12pt;}
+        .font14{font-size:14pt;}
+        .font15{font-size:15pt;}
+        .font16{font-size:16pt;}
+        .font18{font-size:18pt;}
+        .font20{font-size:20pt;}
+        .left{float:left;text-align:center;}
+        .height1{height:10mm;}
+        .height2{height:6mm;}
+        .height3{height:5mm;}
+        .ffa{font-family:helvetica;}
+        .blod{font-weight:bold;}
+        .ffa2{font-family:stsongstdlight;}
+        .ttt{height:1mm}
+        .barcode{height:100%;}
+        .barcodeImg{margin-left:10px;}
+        .pcenter{text-align:center;font-size:12pt;}
+        .pcenter1{text-align:center;}
+        p.peihuo{width:80mm;white-space:normal;}
+        .bigf{font-size:15mm;margin:3px;border:2px solid #000;height:15mm;width:15mm;}
+        .pborder{margin:3px;border:2px solid #000;text-align:center;}
+        .trancNoDiv{border-top:3px solid #000;border-bottom:3px solid #000;padding-top:3mm;}
+        .bnum{font-size:30pt;margin-left:140px;margin-top:-80px;height:15mm;width:15mm;}
+        .bdadd{font-size:9pt ;line-height:10pt;}
+        .sku{white-space:normal;font-size:8pt;word-break:break-all;}
+        .last{font-size:7pt;line-height:10px}
+        .line{border-bottom:1px solid black;width:120px;}
+        .countrycode{border:1px solid #000;display:inline-block;padding:2px;}
+        .line_break{word-wrap:break-word;}
+        .fonts{font-size: 20px;font-weight: 800}
+    </style>
+
+</head>
+<body>
+

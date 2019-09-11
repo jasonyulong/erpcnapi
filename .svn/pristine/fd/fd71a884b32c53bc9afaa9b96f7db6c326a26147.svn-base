@@ -1,0 +1,42 @@
+<?php
+$barcode = str2barcode_font(trim($Order['ebay_tracknumber']));
+?>
+<style type="text/css">
+    @font-face {
+        font-family: 'IDAutomationC128S';
+        src: url('/Public/fonts/IDAutomationC128S.eot'); /* IE9 Compat Modes */
+        src: url('/Public/fonts/IDAutomationC128S.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+        url('/Public/fonts/IDAutomationC128S.ttf')  format('truetype')/* Safari, Android, iOS */
+    }
+</style>
+<div style="position: relative; width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <?php if(is_array($Order['pdfimg'])):?>
+    <img style="height:100mm;width:100mm;" class="view" src="{$Order['pdfimg'][0]}"/>
+    <?php else:?>
+    <img style="height:100mm;width:100mm;" class="view" src="{$Order['pdfimg']}"/>
+    <?php endif;?>
+    <div style="position: absolute;right: 5px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+    <div style="margin-left: 44px;font-family:IDAutomationC128S;font-size: 18px;position: relative;margin-top: -82.5mm;height: 40px;width: 85mm;overflow: hidden;background-color:#fff;line-height:38px;"><?php echo htmlspecialchars($barcode[0]);?>
+    </div>
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

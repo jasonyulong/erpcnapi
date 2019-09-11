@@ -1,0 +1,116 @@
+<extend name="Public/groupBase"/>
+
+<block name="linkrel">
+
+    <style type="text/css">
+
+        .btn {
+            border-radius: 2px;
+        }
+
+    </style>
+
+</block>
+
+
+<block name="bread">
+    <li>
+        <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+    </li>
+    <li>
+        <a class="m-r-xs"> 重置订单包装费用</a>
+    </li>
+</block>
+
+
+<block name="content">
+    <div class="container-fluid">
+        <!--头部条件搜索框-->
+        <div class="row" style="margin-bottom: 10px">
+            <div class="row">
+                <div class="col-xs-6">
+                    <textarea id="skus" name="skus" rows="12" cols="12" placeholder="要清空费用的SKU"></textarea>
+                    <p><span id="skus_error" class="text-danger"></span></p>
+                </div>
+                <div class="col-xs-6 text-danger">
+                    <br>
+                    <br>
+                    <br>
+                    <p>注意:</p>
+                    <p>1.多个SKU,可以用 中/英文 状态下的 逗号或空格 隔开
+                    <p/>
+                    <p>2.时间只能是最近15天</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3">
+                    <label for="timeArea_start">开始时间点：</label>
+                    <input type="text" class="form-control" value="{$timeCondition['timeArea_start']}"
+                           name="timeArea_start" placeholder="开始时间点" onclick="laydate({format:'YYYY-MM-DD',min:laydate.now(-14),max:laydate.now(),start:laydate.now(-14)})"
+                           id="timeArea_start"/>
+                    <p><span id="datetime_error" class="text-danger"></span></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3" style="margin-top: 21px">
+                    <div>
+                        <button class="btn btn-lg btn-info" onclick="javascript:(resetPickFee(this))"> 清空</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+
+<block name="src_js">
+    <!-- laydate -->
+    <script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+
+    <script type="application/javascript">
+
+        function resetPickFee(user) {
+            var skus = $("#skus").val();
+            if(typeof skus == 'undefind' || skus == ''){
+                $("#skus_error").text('请输入要清空的sku!');
+                $("#skus").focus();
+                return false;
+            }else{
+                $("#skus_error").text('');
+            }
+
+            var timeArea_start = $('input[name="timeArea_start"]').val();
+            if(typeof timeArea_start == 'undefind' || timeArea_start == ''){
+                $("#datetime_error").text('你还没选择初始时间!');
+                return false;
+            }else{
+                $("#datetime_error").text('');
+            }
+
+            var params = {"skus": skus, "timeArea_start": timeArea_start};
+            var url = '{:U("UserPackageFee/resetPackageFee")}';
+            var layerLoad = layer.load();
+            $.post(url, params, function (result) {
+                layer.open({
+                    type: 1,
+                    title: '返回重置sku信息',
+                    area : ['30%', '40%'],
+                    closeBtn: 1,
+                    shadeClose: true,
+                    skin: 'layui-layer-lan',
+                    content: result,
+                    scrollbar: false,
+                    success:function(){
+                        layer.close(layerLoad);
+                    }
+                });
+
+            });
+        }
+    </script>
+</block>
+
+
+
+
+
+

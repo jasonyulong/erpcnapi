@@ -1,0 +1,6 @@
+<div style="margin:15px; margin-top:0;text-align: center;">
+    <div style="color: #a11;font-size:30px;">{$Errormsg}</div>
+    <div style="color: #1a1;font-size:15px;">{$Successmsg}</div>
+    <p style="color:green;font-size:30px;"><br>当前拣货单正在拣货人数<b style="color: red;">{$workingCount}</b>，已经完成拣货人数<b style="color: red;">{$workedCount}</b></p>
+    <p style="color:green;font-size:30px;"><br>当前拣货单总订单数<b style="color: red;">{$orderAllCount}</b>，已经完成打包数<b style="color: red;">{$orderBaledCount}</b></p>
+</div>

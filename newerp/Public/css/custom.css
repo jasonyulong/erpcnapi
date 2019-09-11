@@ -1,0 +1,333 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    background-color: rgba(238, 238, 238, 0.98);
+}
+
+table, div {
+    font-size: inherit;
+}
+
+ol, ul, dl, li {
+    margin: 0px;
+    padding: 0px;
+}
+
+a {
+    text-decoration: none;
+    color: #18A689;
+}
+
+a:link, a:visited, a:hover {
+    text-decoration: none;
+    color: #21b9bb;
+}
+
+.nav li {
+    margin: 0;
+}
+
+.nav > li > ul {
+    margin: 0;
+}
+
+#header {
+    background: #fff;
+}
+
+.sidebar-collapse > ul {
+    margin: 0px;
+}
+
+.sidebar-collapse > ul > li {
+    margin: 0px;
+}
+
+.navbar-top-links > li {
+    margin: 0px;
+    padding: 0px;
+}
+
+.navbar-top-links > li > a {
+    margin: 0px;
+    padding: 0px;
+    min-height: 30px;
+    line-height: 30px;
+}
+
+.ibox .open > .dropdown-menu {
+    right: 0;
+    left: 0;
+}
+
+.dropdown-menu {
+    min-width: 100%;
+}
+
+.dropdown-menu > li {
+    margin-left: 0px;
+}
+
+.float-e-margins .btn {
+    margin-bottom: 0px;
+}
+
+.btn {
+    border-radius: 0px;
+}
+
+.btn {
+    color: #fff;
+    text-decoration: none;
+}
+
+.btn:hover,
+.btn:link,
+.btn:visited {
+    color: #fff;
+    text-decoration: none;
+}
+
+input[type=text],
+input[type=password],
+textarea {
+    width: 100%;
+    resize: none;
+}
+
+.form-control,
+.single-line {
+    border: 1px solid #999;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    table-layout: fixed;
+}
+
+.custom-table > thead {
+    box-shadow: 1px 1px 5px #666;
+}
+
+.custom-table thead > tr > th {
+    padding: 10px 5px;
+    text-align: center;
+}
+
+.custom-table tbody > tr > td {
+    padding: 8px 5px;
+    text-align: center;
+
+}
+
+.custom-table > tbody > tr {
+    border-bottom: 1px solid #e0e0e0;
+    /*word-break: keep-all;*/
+    /*white-space: nowrap;*/
+    word-break: break-all;
+    white-space:normal;
+}
+
+.custom-table > tbody > tr:hover {
+    /*box-shadow: 0px 1px 5px #666;*/
+    z-index: 999;
+    background: #f9f9f9;
+    /*word-break: break-all;*/
+    /*white-space:normal;*/
+}
+
+.custom-table > tbody > .branchlist:hover {
+    box-shadow: none;
+    background: none;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.sontable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #f0f0f0;
+}
+
+/**statisticTable**/
+.statatisticTable {
+
+    width: 96%;
+    margin: 30px auto;
+    background: #fff;
+    border-right: 1px solid #e0e0e0;
+    border-top: 1px solid #e0e0e0;
+    border-collapse: separate;
+}
+
+.statatisticTable > thead {
+
+}
+
+.statatisticTable thead > tr > th {
+    padding: 10px 5px;
+    text-align: center;
+    border-left: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.statatisticTable tbody > tr > td {
+    padding: 8px 5px;
+    text-align: center;
+    border-left: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.statatisticTable > tbody > tr > td:hover {
+    z-index: 999;
+    background: #f5f5f5;
+}
+
+.statatisticTable li {
+    list-style-type: none;
+}
+
+.statatisticTable .table-border {
+    border-bottom: 1px solid #f3f3f3;
+}
+
+/**div仿table**/
+.table-div {
+    text-align: center;
+}
+
+.table-div .table-th {
+    box-shadow: 1px 1px 5px #666666;
+    margin: 0;
+    font-weight: bold;
+}
+
+.table-div .table-th > div {
+    padding: 10px 0px;
+}
+
+.table-div .table-tr {
+    margin: 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.table-div .table-tr > div {
+    padding: 10px 0px;
+}
+
+button:hover,
+input[type=submit]:hover,
+input[type=reset]:hover,
+input[type=button]:hover,
+button:focus,
+input[type=submit]:focus,
+input[type=reset]:focus,
+input[type=button]:focus,
+button[selected],
+input[type=submit][selected],
+input[type=reset][selected],
+input[type=button][selected] {
+    background-color: inherit;
+}
+
+/*page分页*/
+
+.pagination > .active > a,
+.pagination > .active > a:focus,
+.pagination > .active > a:hover,
+.pagination > .active > span,
+.pagination > .active > span:focus,
+.pagination > .active > span:hover {
+    z-index: 2;
+    color: #fff;
+    cursor: default;
+    background-color: #18a689;
+    border-color: #18a689;
+}
+.pagination > li > select{
+    position: relative;
+    float: left;
+    /*padding: 5.5px 12px;*/
+    margin-left: -1px;
+    height:32px;
+    line-height: 1.42857143;
+    color: #18a689;
+    background-color: #fff;
+    border-color: inherit;
+    border: 1px solid #ddd;
+}
+.pagination > li > select::after,
+.pagination > li > select:focus,
+.pagination > li > select:active
+{
+    border:1px solid #18a689;
+}
+
+.nav-second-level > .active {
+    background: #fff;
+}
+
+/*部门分类展示*/
+.organization {
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.organization li {
+    list-style: none;
+    line-height: inherit;
+
+}
+
+.organization ul {
+    margin-left: 60px;
+}
+
+.organization ul > li {
+    position: relative;
+}
+
+.organization ul > li:before {
+    position: absolute;
+}
+
+.organization ul > li:after {
+    position: absolute;
+}
+
+/*切换按钮*/
+.tab-header{
+    width:100%;
+    height:50px;
+    display: block;
+}
+.tab-header > li {
+    list-style: none;
+    cursor: pointer;
+    padding: 5px 12px;
+    text-align: center;
+    float:left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab-header > .active {
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right:1px solid #ddd;
+    color:#18A689;
+    border-bottom: none;
+}
+
+.tab-body > div{
+    display: none;
+}
+.tab-body > div:first-child{
+    display: block;
+}
+.tab-body > div >input{
+    margin-bottom: 10px;
+}

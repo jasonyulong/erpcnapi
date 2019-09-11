@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<iframe id="print_iframe" onload="autoChecks()" name="print_iframe"
+        style="width:116mm;max-height:200px;overflow-y:scroll;"
+        src="t.php?s=/Transport/Print/PrintAllCarrier&bill=<?php echo $_GET['ebayid'];?>&mod=1">
+
+</iframe>
+
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<script>
+
+   function autoChecks(){
+
+       var white_order_mark=$("#print_iframe").contents().find("#white_order_mark").html();
+
+
+       if(white_order_mark){
+
+           $.ajax({
+               type : "post",
+               url : "t.php?s=/Package/WhiteOrder/markOrder",
+               data : "ebayid="+"<?php echo $_GET['ebayid'];?>"+"&baozhuangUser="+"<?php echo $_SESSION['truename']?>",
+               success : function(data){
+                   //TODO 哈你吊毛完蛋了，出白单了
+               }
+           });
+
+           // $("#succ").html('<font color="green" size="9">校验成功! 但是出了白单!</font>');
+           // return ;
+       }
+   }
+</script>
+</html>

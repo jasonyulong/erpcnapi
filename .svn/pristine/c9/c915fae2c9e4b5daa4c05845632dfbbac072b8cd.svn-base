@@ -1,0 +1,190 @@
+<div style="position: relative; width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <?php if($Order['countrycode'] == 'US' && in_array($Order['ebay_carrier'],['Wish邮厦门平邮带电-GD','Wish邮厦门平邮-GD','Wish邮厦门挂号-GD','Wish邮厦门挂号带电-GD'])):?>
+    <div style="position: absolute;left: 85mm;top: 39mm;" class="font14"><b>{$Order['fenqucode']}</b></div>
+    <?php endif;?>
+    <?php
+        if($Order['ebay_carrier']=='广州小包平邮-星邮'){
+            $cssstr='height:117mm;width:106mm;margin-left:-3mm;margin-top:-3mm;';
+        }elseif($Order['ebay_carrier']=='广州小包挂号-星邮'){
+            $cssstr='height:117mm;width:106mm;margin-left:-3mm;margin-top:-3mm;';
+        }elseif($Order['ebay_carrier']=='SLS-shopee专用' || $Order['ebay_carrier']=='SLS平邮-shopee专用'){
+            //$cssstr='height:158mm;width:106mm;margin-left:-12px;margin-top:-12px;';
+            $cssstr='height:184mm;width:124mm;margin-left:-46px;margin-top:-44px;';
+            //if($Order['countrycode']=='ID'){
+                $url = $Order['pdfimg'];
+                $arr = explode('?height=',$url);
+                if($arr[1]>100){
+                    $cssstr='height:184mm;width:124mm;margin-left:-46px;margin-top:-44px;';
+                }else{
+                    $cssstr='height:157mm;width:107mm;margin-left:-12px;margin-top:-12px;';
+                }
+            //}
+        }elseif($Order['ebay_carrier']=='速卖通线上挂号-东莞仓'){
+            $cssstr='height:300mm;width:210mm;margin-left:-125px;margin-top:-554px;';
+        }elseif($Order['ebay_carrier']=='速卖通线上平邮-东莞仓'){
+            $cssstr='height:300mm;width:210mm;margin-left:-125px;margin-top:-554px;';
+        }elseif($Order['ebay_carrier']=='荷兰邮政小包平邮'){
+            $cssstr='height:105mm;width:106mm;margin-left:-3mm;margin-top:-2mm;position: absolute;';
+        }
+        elseif(in_array($Order['ebay_carrier'], ['SLS-shopee专用(越南)', 'SLS-shopee （印度尼西亚）', 'SLS-shopee（马来西亚）', 'SLS-shopee（泰国）']))
+        {
+            $cssstr = 'margin-top: -53px;margin-left: -55px;width: 128mm;height:190mm;position: absolute;';
+        }
+        elseif(trim($Order['ebay_carrier']) == '速卖通线上平邮带电-深圳仓')
+        {
+            $cssstr = "height: 286mm;width: 200mm;margin-top: -139mm;margin-left: -29mm;position: relative;";
+        }
+        elseif(trim($Order['ebay_carrier']) == '顺邮宝平邮2-SY')
+        {
+            $cssstr = "margin-left: -1mm; width: 103mm; height: 103mm; margin-top: -1mm;position: absolute;";
+        }elseif(trim($Order['ebay_carrier']) == '顺邮宝挂号-SY')
+        {
+            $cssstr = "margin-left: -1mm; width: 102mm; height: 128mm; margin-top: -2mm;position: absolute;";
+        }
+        elseif(in_array($Order['ebay_carrier'], ['Wish邮广州平邮', 'Wish邮广州挂号']))
+        {
+            $cssstr = "height: 105mm;margin-left: -2mm;margin-top: -2mm;width: 105mm;position: absolute;";
+        }
+        elseif(in_array($Order['ebay_carrier'], ['马来西亚小包平邮-YW']))
+        {
+            $cssstr = "height: 104mm;width: 115mm;margin-left: -4mm;margin-top: -3mm;position: absolute;";
+        }
+        elseif(in_array($Order['ebay_carrier'], ['Wish邮深圳挂号']))
+        {
+            $cssstr = "height: 104mm;width: 104mm;position: absolute;margin-top: -10px;margin-left: -5px;";
+        }
+        elseif(in_array($Order['ebay_carrier'], ['英国虚拟仓平邮-AJ']))
+        {
+            $cssstr = "height: 100mm;width: 104mm;position: absolute;margin-left: -7px;";
+        }
+        elseif(in_array($Order['ebay_carrier'], ['台湾小包平邮-GY', '台湾小包挂号-GY', '台湾小包平邮-GY(ebay)', '台湾小包挂号-GY(ebay)']))
+        {
+            $cssstr = "height: 105mm;width: 107mm;position: absolute;margin-left: -13px;margin-top: -13px;";
+        }
+        else
+        {
+            $cssstr='height:100mm;width:100mm;';
+        }
+    ?>
+    <?php if(is_array($Order['pdfimg'])):?>
+    <img style="{$cssstr}" class="view" src="{$Order['pdfimg'][0]}"/>
+    <?php else:?>
+    <img style="{$cssstr}" class="view" src="{$Order['pdfimg']}"/>
+    <?php endif;?>
+    <if condition="$Order['ebay_carrier'] eq 'UBI欧盟28国-半程查件' ">
+        <div style="position: absolute;right: 80px;bottom: 3px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="$Order['ebay_carrier'] eq 'Linio物流' || $Order['ebay_carrier'] eq 'CTAM小包平邮-普货'" />
+        <div style="position: absolute;right: 0px;bottom: 0px;font-size: 8px">
+            <span class="fonts"  style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="$Order['ebay_carrier'] eq '线上中邮易递宝（万邑通）' || $Order['ebay_carrier'] eq '线上中邮万邑通-深圳邮局' || $Order['ebay_carrier'] eq 'IB中美专线（标准）' ||  $Order['ebay_carrier'] eq '荷兰邮政小包挂号'" />
+        <div style="position: absolute;right: 25px;bottom: -2px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="$Order['ebay_carrier'] eq '法国专线-万欧' || $Order['ebay_carrier'] eq '欧洲专线平邮-WO' || $Order['ebay_carrier'] eq '速卖通线上小包顺友航空经济小包深圳仓' || $Order['ebay_carrier'] eq '速卖通线上燕文航空经济小包'" />
+        <div style="position: absolute;right: 25px;bottom: 3px;">
+            <span class="fonts" style="margin-right: 45px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="$Order['ebay_carrier'] eq 'SLS平邮-shopee专用' || $Order['ebay_carrier'] eq '速卖通线上小包4PX新邮经济小包' || $Order['ebay_carrier'] eq '速卖通线上小包无忧标准' || $Order['ebay_carrier'] eq '速卖通线上小包无忧标准（非普货）' ||  $Order['ebay_carrier'] eq '速卖通线上小包无忧简易' ||  $Order['ebay_carrier'] eq '速卖通线上小包中外运-西邮经济' || $Order['ebay_carrier'] eq '速卖通线上小包无忧简易-西班牙'" />
+        <div style="position: absolute;right: 25px;bottom: 3px;">
+            <span class="fonts" style="margin-right: 35px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+        <elseif condition="$Order['ebay_carrier'] eq '新疆小包挂号-WH'" />
+        <div style="position: absolute;right: 5px;bottom: -5px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+        <elseif condition="$Order['ebay_carrier'] eq '比利时小包平邮-YW' || $Order['ebay_carrier'] eq 'CTAM小包平邮'" />
+        <div style="position: absolute;right: 0px;bottom: -5px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+        <elseif condition="$Order['ebay_carrier'] eq '意大利专线-万欧'" />
+        <div style="position: absolute;right: 0px;bottom: 20px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="$Order['ebay_carrier'] eq '速卖通线上平邮带电-深圳仓'" />
+        <div style="position: relative; margin-top: -216px; margin-left: 332px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="$Order['ebay_carrier'] eq '速卖通线上无忧集运平邮-SA' || $Order['ebay_carrier'] eq '速卖通线上无忧集运挂号-SA' || $Order['ebay_carrier'] eq '速卖通线上无忧集运平邮-AE' || $Order['ebay_carrier'] eq '速卖通线上无忧集运挂号-AE'" />
+        <div style="position: absolute;right: 5px;bottom: 3px;">
+            <span class="fonts" style="margin-right: 17mm">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="in_array($Order['ebay_carrier'], ['顺邮宝平邮2-SY'])" />
+        <div style="position: absolute; right: 112px; bottom: -2px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="$Order['ebay_carrier'] eq 'Wish线上香港平邮-YT'" />
+        <div style="position: absolute; right: 175px; bottom: -2px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="in_array($Order['ebay_carrier'], ['速卖通线上俄罗斯菜鸟特货专线-简易', '速卖通线上菜鸟特货专线-超级经济'])" />
+        <div style="position: absolute; right: 80px; bottom: 3px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="in_array($Order['ebay_carrier'], ['wish线上UBI比利时平邮'])" />
+        <div style="position: absolute; right: 112px; bottom: -1px;border: 2px solid #4c4c4c">
+            <span class="fonts" style="margin-right: 0px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="in_array($Order['ebay_carrier'], ['wish线上UBI墨西哥SCM专线挂号'])" />
+        <div style="position: absolute; right: 195px; bottom: 0px;border: 2px solid #4c4c4c">
+            <span style="margin-right: 0px;font-size: 18px;font-weight: bold">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="in_array($Order['ebay_carrier'], ['Wish邮广州平邮', 'Wish邮广州挂号'])" />
+        <div style="position: absolute;right: 5px;bottom: -1px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <elseif condition="in_array($Order['ebay_carrier'], ['MyMall线上小包'])" />
+        <div style="position: absolute;right: 170px;bottom: 0px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    <else/>
+        <div style="position: absolute;right: 5px;bottom: 3px;">
+            <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+        </div>
+    </if>
+    <?php
+     if(strstr($Order['ebay_carrier'],'非普货')){
+        echo '<div style="position: absolute;right: 0;bottom: 0;width: 6mm;height: 6mm;"><b>F</b></div>';
+     }
+     if(strstr($Order['ebay_carrier'],'SLS平邮-shopee专用')){
+        echo '<div style="position: absolute;right: 0;bottom: 0;width: 6mm;height: 6mm;"><b>P</b></div>';
+     }
+     if(strstr($Order['ebay_carrier'],'线上中邮万邑通-深圳邮局')){
+        echo '<div style="position: absolute;right: 0;bottom: 0;width: 6mm;height: 6mm;"><b>SZ</b></div>';
+     }
+     if(strstr($Order['ebay_carrier'],'线上中邮易递宝（万邑通）')){
+        echo '<div style="position: absolute;right: 0;bottom: 0;width: 6mm;height: 6mm;"><b>wyt</b></div>';
+     }
+     if(strstr($Order['ebay_carrier'],'欧洲专线平邮-WO')){
+        echo '<div style="position: absolute;right: 0;bottom: 0;width: 6mm;height: 6mm;"><b>WO</b></div>';
+     }
+     if(strstr($Order['ebay_carrier'],'法国专线-万欧')){
+        echo '<div style="position: absolute;right: 0;bottom: 0;width: 6mm;height: 6mm;"><b>FR</b></div>';
+     }
+    ?>
+
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top:10px;margin-left:5px">
+        <?php if(in_array($Order['ebay_carrier'],['荷兰邮政小包平邮','荷兰邮政小包挂号','台湾小包挂号-GY','台湾小包平邮-GY'])){ ?>
+            <div>{$Order['skustr']}</div>
+        <?php  } ?>
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

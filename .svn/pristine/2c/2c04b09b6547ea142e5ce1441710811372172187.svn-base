@@ -1,0 +1,109 @@
+<extend name="Public/base1"/>
+
+<!-- CSS  -->
+<block name="linkrel">
+    <link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+    <link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+    <style>
+        table th,td {text-align: center !important;}
+    </style>
+</block>
+
+<!-- 面包屑导航 -->
+<block name="bread">
+    <li><a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a></li>
+    <li><a class="m-r-xs"> 物流管理 &gt; 仓库信息</a></li>
+</block>
+
+<!-- 订单内容的主显示区 -->
+<block name="content">
+
+    <!-- 条件查询行 -->
+    <div class="row">
+        <form action="{:U('OrderGroup/listOrders', ['groupId' => $groupId, 'carrier' => $carrier])}" method="post">
+            <div class="row checkbox_box" style="margin-top: 10px;padding-left: 20px;border-bottom: 1px solid #555">
+                包裹类型：
+                <!--<label><input type="checkbox" class="icheckClass" checked name="showType[]" value="0">全部</label> &nbsp;&nbsp;&nbsp;&nbsp;-->
+                <if condition="in_array(1, $types)">
+                    <label><input type="checkbox" class="icheckClass" checked name="showType[]" value="1">单品单件</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <else/>
+                    <label><input type="checkbox" class="icheckClass" name="showType[]" value="1">单品单件</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                </if>
+
+                <if condition="in_array(2, $types)">
+                    <label><input type="checkbox" class="icheckClass" checked name="showType[]" value="2">单品多件</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <else/>
+                    <label><input type="checkbox" class="icheckClass" name="showType[]" value="2">单品多件</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                </if>
+
+                <if condition="in_array(3, $types)">
+                    <label><input type="checkbox" class="icheckClass" checked name="showType[]" value="3">多品多件</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <else/>
+                    <label><input type="checkbox" class="icheckClass" name="showType[]" value="3">多品多件</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                </if>
+
+                <span class="company_carrier">
+                    <!--<label class="alert alert-success" style="padding: 5px 10px;margin-bottom:0"> Hello world </label>-->
+                    <!--<label class="alert alert-success" style="padding: 5px 10px;margin-bottom:0;margin-right: 15px"> Hello world </label>-->
+                </span>
+
+                <label>
+                    <button class="btn btn-xs btn-success" id="orderSelect" style="border-radius: 2px;padding:3px 5px">查询</button>
+                </label>
+
+                <label>
+                    <button class="btn btn-xs btn-info create-sheet-btn" type="button" data-url="{:U('CreatePick/CreatePickOrder')}" style="border-radius: 2px;padding:3px 5px"> 生成捡货单</button>
+                </label>
+            </div>
+        </form>
+    </div>
+
+    <!-- 分页行 -->
+    <div class="row">
+        <div class="pageInfo pull-right">
+            <ul class="pagination" style="margin: 5px">{$pageStr}</ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <table class="table table-responsive table-hover table-condensed">
+            <tr>
+                <th>选择</th>
+                <th>订单编号</th>
+                <th>买家ID</th>
+                <th>国家</th>
+                <th>重量(KG)</th>
+                <th>入系统时间</th>
+            </tr>
+
+            <foreach name="orders" item="order" key="key">
+                <tr>
+                    <td> -- </td>
+                    <td> {$order.ebay_id} </td>
+                    <td> {$order.ebay_username} </td>
+                    <td> {$order.ebay_countryname} </td>
+                    <td> {$order['orderweight']} </td>
+                    <td> {:date('Y-m-d H:i:s', $order['ebay_addtime'])} </td>
+                </tr>
+            </foreach>
+
+        </table>
+    </div>
+</block>
+
+<!-- JS 部分 -->
+<block name="src_js">
+    <script type="application/javascript" src="/newerp/Public/plugins/icheck/icheck.min.js"></script>
+    <script type="application/javascript">
+        (function(window, $, layer) {
+
+            // 初始化checkbox 插件
+            $('input:checkbox').iCheck({
+                checkboxClass : 'icheckbox_square-blue'
+            });
+
+
+
+        })(window, $, layer);
+    </script>
+</block>

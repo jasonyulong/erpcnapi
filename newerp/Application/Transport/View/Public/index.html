@@ -1,0 +1,71 @@
+<block name="top">
+    <?php include ROOT_PATH."/include/config.php"; ?>
+    <?php include ROOT_PATH.'/top.php'; ?>
+    <style>
+        p.pnote{width:150px;}
+        p.paddress{width:230px;}
+        table.view td{border-bottom:1px #ccc solid;height:50px}
+        table.view tr.trHover:hover td{background:#ccffcc}
+        table.view tr.trHover td{height:30px;}
+        span.keyval{color:#f33;font-weight:bold}
+        div i{font-size: 10px;font-style:normal;color:#333;}
+        #moreFilter{text-indent: 9px;}
+        #content>div.moduleTitle{border-bottom:2px solid #4e8ccf;}
+        #orderFilter{text-indent:10px;margin-bottom:8px;}
+        #moreFilter{margin-bottom:8px;}
+        .hongqi{height: 24px;width:25px;cursor:pointer;}
+        .hongqibg1,.hongqibg2,.hongqibg3,.hongqibg4,.hongqibg5{background:url("./themes/Sugar5/images/hongqi.jpg") no-repeat;}
+        .hongqibg2{background-position:-24px 0;}
+        .hongqibg3{background-position:-72px 0;}
+        .hongqibg4{background-position:-48px 0;}
+        .hongqibg5{background-position:-98px 0;}
+        a.linka1{color:#911!important;font-weight:bold!important;font-size:12px!important;}
+
+        #bodyMask{background:url("themes/Sugar5/images/maskbgs.png")!important;}
+        #ModboxContent img{margin:60px auto;display:block;}
+        #ModboxContent{overflow-y:scroll;}
+        .Modboxtitlebox .btn_close {background:url(themes/Sugar5/images/icon.gif) 0 3102px  !important;cursor: pointer;display: block;float: right;height: 15px;margin-top: 6px;width: 15px;border:1px solid #fafafa}
+        .Modboxtitlebox {background:#0e580c;color: #fff;font-size: 13px;height: 30px;line-height: 30px;padding: 0 8px;}
+        .dcButton input[type=button]{margin-right: 15px;}
+        .clearlist tr {
+            height: 30px;
+        }
+
+        table.mytab tr td{border:1px solid #ccc;padding-left:2px; border-left:none;border-bottom: none;}
+        table.mytab{border:1px solid #777; font-size:10px;}
+        table.mytab tr:hover td.shows{background:#0Bc0FF;}
+        table.mytab tr:hover{background:#e0e0e0;}
+        table.mytab tr th{ border-right:1px solid #fff;height: 28px; text-align: center;}
+        table.mytab tr { height: 28px; }
+        table.mytab tr td { height: 28px; text-align: center;}
+        table.mytab tr td.shows{width: 6px!important;margin:0;padding:0;border-right:none;}
+
+        .checkbox {
+            position: relative;
+        }
+        .checkbox label {
+            position: absolute;
+            top : 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .view, table.view {
+            width: auto;
+        }
+
+    </style>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/mytips.js"></script>
+    <script language="javascript" type="text/javascript" src="My97DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript" src="js/package.js"></script>
+</block>
+
+<block name="main">
+    这是main主体内容。
+</block>
+
+
+<block name="bottom">
+    <?php include "bottom.php"; ?>
+</block>

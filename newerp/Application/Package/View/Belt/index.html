@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>传送带物流</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+<link href="/newerp/Public/css/whouse.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+
+    .content-area-modify .layui-layer-content{
+        height: 55px !important;
+        padding:5px 20px !important;
+    }
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="padding: 0 24px">
+        <h3>传送带物流设置</h3>
+    </div>
+    <div class="row">
+    </div>
+    <div class="row" style="padding: 0 24px">
+        <div class="pageInfo">
+        </div>
+
+        <table class="table table-responsive table-hover table-condensed">
+            <tr>
+                <th>传输带层</th>
+                <th>物流</th>
+                <th>编辑</th>
+            </tr>
+
+            <tr>
+                <td><b class="font18">3</b></td>
+                <td><?php echo trim($Layer[3],',');?></td>
+                <td>
+                    <button class="btn btn-sm btn-success" onclick="EditCarrier(3)">编辑物流</button>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td><b class="font18">2</b></td>
+                <td><?php echo trim($Layer[2],',');?></td>
+                <td>
+                    <button class="btn btn-sm btn-success" onclick="EditCarrier(2)">编辑物流</button>
+                </td>
+            </tr>
+
+
+
+        </table>
+        <div class="pageInfo">
+           <div style="">
+               <h1>设置好 第三层 第二层的物流之后  包装台出单时候，根据面单的物流方式 </h1>
+               <h1> 依次找到 第3层 第2层的物流,找到就提示对应的 层数，找不到就 会提示第1层</h1>
+           </div>
+        </div>
+    </div>
+
+
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript" src="/newerp/Public/plugins/icheck/icheck.min.js"></script>
+<script type="application/javascript" src="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.jquery.js"></script>
+<script type="application/javascript">
+    $(function(){
+        $("#ebay_carrier").chosen();
+    });
+
+
+    /**
+    *创建人: 测试人员谭 2018-07-26 17:06:09
+    *说明: 编辑物流
+    */
+    function EditCarrier(id){
+        layer.open({
+            content : "/t.php?s=/Package/Belt/showCarrier&id=" + id,
+            type    : 2,
+            title   : '修改传送带分层',
+            area    : ['50%', '70%'],
+            maxmin  : true,
+            shift   : 2
+        });
+    }
+</script>
+
+</html>

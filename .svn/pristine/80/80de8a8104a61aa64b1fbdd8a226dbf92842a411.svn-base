@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SKU扫不出自查</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+<link href="/newerp/Public/css/whouse.css" rel="stylesheet">
+<style type="text/css">
+    #data_div table td{padding: 4px;}
+    #data_div2 table td{padding: 4px;}
+    td.alinks{cursor: pointer;color: #004488;}
+</style>
+<body>
+<div style="height:40px;background:#449D44;">订单过枪</div>
+
+<div class="container">
+
+    <input id="ebayid" type="text" style="font-size: 12px;border: 1px solid #666;margin-top:5px;width:100%" placeholder="输入订单号" onkeyup="searchPkorder(event)"/>
+
+    <br>
+    <br>
+    <br>
+
+    <div id="data_div" style="padding: 10px;border:1px solid #000000; margin-bottom: 20px;"></div>
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript" src="/newerp/Public/plugins/icheck/icheck.min.js"></script>
+<script type="application/javascript">
+    $(function(){
+        $("#ebayid").select().focus();
+    });
+
+
+    function searchPkorder(event){
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return '';
+        }
+
+        var ebayid=$("#ebayid").val();
+
+        if(ebayid==''){
+            return ;
+        }
+
+        var url='./t.php?s=/Package/OrderTest';
+        $.post(url,{ebayid:ebayid},function(data){
+            $("#data_div").html(data);
+            $("#ebayid").select().focus();
+        });
+
+
+
+    }
+
+
+    function showLogs(ebay_id){
+        layer.open({
+            type: 2,
+            title: '查看日志',
+            area: ['900px','500px'],
+            shade: 0.8,
+            shadeClose: true,
+            content: "/t.php?s=/Order/Index/showLog/ebay_id/"+ebay_id+".html"
+        });
+    }
+</script>
+
+</html>

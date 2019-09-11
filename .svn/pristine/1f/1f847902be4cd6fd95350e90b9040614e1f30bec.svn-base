@@ -1,0 +1,182 @@
+<extend name="Public:index" />
+<block name="main">
+    <style>
+        .table-striped th,td{
+            text-align: center;
+        }
+    </style>
+    <button type="button" class="btn btn-primary" id="addData" data-url="{:U('Package/WeighSystem/addWeightingPage')}">添加</button>
+    <input type="hidden" id="delUrl" data-url="{:U('Package/WeighSystem/delWeighting')}" />
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>优先级</th>
+            <th>关键字</th>
+            <th>加权重量(g)</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <volist name="data" id="vo">
+            <tr>
+                <td>{$vo['id']}</td>
+                <td>
+                    <span class="glyphicon glyphicon-arrow-up btn btn-xs btn-primary" style="cursor: pointer;" aria-hidden="true" onclick="altRuleSort({$vo['id']}, 'prev')">上移</span>
+                    &nbsp;
+                    <span class="glyphicon glyphicon-arrow-down btn btn-xs btn-success" style="cursor: pointer;" aria-hidden="true" onclick="altRuleSort({$vo['id']}, 'next')">下移</span>
+                    &nbsp;
+                    <span class="btn btn-xs btn-info" style="cursor: pointer;" aria-hidden="true" onclick="moveRule({$vo['id']}, {$vo['sort']})">移到指定ID前</span>
+                </td>
+                <td>{$vo['keyword']}</td>
+                <td>{$vo['weighting']}</td>
+                <td>
+                    <button type="button" class="btn btn-info" id="editData" onclick="editData('{$vo.id}')">修改</button>
+                    <button type="button" class="btn btn-danger" id="delData" onclick="delData('{$vo.id}')">删除</button>
+                </td>
+            </tr>
+        </volist>
+        <if condition="empty($data)"><tr><td colspan="4">暂无数据</td></tr></if>
+        </tbody>
+    </table>
+    <script>
+        /**
+         * 监听添加功能
+         * @author Shawn
+         * @date 2018-12-25
+         */
+        $("#addData").unbind("click").click(function () {
+            var url = $(this).attr("data-url");
+            layer.open({
+                type:2,
+                title:'添加数据',
+                shift:'1',
+                closeBtn:1,
+                scrollbar:false,
+                area:['500px','400px'],
+                content:url
+            })
+        });
+        /**
+         * 监听修改功能
+         * @author Shawn
+         * @date 2018-12-25
+         */
+        function editData(id) {
+            var url = $("#addData").attr("data-url");
+            layer.open({
+                type:2,
+                title:'添加数据',
+                shift:'1',
+                closeBtn:1,
+                scrollbar:false,
+                area:['500px','400px'],
+                content:url+'&id='+id
+            })
+        }
+        /**
+         * 监听删除功能
+         * @author Shawn
+         * @date 2018-12-25
+         */
+        
+        function delData(id) {
+            var url = $("#delUrl").attr("data-url");
+            layer.confirm('确认是否删除', {icon: 3, title:'提示'}, function(index){
+                layer.close(index);
+                $.ajax({
+                    url:url,
+                    type:'post',
+                    dataType:'json',
+                    data:{id:id},
+                    success:function(res){
+                        if(res.status == 1){
+                            layer.msg(res.msg,{icon:1});
+                            setTimeout(function(){
+                                location.reload();
+                            }, 1500);
+                        }else{
+                            layer.msg(res.msg,{icon:2});
+                        }
+
+                    }
+                }).fail(function() {
+                    layer.msg('访问出错',{icon:2});
+                });
+            });
+        }
+
+        //修改优先级
+        function altRuleSort(id, type){
+            if(isNaN(id) || type == ''){
+                layer.msg('提交的数据不正确！请检查！', {icon : 2});
+                return false;
+            }
+            $.ajax({
+                url : 't.php?s=/Package/WeighSystem/altRuleSort',
+                type : 'post',
+                data : {
+                    id : id,
+                    type : type,
+                },
+                dataType:'json',
+                success : function(res){
+                    if(res.status == 1){
+                        layer.msg(res.msg, {icon : 1});
+                        setTimeout(function(){
+                            location.reload(true);
+                        }, 1500);
+                    }else{
+                        layer.msg(res.msg, {icon : 2});
+                    }
+                }
+            });
+        }
+
+
+        /**
+         * 移动排序
+         * @param id
+         * @param sort
+         */
+        function moveRule(id, sort){
+            layer.prompt(
+                { title: 'ID: ' + id +' 移到指定ID前（输入ID）', formType: 3 },
+                function(text, index){
+                    var target_id = $.trim(text);   //目标id
+                    if(isNaN(target_id) || target_id == '' || target_id == 0){
+                        layer.msg('ID必须为大于0的数字！', {icon : 2});
+                        return false;
+                    }
+                    if(target_id == id){
+                        layer.msg('目标ID不能是自己！', {icon : 2});
+                        return false;
+                    }
+                    layer.close(index);
+                    var loading = layer.load();
+                    $.ajax({
+                        url : 't.php?s=/Package/WeighSystem/moveRule',
+                        type : 'post',
+                        data : {
+                            id : id,
+                            sort : sort,
+                            target_id : target_id,  //目标id
+                        },
+                        dataType:'json',
+                        success : function(res){
+                            layer.close(loading);
+                            if(res.status == 1){
+                                layer.msg(res.msg, {icon : 1});
+                                setTimeout(function(){
+                                    location.reload(true);
+                                }, 1500);
+                            }else{
+                                layer.msg(res.msg, {icon : 2});
+                            }
+                        }
+                    });
+                }
+            );
+        }
+    </script>
+</block>

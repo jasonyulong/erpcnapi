@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>烟雾弹检测</title>
+</head>
+<style>
+    .first{
+        text-align: center;
+        font-size: 30px;
+        margin: 0;
+    }
+    .first .title {
+        width: 100%;
+        background-color: #CCCCCC;
+        height: 60px;
+        line-height: 2;
+    }
+    .scan_order{
+        font-size: 30px;
+        margin-top: 50px;
+    }
+    .msg{
+        text-align: center;
+        font-size: 40px;
+        margin-top: 50px;
+    }
+    .msg .success{
+        color: green;
+    }
+    .msg .fail{
+        color: red;
+    }
+</style>
+<body>
+<div class="first">
+    <div class="title"><b>烟雾弹检测</b></div>
+    <b>面单扫描：</b><input class="scan_order" type="text" id="order" onKeyPress="check(event)" value="" placeholder="面单扫描"/>
+</div>
+<div class="msg">
+    <if condition="$msgInfo.status eq 1">
+        <b class="success">{$msgInfo.msg}</b>
+    <else/>
+        <b class="fail">{$msgInfo.msg}</b>
+    </if>
+</div>
+
+</body>
+<audio id="failSound" >
+    <source src='' type='audio/mp3'>
+</audio>
+</html>
+<script language="javascript" src="js/jquery.js"></script>
+<script language="javascript">
+    var checkStatus = '<?php echo $msgInfo["status"];?>';
+    /**
+     * 扫描
+     * @param event
+     * @returns {boolean}
+     */
+    function check(event){
+        var order	= $.trim($("#order").val());
+        var isie = (document.all) ? true : false;//判断是IE内核还是Mozilla
+        var keyCode;
+        if(isie){
+            keyCode = window.event.keyCode;//IE使用windows.event事件
+        }else {
+            keyCode = event.which;//3个按键函数有一个默认的隐藏变量，这里用e来传递。e
+        }
+        if (keyCode == 13) {
+            var order	= $.trim($("#order").val());
+            order		= order.toUpperCase();
+            var url="{:U('Scan/skuCheck')}&scanNumber="+order;
+            location.href = url;
+            return false;
+        }
+
+    }
+    function playm(){
+        var video	=	document.getElementById("failSound");
+        video.src="capi/number/error.mp3";
+        video.play();
+
+    }
+    $(function () {
+        document.getElementById('order').select();
+        document.getElementById('order').focus();
+        if(checkStatus == 0){
+            playm();
+        }
+    })
+
+</script>

@@ -1,0 +1,359 @@
+<?php
+
+namespace Package\Controller;
+
+use Common\Controller\CommonController;
+use Order\Model\EbayCarrierModel;
+use Order\Model\EbayConfigModel;
+use Order\Model\EbayOrderModel;
+use Order\Model\OrderTypeModel;
+use Package\Model\PickOrderModel;
+use Package\Service\CreatePickService;
+use Think\Page;
+use Transport\Model\CarrierModel;
+
+/**
+ * Class CreatePickController
+ * @package Package\Controller
+ *  创建捡货单子
+ */
+class CreatePickController extends CommonController
+{
+
+    private $pageSize = 100;
+
+    /**
+     * 单找货所支持的运输方式数组
+     * @var array
+     */
+    public $allowCarriers = [];
+
+    // 覆盖掉 父类的相关代码缺少相关模型类文件
+    public function _initialize()
+    {
+
+        echo '<meta charset="utf-8">放弃的方法';
+        die();
+        $this -> pageSize = session('pagesize') ? session('pagesize') : 100;
+
+        $allowCarrier = load_config('newerp/Application/Transport/Conf/config.php');
+        $carriers = array_keys($allowCarrier['CARRIER_TEMPT']);
+        $trueCarrier = [];
+        foreach ($carriers as $val) {
+            $trueCarrier[] = strpos($val, '_') === false ? $val : explode('_', $val)[0];
+        }
+
+        $this -> allowCarriers = array_unique($trueCarrier);
+    }
+
+    public function index()
+    {
+        $ebayCarrierModel = new EbayCarrierModel();
+        $resultArr = $ebayCarrierModel -> alias('a')
+            -> join('inner join ebay_carrier_company as b on a.CompanyName = b.id')
+            -> where(['a.ebay_warehouse' => 196, 'a.name' => ['in', $this -> allowCarriers]])
+            -> group('b.id')
+            -> field('b.id, b.sup_name')
+            -> select();
+
+        foreach ($resultArr as $key => $val) {
+            $resultArr[$key]['sub'] = $ebayCarrierModel
+                -> where(['ebay_warehouse' => 196, 'CompanyName' => $val['id'], 'name' => ['in', $this -> allowCarriers]])
+                -> getField('name, id', true);
+        }
+
+        $orderStatus = $this -> getPickOrderStatus();
+
+        $orderTypeModel = new OrderTypeModel();
+        $orderResult = $orderTypeModel -> alias('a')
+            -> join('inner join ebay_order as b on a.ebay_id = b.ebay_id')
+            -> where([
+                'a.pick_status' => 1,
+                'b.ebay_warehouse' => 196,
+                'b.ebay_carrier' => ['in', $this -> allowCarriers],
+                'b.ebay_combine' => ['neq', 1],
+                'b.ebay_status'  => ['in', $orderStatus],
+            ])
+            -> field('b.ebay_carrier, count(a.id) as counts')
+            -> group('b.ebay_carrier')
+            -> select();
+
+        foreach ($resultArr as $key => $value) {
+            $carrierTypes = $value['sub'];
+            foreach ($orderResult as $k => $v) {
+                if (isset($carrierTypes[$v['ebay_carrier']])) {
+                    $resultArr[$key]['sub'][$v['ebay_carrier']] .= '=>'.$v['counts'];
+                    $resultArr[$key]['total'] += $v['counts'];
+                }
+            }
+        }
+
+        $this -> carrierCompanyArr = $resultArr;
+        $this -> display();
+    }
+
+
+    /**
+     * @param $carrierId
+     * @param $types
+     */
+    public function getOrderListByCarrier($carrierId, $types)
+    {
+        $carrierName = (new CarrierModel())
+            -> where(['id' => $carrierId])
+            -> getField('name');
+        $orderStatus = $this -> getPickOrderStatus();
+
+        $map = [
+            'a.ebay_carrier' => $carrierName,
+            'b.pick_status'  => 1,
+            'a.ebay_combine' => ['neq', 1],
+            'a.ebay_status'  => ['in', $orderStatus],
+        ];
+
+        if (!in_array('0', $types)) {
+            $map['b.type'] = ['in', $types];
+        }
+
+        $orderModel = new EbayOrderModel();
+
+        $counts = $orderModel -> alias('a')
+            -> join('inner join order_type as b on a.ebay_id = b.ebay_id')
+            -> where($map)
+            -> count();
+
+        $pageObj = new Page($counts, $this -> pageSize);
+        $limit   = $pageObj -> firstRow.','. $pageObj -> listRows;
+        $pageStr = $pageObj -> show();
+        // 因为不再使用超链接 所以将其超链接破坏掉
+        $pageStr = str_replace('href', 'data-link', $pageStr);
+
+        $orderInfo = $orderModel -> alias('a')
+            -> join('inner join order_type as b on a.ebay_id = b.ebay_id')
+            -> where($map)
+            -> field('a.ebay_id, a.ebay_username, a.ebay_countryname, a.ebay_addtime, a.orderweight')
+            -> limit($limit)
+            -> select();
+
+        $this -> assign('orderInfo', $orderInfo);
+        $this -> assign('pageStr', $pageStr);
+        ob_start(function_exists('ob_gzhandler') ? 'ob_gzhandler' : null);
+        $this -> display('tableData');
+        $pageContent = ob_get_clean();
+        echo $pageContent;
+    }
+
+
+    /**
+     * @param $companyId
+     * @param $types
+     */
+    public function getOrderListByCompany($companyId, $types)
+    {
+        $carrierNameArr = (new CarrierModel())
+            -> where(['CompanyName' => $companyId])
+            -> getField('id, name', true);
+
+        foreach($carrierNameArr as $key => $name) {
+            if (!in_array($name, $this -> allowCarriers)) {
+                unset($carrierNameArr[$key]);
+            }
+        }
+
+        $orderStatus = $this -> getPickOrderStatus();
+
+        $map = [
+            'a.ebay_carrier' => ['in', $carrierNameArr],
+            'b.pick_status' => 1,
+            'a.ebay_combine' => ['neq', 1],
+            'a.ebay_status'  => ['in', $orderStatus]
+        ];
+
+        if (!in_array('0', $types)) {
+            $map['b.type'] = ['in', $types];
+        }
+
+        $orderModel = new EbayOrderModel();
+
+        $counts = $orderModel -> alias('a')
+            -> join('inner join order_type as b on a.ebay_id = b.ebay_id')
+            -> where($map)
+            -> count();
+
+        $pageObj = new Page($counts, $this -> pageSize);
+        $limit   = $pageObj -> firstRow.','.$pageObj -> listRows;
+        $pageStr = $pageObj -> show();
+        // 因为不再使用超链接 所以将其超链接破坏掉
+        $pageStr = str_replace('href', 'data-link', $pageStr);
+
+        $orderInfo = $orderModel -> alias('a')
+            -> join('inner join order_type as b on a.ebay_id = b.ebay_id')
+            -> where($map)
+            -> field('a.ebay_id, a.ebay_username, a.ebay_countryname, a.ebay_addtime, a.orderweight')
+            -> limit($limit)
+            -> select();
+
+        $this -> assign('orderInfo', $orderInfo);
+        $this -> assign('pageStr', $pageStr);
+        ob_start(function_exists('ob_gzhandler') ? 'ob_gzhandler' : null);
+        $this -> display('tableData');
+        $pageContent = ob_get_clean();
+        echo $pageContent;
+    }
+
+
+    /**
+     * 更新左侧菜单的订单的统计数量
+     * @param $companyId
+     * @param $types
+     */
+    public function updateLeftOrderCount($companyId, $types)
+    {
+        $carrierModel = new EbayCarrierModel();
+        $carriers = $carrierModel
+            -> where(['CompanyName' => $companyId])
+            -> getField('id, name', true);
+
+        $allowCarriers = [];
+        foreach ($carriers as $key => $val) {
+            if (in_array($val, $this -> allowCarriers)) {
+                $allowCarriers[$key] = $val;
+            }
+        }
+
+        $orderStatus = $this -> getPickOrderStatus();
+
+        $map = [];
+        $map['b.ebay_carrier'] = ['in', $allowCarriers];
+        $map['a.pick_status']  = 1;
+        $map['b.ebay_combine'] = ['neq', 1];
+        $map['b.ebay_status']  = ['in', $orderStatus];
+
+        if (!in_array('0', $types)) {
+            $map['a.type'] = ['in', $types];
+        }
+
+        $orderType = new OrderTypeModel();
+        $carrierCountsResult = $orderType -> alias('a')
+            -> join('inner join ebay_order as b on a.ebay_id = b.ebay_id')
+            -> where($map)
+            -> group('b.ebay_carrier')
+            -> getField('b.ebay_carrier, count("a.id") as counts', true);
+
+        $total = 0;
+        $newResult = [];
+        foreach ($allowCarriers as $k => $v) {
+            $newResult[$k] = isset($carrierCountsResult[$v]) ? $carrierCountsResult[$v] : 0;
+            $total += $carrierCountsResult[$v];
+        }
+
+        echo json_encode(['sum' => $total, 'data' => $newResult]);
+    }
+
+
+    /**
+    *测试人员谭 2017-05-22 10:19:36
+    *说明:
+     * 生成捡货单的时候，
+    订单——>分解——>数组准备好——>循环——>hkerp标记为已经生成了捡货单——>
+    ——>成功——> 写入捡货单 / 捡货单详情
+     *
+     * 参数：$companyid 物流公司ID
+     *      $carrier  运输方式（如果有这个运输方式则 物流公司id 无效）
+     *      $bill     逗号隔开的大量订单号
+     *      $isallpage 是否是 某个运输公司/方式下的所有订单 （如果是1 忽略 $bill 参数）
+     *
+     *      $includetype1  单品/单货，
+     *      $includetype2  单品多件，
+     *      $includetype3  多品，
+     *
+    */
+    // 生成捡货单子
+    public function  CreatePickOrder() {
+
+        ini_set('memory_limit', '1516M');
+
+        set_time_limit(800);
+
+
+        $companyid = I("companyid");
+        $carrier   = I("carrier");
+        $bill      = I("bills");
+        $isallpage = I("isallpage");
+        $includeType1=I("includetype1"); //单品/单货，
+        $includeType2=I("includetype2"); //单品多件，
+        $includeType3=I("includetype3"); //多品，
+
+        $includeType1=$includeType1=='true'?1:0;
+        $includeType2=$includeType2=='true'?1:0;
+        $includeType3=$includeType3=='true'?1:0;
+        $isallpage   = $isallpage=='true'?1:0;
+
+        if($isallpage==''&&$bill==''){
+            echo '<div style="color:#a11">具体订单号和</div>';
+            return;
+        }
+
+
+        if($isallpage){
+            $bill='';
+        }
+
+
+
+        if($carrier){
+            $companyid='';
+        }
+
+        if($carrier==''&&$companyid==''){
+            echo '<div style="color:#a11">运输方式或物流公司必须提交一个!</div>';
+            return;
+        }
+
+        $data['companyid']    = $companyid;
+        $data['carrier']      = $carrier;
+        $data['bill']         = $bill;
+        $data['isallpage']    = $isallpage;
+        $data['includeType1'] = $includeType1;
+        $data['includeType2'] = $includeType2;
+        $data['includeType3'] = $includeType3;
+
+        $PickOrder=new CreatePickService();
+
+        $PickOrder->CreatePickOrder($data,$this->allowCarriers);
+
+    }
+
+    function test(){
+/*        $PickOrder=new CreatePickService();
+        $arr=$PickOrder->getAllCarrierByCompanyid(53);
+        //debug($this->allowCarriers);
+        $PickOrder=new PickOrderModel('','',C('DB_CONFIG2'));
+        debug($PickOrder->CreateAordersn());*/
+    }
+
+
+    /**
+     * 查找货找单可以进行的订单的状态
+     */
+    public function getPickOrderStatus()
+    {
+        if (!$this -> pickAbleStatus) {
+
+            $ebayConfig00 = new EbayConfigModel();
+            $pickStatus   = $ebayConfig00->getField('pick_order_status');
+
+            $orderStatusArr = explode(',', $pickStatus);
+            unset($ebayConfig00, $pickStatus);
+
+            foreach ($orderStatusArr as $key => $val) {
+                if (trim($val)) { $orderStatusArr[$key] = trim($val);}
+            }
+            $this -> pickAbleStatus = $orderStatusArr;
+        } else {
+            $orderStatusArr = $this -> pickAbleStatus;
+        }
+        return $orderStatusArr;
+    }
+
+}

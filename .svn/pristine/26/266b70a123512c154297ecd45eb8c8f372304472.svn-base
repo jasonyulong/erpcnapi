@@ -1,0 +1,96 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2017/11/16
+ * Time: 13:50
+ */
+namespace Order\Controller;
+
+use Common\Model\EbayOnhandleModel;
+use Order\Model\PickAbnormalitySkuModel;
+use Package\Service\CreateSingleOrderService;
+use Think\Controller;
+
+class PickingAbnormalitySkuController extends Controller
+{
+    /**
+     * @desc 页面展示
+     * @Author leo
+     */
+    public function index()
+    {
+        if (!can('picking_abnormality_sku')) {
+            echo "<h1 style='color: red'> 您没有相关权限！ </h1>";
+            exit;
+        }
+        $abnormalitySkuModel = new PickAbnormalitySkuModel();
+        $between[] = strtotime(date('Y-m-d'));
+        $between[] = strtotime(date('Y-m-d') . " 23:59:59");
+        $map['addtime'] = ['between', $between];
+        $toDayCount = $abnormalitySkuModel->field("COUNT(DISTINCT sku) as skucount,sum(qty) as qtycount")->where($map)->find();
+        $datalist = $abnormalitySkuModel->field('sku,qty,picker')->where($map)->order('addtime desc')->limit(20)->select();
+        $this->assign('toDayCount', $toDayCount);
+        $this->assign('datalist', $datalist);
+        $this->display();
+    }
+
+    /**
+     * @desc 保存sku的扫描记录
+     * @Author leo
+     */
+    public function saveAbnormalitySku()
+    {
+        $abnormalitySkuModel = new PickAbnormalitySkuModel();
+        $store_id            = C('CURRENT_STORE_ID');
+        $onhandleModel       = new EbayOnhandleModel($store_id);
+        $sku                 = trim($_POST['sku']);
+        $where['goods_sn']   = $sku;
+        $pickServer          = new CreateSingleOrderService();
+        $is_on               = $onhandleModel->field('g_location')->where($where)->find();
+
+        $between[] = strtotime(date('Y-m-d'));
+        $between[] = strtotime(date('Y-m-d') . " 23:59:59");
+        $map['addtime'] = ['between', $between];
+        $map['sku'] = $sku;
+
+        if ($is_on) {
+            $picker   = $pickServer->getPicker($is_on['g_location']);
+            $addData  = [
+                'sku'     => $sku,
+                'picker'  => $picker,
+                'addtime' => time(),
+                'adduser' => session('truename'),
+                'qty'     => 1,
+            ];
+            $map['picker'] = $picker;
+            $is_id    = $abnormalitySkuModel->field('id,qty')->where($map)->find();
+            $newsku = 0;
+            if($is_id){
+                $newQty = $is_id['qty']+1;
+                $saveData  = [
+                    'qty' => $newQty,
+                    'addtime' => time(),
+                ];
+                $res      = $abnormalitySkuModel->where(['id'=>$is_id['id']])->save($saveData);
+            }else{
+                $newQty = 1;
+                $newsku = 1;
+                $res      = $abnormalitySkuModel->add($addData);
+            }
+            $jsonData = ['status' => 1, 'sku' => $sku, 'picker' => $picker,'qty'=>$newQty,'newsku'=>$newsku];
+            if (!$res) {
+                $msg      = "扫描异常";
+                $jsonData = ['status' => 0, 'msg' => $msg];
+            }
+        } else {
+            $msg      = '未找到sku记录';
+            $jsonData = ['status' => 0, 'msg' => $msg];
+        }
+        $this->ajaxReturn($jsonData);
+    }
+
+}
+
+
+

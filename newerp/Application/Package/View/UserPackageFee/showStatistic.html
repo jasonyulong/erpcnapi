@@ -1,0 +1,159 @@
+<extend name="Public/groupBase"/>
+
+<block name="linkrel">
+
+    <style type="text/css">
+
+        .btn {
+            border-radius: 2px;
+        }
+
+    </style>
+
+</block>
+
+
+<block name="bread">
+    <li>
+        <a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a>
+    </li>
+    <li>
+        <a class="m-r-xs"> 订单包装费用统计</a>
+    </li>
+</block>
+
+
+
+<block name="content">
+
+    <div class="container-fluid">
+        <!--头部条件搜索框-->
+        <div class="row" style="margin-bottom: 10px">
+            <form action="__CONTROLLER__/showStatistic" method="post" onSubmit="return checkDate();">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <label for="timeArea_start">开始时间点：</label>
+                        <input type="text" class="form-control" value="{$timeCondition['timeArea_start']}" name="timeArea_start" placeholder="开始时间点" onclick="laydate({format:'YYYY-MM-DD'})" id="timeArea_start"/>
+                    </div>
+
+                    <div class="col-xs-3">
+                        <label for="timeArea_start">结束时间点：</label>
+                        <input type="text" class="form-control" value="{$timeCondition['timeArea_end']}" name="timeArea_end" onclick="laydate({format:'YYYY-MM-DD'})" placeholder="结束时间点" id="timeArea_end"/>
+                    </div>
+
+                    <div class="col-xs-2" style="margin-top: 21px">
+                        <div>
+                            <button class="btn btn-sm btn-info"> 查询 </button>
+                            <a href="javascript:" onclick="prints()"> 打印 </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 统计数据结果 -->
+        <div class="row">
+            {$html}
+        </div>
+
+        <!--  -->
+        <div class="row">
+
+        </div>
+    </div>
+
+</block>
+
+<block name="src_js">
+    <!-- laydate -->
+    <script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+
+    <script type="application/javascript">
+
+        function prints(){
+            var url='t.php?s=/Package/UserPackageFee/showStatisticPrint'+"&timeArea_start="+$("#timeArea_start").val()+'&timeArea_end='+$("#timeArea_end").val();
+            window.open(url,'_blank')
+        }
+
+        function showDetail(user){
+            var timeArea_start = $('input[name="timeArea_start"]').val();
+            var timeArea_end   = $('input[name="timeArea_end"]').val();
+            var params = "&user=" + user +'&timeArea_start=' + timeArea_start + '&timeArea_end=' + timeArea_end;
+
+            layer.open({
+                type   : 2,
+                title  : '包装人员:'+user,
+                area   : ['40%', '50%'],
+                maxmin : true,
+                shadeClose: true,
+                scrollbar : false,
+                content: '{:U("UserPackageFee/showDetails")}' + params
+            });
+        }
+
+        /**
+         * 判断时间是否超过一个月
+         * @author xiao
+         * @date 2018-04-06
+         */
+        function checkDate() {
+            var beginTime = $.trim($('input[name="timeArea_start"]').val());
+            var endTime   = $.trim($('input[name="timeArea_end"]').val());
+            var time1 = new Date(beginTime).getTime();
+            var time2 = new Date(endTime).getTime();
+            if(beginTime == ''){
+                alert("开始时间不能为空");
+                return false;
+            }
+            if(endTime == ''){
+                alert("结束时间不能为空");
+                return false;
+            }
+            if(time1 > time2){
+                alert("开始时间不能大于结束时间");
+                return false;
+            }
+            //判断时间跨度是否大于1个月
+            var arr1 = beginTime.split('-');
+            var arr2 = endTime.split('-');
+            arr1[1] = parseInt(arr1[1]);
+            arr1[2] = parseInt(arr1[2]);
+            arr2[1] = parseInt(arr2[1]);
+            arr2[2] = parseInt(arr2[2]);
+            var flag = true;
+            if(arr1[0] == arr2[0]){ //同年
+                if(arr2[1]-arr1[1] > 1){ //月间隔超过1个月
+                    flag = false;
+                }else if(arr2[1]-arr1[1] == 1){ //月相隔1个月，比较日
+                    if(arr2[2] > arr1[2]){ //结束日期的日大于开始日期的日
+                        flag = false;
+                    }
+                }
+            }else{ //不同年
+                if(arr2[0] - arr1[0] > 1){
+                    flag = false;
+                }else if(arr2[0] - arr1[0] == 1){
+                    if(arr1[1] < 12){ //开始年的月份小于12时，不需要跨年
+                        flag = false;
+                    }else if(arr1[1]+1-arr2[1] < 12){ //月相隔大于1个月
+                        flag = false;
+                    }else if(arr1[1]+1-arr2[1] == 12){ //月相隔1个月，比较日
+                        if(arr2[2] > arr1[2]){ //结束日期的日大于开始日期的日
+                            flag = false;
+                        }
+                    }
+                }
+            }
+            if(!flag){
+                alert("查询区间不能超过一个月");
+            }
+            return flag;
+        }
+    </script>
+</block>
+
+
+
+
+
+

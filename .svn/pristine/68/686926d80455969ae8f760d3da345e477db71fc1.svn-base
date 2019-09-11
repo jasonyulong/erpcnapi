@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css">
+    <link rel="stylesheet" type="text/css" href="/newerp/Public/css/custom.css">
+    <link href="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.css" rel="stylesheet">
+    <script src="/newerp/Public/js/jquery.js"></script>
+    <script src="/newerp/Public/layer/layer.js"></script>
+    <script type="text/javascript" src="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.jquery.min.js"></script>
+    <script src="/newerp/Public/js/plugins/layer/laydate/laydate.js"></script>
+    <style>
+        th[type=sort] {
+            cursor: pointer;
+        }
+
+        .text-primary {
+            color: #1ab394;
+        }
+
+        .search-bar > div > li, .search-bar > div > div > li {
+            width: 120px;
+            /*float: left;*/
+            margin: 5px;
+            display: inline-block;
+            height: 30px;
+        }
+
+        .search-bar > div > li, .search-bar > div > div > li {
+            width: 120px;
+            /*float: left;*/
+            margin: 5px;
+            display: inline-block;
+            height: 30px;
+        }
+
+        .ibox-content {
+            padding: 0
+        }
+
+        .search-bar > div > .searchTitle, .search-bar > div > div > .searchTitle {
+            line-height: 30px;
+        }
+
+        .custom-table th {
+            font-weight: normal;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .custom-table td {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /*.chosen-container .chosen-single {*/
+        /*height: 30px;*/
+        /*line-height: 30px;*/
+        /*border: 1px solid #ccc;*/
+        /*}*/
+
+        .input-group {
+            margin: 5px 5px;
+        }
+
+        .form-control {
+            border: 1px solid #ccc;
+            padding: 0px 12px;
+        }
+
+        .form-control:focus {
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+        }
+
+        .chosen-container .chosen-single {
+            height: 30px;
+            line-height: 30px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<div style="text-align: right; padding-right: 100px;">
+<button onclick="window.open('{:U("OrderCrossStockList/viewNote")}&storeid=<?php echo $storeid;?>','_blank');">打印</button>
+</div>
+<div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:210mm;background:#fff;">
+    <table class="table custom-table">
+        <thead>
+        <th>仓库</th>
+        <th>SKU</th>
+        <th>可使用</th>
+        <th>还需集多少个</th>
+        <th>库位</th>
+        </thead>
+        <tbody>
+        <?php foreach($orderInfo as $item):?>
+        <tr>
+            <td><?php echo $item['storeid']==196?'1号仓':'2号仓'?></td>
+            <td><?php echo $item['sku'];?></td>
+            <td><?php echo $item['count'];?></td>
+            <td><?php $num = $item['qty']-$item['real_qty']; echo '<span style="color:#911;font-size:24px;">'.$num.'</span>';?></td>
+            <td><?php echo $item['g_location']?></td>
+        </tr>
+        <?php endforeach;?>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

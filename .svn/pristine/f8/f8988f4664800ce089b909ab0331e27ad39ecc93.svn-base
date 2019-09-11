@@ -1,0 +1,60 @@
+<?php
+/**
+ * User: 王模刚
+ * Date: 2017/10/26
+ * Time: 20:23
+ */
+namespace Common\Model;
+
+/**
+ * ebay_goods model
+ * 王模刚
+ * 2017 10 26
+ */
+use Mid\Service\BaseService;
+use Think\Model;
+
+class ErpEbayGoodsModel extends Model
+{
+    protected $tableName = 'ebay_goods';
+
+    /**
+     * 更新或添加产品
+     * @author Simon 2017/11/21
+     * @return mixed
+     */
+    public function updates($items) {
+        //更新或新增成功产品id
+        $successItems = [];
+        foreach ($items as $item) {
+            $successItem = $this->update($item);
+            if (!empty($successItem)) {
+                $successItems[] = $successItem;
+            }
+        }
+        return !empty($successItems) ? $successItems : false;
+    }
+
+    /**
+     * 单个更新或新增
+     * @author Simon 2017/11/21
+     */
+    public function update($item) {
+        $existItem               = $this->where([
+            'goods_id' => $item['goods_id']
+        ])->find();
+        $item['w_update_time'] = date('Y-m-d H:i:s', time());
+        if (empty($existItem)) {
+            $item['w_add_time'] = date('Y-m-d H:i:s', time());
+            $id                   = $this->add($item);
+            return $id ? ['goods_id' => $id, 'goods_sn' => $item['goods_sn']] : false;
+        } else {
+            $status = $this->where([
+             'goods_id' => $item['goods_id']
+            ])->save($item);
+            return $status !== false ? ['goods_id' => $item['goods_id'], 'goods_sn' => $item['goods_sn']] : false;
+        }
+    }
+
+
+}

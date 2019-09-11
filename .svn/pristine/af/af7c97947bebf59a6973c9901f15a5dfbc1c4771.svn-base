@@ -1,0 +1,164 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <col style="width: 62%">
+        <col style="width: 12%">
+        <col style="width: 6%">
+        <col style="width: 20%">
+        <tr>
+            <td align="left" valign="top" colspan="4" style="border-bottom-style: none">
+                <br>
+                <div>
+                <div style="border: 2px solid black;border-right-style:none;width: 136px;font-size: 9px;line-height: 15px;float: left;margin-left: 112px;">
+                If undeliverable please return to<br>
+                <span style="font-size: 13px;font-weight: bold">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PO BOX 9852</span><br>
+                1934 EMC-Brucargo-Belguim
+                </div>
+                <div style="position:absolute;border: 2px solid black;width: 100px;font-size: 9px;line-height: 15px;right: 25px;">
+                    <br>
+                <span style="font-size: 13px;font-weight: bold">&nbsp;&nbsp;&nbsp;BE. PP 9852</span><br>
+                BELGIE(N)-BELGIQUE
+                </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" style="border-bottom-style: none;">
+                <div>
+                    <div style="border:2px solid black; float:right;font-size: 19px;font-weight: bold;padding: 1px;width: 55px;text-align: center;margin-right: 15px;margin-top: 8px;">
+                        {$Order['zonecode']}
+                    </div>
+                </div>
+
+            </td>
+        </tr>
+        <tr>
+            <td class="ffa font9 line_break" style="word-break:break-all;word-wrap:break-word;width:60mm;border-bottom-style: none;border-top-style: none" colspan="4">
+                <p style="font-size: 16px;">To:</p>
+                <b>{$Order['ebay_username']}</b><br>
+                {$Order['ebay_street']} ,{$Order['ebay_street1']}<br>
+                {$Order['ebay_city']} ,{$Order['ebay_state']}<br>
+                <b>ZIP:</b>{$Order['ebay_postcode']}&nbsp;  Tel:&nbsp;{$Order['ebay_phone']},{$Order['ebay_phone1']}<br>
+                {$Order['ebay_countryname']}, {$Order['countrycode']},{$Order['countrycn']}<br>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font13 ffa" align="center" style="border-top-style: none;border-bottom-style: none">
+                <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" width="90%" height="60"/><br/>
+                {$Order['ebay_tracknumber']}<br>
+            </td>
+        </tr>
+
+        <?php
+                $value = round($Order['sbjz'],3);
+                $shenbao = mb_substr($Order['shenbao'], 0, 70);
+                $weight = round($Order['orderweight'], 4)*1000;
+                $descript = mb_substr($Order['yingwen'], 0, 40);
+            ?>
+        <tr>
+            <td colspan="4" style="text-align: right;border-top-style: none">
+                <br>
+                <div style="margin-right: 10px;">Order No.：{$Order['ebay_id']}</div>
+            </td>
+        </tr>
+    </table>
+    <!-- 页数-->
+    <div style="position: absolute;right: 5px;bottom: 1px;">
+        <span style="margin-right: 5px;font-size: 14px;">1/2</span>
+    </div>
+    <!--添加拣货代码-->
+
+    <div style="position: absolute;right: 145px;bottom: -2px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+    <div style="position: absolute;left:7px;bottom: 0px;">
+        <span style="margin-right: 5px;font-size: 12px;"><?php echo date('Y-m-d');?></span>
+    </div>
+</div>
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <col style="width: 50%">
+        <col style="width: 13%">
+        <col style="width: 17%">
+        <col style="width: 20%">
+
+        <tr>
+            <td colspan="4" align="left" valign="top">
+                <div>
+                <b>CN22</b><br>
+                <span style="margin-left: 30px;font-size: 15px;"><b>CUSTOMS DECLARATION</b></span><br>
+                <span style="margin-right: 20px;float: right;font-size: 11px;">May Be Opened officially</span><br><br>
+                <span style="margin-left: 30px;font-size: 11px;">Please check on approriate option</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="font8">
+                □ Gift&nbsp;□ Commercial sample
+            </td>
+            <td colspan="2" class="font8">
+                □ Documents
+            </td>
+            <td>
+                √□ Other
+            </td>
+        </tr>
+        <tr>
+            <td class="font8" align="center">Detailed descripition of contents</td>
+            <td class="font8" align="center">Quantity</td>
+            <td class="font8" align="center">Weight(g）</td>
+            <td class="font8" align="center">Value(US $)</td>
+        </tr>
+        <tr>
+            <td class="font8"  style="word-break:break-all;word-wrap:break-word">{$shenbao}...</td>
+            <td class="font8"  align="center">1</td>
+            <td class="font8"  align="center">{$weight}</td>
+            <td class="font8"  align="center">{$value}</td>
+        </tr>
+        <tr>
+            <td align="left" class="font8">
+                For commercial items only
+            </td>
+            <td class="font8" align="center">
+                Quantities
+            </td>
+            <td class="font8" align="center">
+                Total<br>weight(g)
+            </td>
+            <td class="font8" align="center">
+                Total<br>value(US $)
+            </td>
+        </tr>
+
+        <tr>
+            <td class="font8"  style="word-break:break-all;word-wrap:break-word"></td>
+            <td class="font8"  align="center">1</td>
+            <td class="font8"  align="center">{$weight}</td>
+            <td class="font8"  align="center">{$value}</td>
+        </tr>
+        <tr>
+            <td colspan="4" style="font-size: 8pt;line-height: 14px;">
+                I,the undersigned,whose name and address are given on the item,the particulars given in this declaration are correct and that this
+                item does not contain any dangerous article or articles prohibited by legislation or by postal or customs regulations
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                Date and sender's signature
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top: 10mm;word-break: break-all">
+        {$Order['skustr']}
+    </div>
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 2px;bottom: 1px;">
+        <span style="margin-right: 5px;font-size: 14px;">2/2</span>
+    </div>
+    <div style="position: absolute;right: 145px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+    <div style="position: absolute;left:7px;bottom: 1px;">
+        <span style="margin-right: 5px;font-size: 12px;"><?php echo date('Y-m-d');?></span>
+    </div>
+</div>

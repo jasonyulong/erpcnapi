@@ -1,0 +1,406 @@
+<?php
+
+namespace Package\Controller;
+
+use Common\Controller\CommonController;
+use Common\Model\ErpEbayGoodsModel;
+use Common\Model\OrderModel;
+use Package\Model\ApiCheckskuModel;
+use Package\Model\EbayGoodsModel;
+use Package\Model\OrderPackageModel;
+use Package\Model\PickOrderDetailModel;
+use Package\Model\PickOrderModel;
+use Package\Service\MakeBaleService;
+use Think\Cache\Driver\Redis;
+use Think\Page;
+
+/**
+ * Class CreatePickController
+ * @package Package\Controller
+ * 打包作业
+ */
+class OrderSkuController extends CommonController
+{
+
+    public $OrderStstus = array(
+        '0'   => '等待打印',
+        '1'   => '已打印未确认',
+        '2'   => '已经确认',
+        '3'   => '已经完成',
+        '100' => '废除',
+    );
+
+
+
+    public function index(){
+
+        $this->display();
+    }
+
+    /**
+    *测试人员谭 2018-07-23 11:41:29
+    *说明: SKU找在途的采购单子
+    */
+    public function SearchPkOrder(){
+        $sku=$_POST['sku'];
+
+        $html='<h1>最近3天的涉及到本SKU的所有单品</h1>';
+
+        $PickOrder=new PickOrderModel('','',C('DB_CONFIG_READ'));
+        $PickOrderDetail=new PickOrderDetailModel('','',C('DB_CONFIG_READ'));
+        $OrderModel=new OrderModel('','',C('DB_CONFIG_READ'));
+
+        $pkorder1='PK'.date('ymd'); // 今天
+        $pkorder2='PK'.date('ymd',strtotime('-1 days')); // 昨天
+        $pkorder3='PK'.date('ymd',strtotime('-2 days')); // 昨天
+
+        $map['type']=['in',[1,2]];
+        $map['_string']=" (ordersn like '$pkorder1%' or ordersn like '$pkorder2%' or ordersn like '$pkorder3%')";
+
+
+
+        $ordersns=$PickOrder->where($map)->field('ordersn,type')->select();
+
+
+        if(count($ordersns)==0){
+            $html='<h1>最近3天没有相关拣货单</h1>';
+            echo $html;
+            return;
+        }
+
+        $TypeArr=[
+            1=>'单货',
+            2=>'多货',
+        ];
+
+
+        $Ordersns=[];
+        $os=[];
+
+        foreach ($ordersns as $list){
+            $os[]=$list['ordersn'];
+            $Ordersns[$list['ordersn']]=$list['type'];
+        }
+
+
+        $map=[];
+        $map['ordersn']=['in',$os];
+        $map['sku']=$sku;
+
+
+        $field='is_baled,is_delete,isjump,is_normal,scaning,scan_user,scan_time,ordersn,ebay_id,qty,sortorder';
+//        $field='is_baled,is_delete,isjump,is_normal,scaning,scan_user,scan_time,ordersn,ebay_id,qty';
+
+        $Rs=$PickOrderDetail->where($map)->field($field)->order('is_baled asc')->select();
+
+
+        $scaningArr=[
+            0=>'未扫描',
+            1=>'正在扫描',
+            2=>'扫描完成'
+        ];
+
+
+        $html.='<table border="1"><tr>';
+        $html.='<td>订单号</td>';
+        $html.='<td>包装状态</td>';
+        $html.='<td>订单状态</td>';
+        $html.='<td>拣货单号</td>';
+        $html.='<td>单货/多货</td>';
+        $html.='<td>是否移除</td>';
+        $html.='<td>是否跳过</td>';
+        $html.='<td>是否正常</td>';
+        $html.='<td>扫描状态</td>';
+        $html.='<td>包装员</td>';
+        $html.='<td>包装时间</td>';
+        $html.='<td>出单优先级</td></tr>';
+
+        $ebay_ids=[];
+
+        foreach ($Rs as $List){
+            $ebay_ids[]=$List['ebay_id'];
+        }
+
+        $Orders=[];
+        $OrdersCarrier=[];
+
+        if(count($ebay_ids)>0){
+            $Orders=$OrderModel->where(['ebay_id'=>['in',$ebay_ids]])->getField('ebay_id,ebay_status',true);
+            $OrdersCarrier=$OrderModel->where(['ebay_id'=>['in',$ebay_ids]])->getField('ebay_id,ebay_carrier',true);
+        }
+
+        //10*10 还是 10*15
+        $CarrierType15=include dirname(dirname(THINK_PATH)).'/newerp/Application/Transport/Conf/config.php';
+        $CarrierType15=$CarrierType15['CARRIER_TEMPT_15'];
+
+
+        $statusArr = [
+            '1723' => '可打印',
+            '1724' => '待包装',
+            '1745' => '待打印',
+            '2009' => '出库待称重',
+            '2' => '已发货',
+            '1731' => '回收站',
+        ];
+
+        $deleteArr=[
+            0=>'未移除',
+            1=>'异常移除',
+        ];
+
+        $jumpArr=[
+            0=>'未跳过',
+            1=>'已跳过',
+        ];
+
+        $normalArr=[
+            0=>'当前包裹不正常',
+            1=>'当前包裹正常',
+        ];
+
+        foreach ($Rs as $List){
+            $ebay_id = $List['ebay_id'];
+            $ordersn = $List['ordersn'];
+            $scan_time = $List['scan_time'];
+            $scan_user = $List['scan_user'];
+            $scaning = $List['scaning'];
+            $is_normal = $List['is_normal'];
+            $is_jump = $List['isjump'];
+            $is_delete = $List['is_delete'];
+            $is_baled = $List['is_baled'];
+            $qty = $List['qty'];
+            $sortOrder = date("Y-m-d H:i:s",$List['sortorder']);
+
+            if ($scan_time > 0) {
+                $scan_time = date('Y-m-d H:i:s', $scan_time);
+            } else {
+                $scan_time = '';
+            }
+
+            $scaning_str = $scaningArr[$scaning];
+
+            $status_str = $statusArr[$Orders[$ebay_id]];
+
+            $lableType='10*10';
+            if(isset($CarrierType15[$OrdersCarrier[$ebay_id]])){
+                $lableType='10*15';
+            }
+
+            $type=$Ordersns[$ordersn];
+
+            $type_str=$TypeArr[$type];
+
+            $baledStr='未包';
+
+            if($is_baled){
+                $baledStr='已包';
+            }
+
+            $html.='<tr>';
+            $html.='<td  class="alinks" onclick="showLogs('.$ebay_id.')">'.$ebay_id.'('.$lableType.')</td>';
+            $html.='<td>'.$baledStr.'</td>';
+            $html.='<td>'.$status_str.'</td>';
+            $html.='<td>'.$ordersn.'</td>';
+            $html.='<td>'.$type_str.'('.$qty.')</td>';
+            $html.='<td>'.$deleteArr[$is_delete].'</td>';
+            $html.='<td>'.$jumpArr[$is_jump].'</td>';
+            $html.='<td>'.$normalArr[$is_normal].'</td>';
+            $html.='<td>'.$scaning_str.'</td>';
+            $html.='<td>'.$scan_user.'</td>';
+            $html.='<td>'.$scan_time.'</td>';
+            $html.='<td>'.$sortOrder.'</td>';
+            $html.='</tr>';
+        }
+
+        $html.='</table>';
+
+        echo $html;
+    }
+
+
+    /**
+    *测试人员谭 2018-07-23 15:54:02
+    *说明: 多频多货
+    */
+    public function SearchPkOrderType3(){
+        $sku=$_POST['sku'];
+        $html='<h1>最近3天的涉及到本SKU的所有多品</h1>';
+
+        $PickOrder=new PickOrderModel('','',C('DB_CONFIG_READ'));
+        $PickOrderDetail=new PickOrderDetailModel('','',C('DB_CONFIG_READ'));
+        $OrderModel=new OrderModel('','',C('DB_CONFIG_READ'));
+
+        $pkorder1='PK'.date('ymd'); // 今天
+        $pkorder2='PK'.date('ymd',strtotime('-1 days')); // 昨天
+        $pkorder3='PK'.date('ymd',strtotime('-2 days')); // 昨天
+
+        $map['type']=3;
+        $map['_string']=" (ordersn like '$pkorder1%' or ordersn like '$pkorder2%' or ordersn like '$pkorder3%')";
+
+        $ordersns=$PickOrder->where($map)->field('ordersn,type')->select();
+
+
+
+        if(count($ordersns)==0){
+            $html='<h1>最近3天没有相关多品多货拣货单</h1>';
+            echo $html;
+            return;
+        }
+
+        $TypeArr=[
+            1=>'单货',
+            2=>'多货',
+            3=>'多品多货',
+        ];
+
+
+        $Ordersns=[];
+        $os=[];
+
+        foreach ($ordersns as $list){
+            $os[]=$list['ordersn'];
+            $Ordersns[$list['ordersn']]=$list['type'];
+        }
+
+
+        $map=[];
+        $map['ordersn']=['in',$os];
+        $map['sku']=$sku;
+
+
+        $field='is_baled,is_delete,isjump,is_normal,scaning,scan_user,scan_time,ordersn,ebay_id,qty';
+
+        $Rs=$PickOrderDetail->where($map)->field($field)->order('is_baled asc')->select();
+
+
+        $html.='<table border="1"><tr>';
+        $html.='<td>订单号</td>';
+        $html.='<td>包装状态</td>';
+        $html.='<td>订单状态</td>';
+        $html.='<td>拣货单号</td>';
+        $html.='<td>单货/多货</td>';
+        $html.='<td>是否移除</td>';
+        $html.='<td>是否跳过</td>';
+        $html.='<td>是否正常</td></tr>';
+
+        $ebay_ids=[];
+
+        foreach ($Rs as $List){
+            $ebay_ids[]=$List['ebay_id'];
+        }
+
+        $Orders=[];
+        $OrdersCarrier=[];
+
+        if(count($ebay_ids)>0){
+            $Orders=$OrderModel->where(['ebay_id'=>['in',$ebay_ids]])->getField('ebay_id,ebay_status',true);
+            $OrdersCarrier=$OrderModel->where(['ebay_id'=>['in',$ebay_ids]])->getField('ebay_id,ebay_carrier',true);
+        }
+
+        //10*10 还是 10*15
+        $CarrierType15=include dirname(dirname(THINK_PATH)).'/newerp/Application/Transport/Conf/config.php';
+        $CarrierType15=$CarrierType15['CARRIER_TEMPT_15'];
+
+
+
+
+
+        $statusArr = [
+            '1723' => '可打印',
+            '1724' => '等待扫描',
+            '1745' => '等待打印',
+            '2009' => '出库待称重',
+            '2' => '已发货',
+            '1731' => '回收站',
+        ];
+
+        $deleteArr=[
+            0=>'未移除',
+            1=>'异常移除',
+        ];
+
+        $jumpArr=[
+            0=>'未跳过',
+            1=>'已跳过',
+        ];
+
+        $normalArr=[
+            0=>'当前包裹不正常',
+            1=>'当前包裹正常',
+        ];
+
+        foreach ($Rs as $List){
+            $ebay_id = $List['ebay_id'];
+            $ordersn = $List['ordersn'];
+//            $scan_time = $List['scan_time'];
+//            $scan_user = $List['scan_user'];
+//            $scaning = $List['scaning'];
+            $is_normal = $List['is_normal'];
+            $is_jump = $List['isjump'];
+            $is_delete = $List['is_delete'];
+            $is_baled = $List['is_baled'];
+            $qty = $List['qty'];
+
+/*            if ($scan_time > 0) {
+                $scan_time = date('Y-m-d H:i:s', $scan_time);
+            } else {
+                $scan_time = '';
+            }*/
+
+
+            $status_str = $statusArr[$Orders[$ebay_id]];
+
+
+            $lableType='10*10';
+            if(isset($CarrierType15[$OrdersCarrier[$ebay_id]])){
+                $lableType='10*15';
+            }
+
+
+            $type=$Ordersns[$ordersn];
+
+            $type_str=$TypeArr[$type];
+
+            $baledStr='未包';
+
+            if($is_baled){
+                $baledStr='已包';
+            }
+
+            $html.='<tr>';
+            $html.='<td class="alinks" onclick="showLogs('.$ebay_id.')">'.$ebay_id.'('.$lableType.')</td>';
+            $html.='<td>'.$baledStr.'</td>';
+            $html.='<td>'.$status_str.'</td>';
+            $html.='<td>'.$ordersn.'</td>';
+            $html.='<td>'.$type_str.'('.$qty.')</td>';
+            $html.='<td>'.$deleteArr[$is_delete].'</td>';
+            $html.='<td>'.$jumpArr[$is_jump].'</td>';
+            $html.='<td>'.$normalArr[$is_normal].'</td>';
+//            $html.='<td>'.$scaning_str.'</td>';
+//            $html.='<td>'.$scan_user.'</td>';
+//            $html.='<td>'.$scan_time.'</td>';
+            $html.='</tr>';
+        }
+
+        $html.='</table>';
+
+        echo $html;
+    }
+
+
+
+    public function StockList(){
+        $ApiCheck   = new ApiCheckskuModel();
+
+        $field='ebay_id,addtime,packinguser,in_process';
+
+        $Rs=$ApiCheck->where(['status'=>1])->field($field)->order('id asc')->limit(50)->select();
+        $total=$ApiCheck->where(['status'=>1])->count();
+
+        $this->assign('Orders',$Rs);
+        $this->assign('total',$total);
+        //packinguser
+        $this->display();
+
+    }
+}

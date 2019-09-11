@@ -1,0 +1,48 @@
+<?php
+    if($Order['ebay_carrier'] == '英国虚拟仓专线挂号-SM'){
+        $cssstr = 'height:150mm;width:105mm;margin-left:-8px';
+    }else{
+        $cssstr = 'height:150mm;width:100mm;';
+    }
+    if(in_array($Order['ebay_carrier'],['MyMall线上小包','JOOM-中欧挂号特货','JOOM-中欧平邮特货'])){
+        $cssstr ='height:104mm;width: 153mm;transform: rotate(90deg);margin-top: 77px;margin-left: -96px;';
+    }
+
+?>
+<div style="position:relative;width:100mm;min-height:150mm;max-height:150mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="{$cssstr}" class="view" src="{$Order['pdfimg']}"/>
+    <div style="position: absolute;right: 5px;bottom: 2px;border: 2px solid #4c4c4c">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<if condition="in_array($Order['ebay_carrier'],['英国虚拟仓专线挂号-SM']) ">
+    <div style="position: absolute;width:51mm;height: 26mm;margin-top:-400px;text-align: center;margin-left: 192px;background-color: white;">
+        <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="190" height="75"/>
+        <b style="font-size: 10pt;">{$Order['ebay_tracknumber']}</b>
+    </div>
+</if>
+<if condition="in_array($Order['ebay_carrier'],['JOOM-RU挂号特货']) ">
+    <div style="position: absolute;width:29mm;height: 15mm;margin-top:-522px;text-align: center;margin-left: 8px;background-color: white;">
+        <img src="../newerp/Public/img/joomLabelLg.png" alt="" width="103" height="53"/>
+    </div>
+</if>
+<div class="mod_second_lables" style="width:100mm;min-height:150mm;max-height:150mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

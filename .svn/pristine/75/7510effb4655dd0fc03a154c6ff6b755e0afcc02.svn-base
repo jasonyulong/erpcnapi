@@ -1,0 +1,335 @@
+<extend name="Public:index" />
+<block name="main">
+    <style type="text/css">
+       input{height: 20px;line-height: 20px;vertical-align:middle;   }
+      .wms_2{color:	#000;cursor: pointer}
+      .wms_3{color:	#E9967A;cursor: pointer}
+      .wms_5{color:#00FFFF;cursor: pointer}
+      .wms_2,.wms_3, .wms_5:hover{opacity: 0.8}
+      .getErp_5{cursor: pointer }
+      .cpStatus{margin-bottom: 5px;!important;}
+    </style>
+<div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+    <form>
+        <div class="form-inline">
+            <div class="input-group">
+                <div class="input-group-addon">订单号</div>
+                <input type="text" name="data" class="form-control input-sm" value="{$get.data}" placeholder="多个订单用英文逗号隔开">
+            </div>
+            <div class="input-group">
+                <div class="input-group-addon">检索类型</div>
+                <select id="deliver_goods" data-placeholder="订单状态" name="status">
+                        <option value="1" <if condition="$get['status'] eq 1">selected</if> >订单号</option>
+                        <option value="2"  <if condition="$get['status'] eq 2">selected</if>>跟踪号</option>
+                        <!-- <option value="3"  <if condition="$get['status'] eq 3">selected</if>>pxid</option> -->
+                    </select>
+            </div>
+            <button onclick="searchForm(this)" class="btn btn-primary btn-sm" type="button">搜索</button>
+            <button onclick="shows()" class="btn btn-primary btn-sm" type="button" style="background: red;border:1px solid red">高级</button>
+        </div>
+    </form>
+
+
+    <div style="display: none" id="show">
+         <label><input type='checkbox' name='checkStatus' value="211">全部订单号</label>
+        <volist name='ebayStatus' id="vo">
+            <label><input type='checkbox' name='checkStatus' value="{$key}">{$vo}</label> &nbsp;&nbsp;&nbsp;
+        </volist>
+         <button id="batchControlIntercept" class="btn btn-primary btn-sm" type="button" onclick="cpOrder();return false;">复制订单号</button>
+
+
+        <!--只有测试人员有权限-->
+        <if condition="strstr($_SESSION['truename'],'测试人员') || strstr($_SESSION['truename'],'吴荣华') || strstr($_SESSION['truename'],'邓桂友') || strstr($_SESSION['truename'],'配货员') ">
+            <div  >
+                <button id="cpStatus" class="btn btn-primary btn-sm" type="button" onclick="cpStatus();return false;">更改1号仓库订单状态</button>
+            </div>
+      </if>
+    </div>
+
+    <div>
+
+    </div>
+
+    <div style="color:red">禁止操作 已发货，有问题，已缺货等异常订单 </div>
+    <div style="wdidt:100%;height:10px"></div>
+    <table class="table custom-table">
+        <thead>
+            <th width="" style="text-align: left"><input type="checkbox" onclick="onChecked();return false;"></th>
+            <th width="15%" style="text-align: left">订单号</th>
+            <th width="15%" style="text-align: left">跟踪号</th>
+            <th width="15%" style="text-align: left">pxid</th>
+            <th width="15%" style="text-align: left">状态</th>
+            <th width="15%" style="text-align: left">物流渠道</th>
+            <th width="20%" style="text-align: left">异常</th>
+        </thead>
+
+        <volist name='lists' id="v">
+        <tr data-status = "{$v['ebay_status']}" data-ebay-id = "{$v['ebay_id']}" class="cuStatus">
+            <th width="" style="text-align: left"><input type="checkbox" value="{$v['ebay_id']}" class="ck"></th>
+            <td style="text-align: left">{$v['ebay_id']}</td>
+            <td style="text-align: left">
+                    ERP：{$v['ebay_tracknumber']}<br/>
+                    <span style="color:red">WMS：{$v['wms_tracknumber']}</span>
+            </td>
+            <td style="text-align: left">
+                    ERP：{$v['pxorderid']}<br/>
+                    <span style="color:red">WMS：{$v['wms_pxorderid']}</span>
+            </td>
+
+            <td style="text-align: left">
+                ERP：{$ebayStatus[$v['ebay_status']]}<br/>
+                <span style="color:red">WMS：{$ebayStatus[$v['wms_ebay_status']]}</span>
+            </td>
+
+            <td style="text-align: left">
+                {$v['ebay_carrier']}
+            </td>
+
+             <td style="text-align: left">
+               <if condition="in_array('-1',$v['wms_code'])">
+                   <span style="color:red">订单未同步 </span><br/>
+               <else/>
+                 <volist name="v.wms_code" id="code">
+                     <switch name="code" >
+                         <case value="-3"><span><a  class="getErp_5"  onclick="getTrachmeber($(this));return false"    data-id="{$v['ebay_id']}">跟踪号或pxid不一致[同步跟踪号]</a></span><br/></case>
+                         <case value="-5"><span><a  class="getErp_5" onclick="getPdf($(this));return false;"  data-id="{$v['ebay_id']}" >白单[获取面单]</a></span><br/></case>
+                         <case value="-6"><span>未扫描，请确认</span><br/></case>
+                         <case value="-7"><span>扫描等待传输中</span><br/></case>
+                         <case value="-8"><span>扫描成功回调失败，请确认库存是否足够或者当前sku是否为主sku</span><br/></case>
+                         <case value="-2"><span >状态不一致</span><br/></case>
+                    </switch>
+                 </volist>
+               </if>
+            </td>
+        </tr>
+       </volist>
+
+       <!-- 用于存放需要复制的ebay_id -->
+    </table>
+    <ul class="pagination">{$show}</ul>
+</div></body>
+<script type="text/javascript" src="/newerp/Public/js/clipboard.js"></script>
+<script>
+    $(function () {
+        $('select[name=add_user]').chosen({search_contains: true, width: '100%', allow_single_deselect: true});
+        $('#deliver_goods').chosen({search_contains: true, width: '120px', allow_single_deselect: true});
+    })
+
+    function shows(){
+        $("#show").show()
+    }
+
+    function searchForm(obj) {
+        var data = $(obj).closest('form').serialize();
+        data     = data.replace(/(&|^)(\w*?\d*?\-*?_*?)*?=?((?=&)|(?=$))/g, '');
+        data     = data.replace(/^&/g, '');
+        var url = '/t.php?s=/Order/Order/statusList';
+        if (url.indexOf('?') > 0) {
+            url += '&' + data;
+        } else {
+            url += '?' + data;
+        }
+        location.href = url;
+    }
+
+    //check value
+    function getEbayOrderReturn(){
+        var  eby = '';
+        $(".ck").each(function(){
+            if($(this).is(':checked')){
+                eby += $(this).val() + ",";
+            }
+        })
+
+        eby =eby.substring(0,eby.length-1);
+        return eby;
+    }
+
+    //copy ebay_id
+    function cpOrder(){
+        var status = getEbayOrderStauts();
+        var checkEbayorder = getEbayOrderReturn();
+        if(status ==  ''){
+              if(checkEbayorder == ''){
+                  alert('请选择需要复制的订单');
+                  return false;
+              }
+            var clipboard = new Clipboard('#batchControlIntercept', {
+                text: function() {
+                    return checkEbayorder;
+                }
+            });
+            collback(clipboard);
+            return false;
+        }else{
+            if(parseInt(status) == 211){
+                var clipboard = new Clipboard('#batchControlIntercept', {
+                    text: function() {
+                        return getEbayOrder();
+                    }
+                });
+                collback(clipboard);
+                return false;
+            }else{
+                var  statusArr = [];
+                statusArr = status.split(",");
+                var clipboard = new Clipboard('#batchControlIntercept', {
+                    text: function() {
+                        return getStatusEbayOrder(statusArr);
+                    }
+                });
+                collback(clipboard);
+                return false;
+            }
+        }
+    }
+
+    //  check status
+    function getEbayOrderStauts(){
+        var ebayStatus = '';
+        $("input[name='checkStatus']").each(function(){
+            if($(this).is(':checked')){
+                ebayStatus += $(this).val() + ",";
+            }
+        });
+       return  ebayStatus =ebayStatus.substring(0,ebayStatus.length-1) ;
+    }
+
+    //check order
+    function getEbayOrder(type){
+        var ebayOrder = '';
+        $(".cuStatus").each(function(){
+            ebayOrder += $(this).attr("data-ebay-id") + ",";
+        })
+       ebayOrder =ebayOrder.substring(0,ebayOrder.length-1) ;
+       return ebayOrder;
+    }
+
+    //callback
+    function collback(clipboard){
+        clipboard.on('success', function(e) {
+            alert("复制成功");
+        });
+        clipboard.on('error', function(e) {
+             alert("复制失败");
+        });
+        window.location.reload();
+    }
+
+
+    //根据状态复制订单号
+    function getStatusEbayOrder(statusArray){
+        var  ebayOrder = '';
+        $(".cuStatus").each(function(){
+            if($.inArray($(this).attr("data-status"),statusArray) >= 0){
+                 ebayOrder += $(this).attr("data-ebay-id") + ",";
+            }
+        })
+         ebayOrder =ebayOrder.substring(0,ebayOrder.length-1) ;
+        return ebayOrder;
+    }
+
+    //同步跟踪号
+    function getTrachmeber(_self){
+        //如果有批量提交这里做判断
+        var ebay_id = _self.attr('data-id');
+        if(confirm('确认要同步'+ebay_id+'订单吗？')){
+            var _url_ = "__URL__/synchronization";
+            var data = "id="+ebay_id;
+            var type = "post";
+            var asyncs = false;  //都是执行异步
+            var returnJson = ajaxPost(_url_,data,type,asyncs);
+            var returnText = $.parseJSON($.parseJSON(returnJson.responseJSON));
+            var msg = '';
+           if(returnText.status == 1){
+               msg = '订单'+returnText.success+'操作成功';
+               _self.remove();
+              alert(msg);
+              return false;
+           }else{
+               msg = '订单'+returnText.success+'操作失败';
+               alert(msg);
+               return false;
+           }
+        }
+    }
+
+    //公用同步ajax提交
+    function ajaxPost(_url_,data,type,asyncs){
+        return  $.ajax({
+            url:_url_,
+            data:data,
+            type:type,
+            async:asyncs,
+            dataType:'json',
+        })
+    }
+
+    function getPdf(_self){
+        var ebay_id = _self.attr('data-id');
+        if(ebay_id == ''){
+            alert('请选择要操作的订单');
+            return false;
+        }
+        var  _url = "__URL__/getPdfLabel/orderids/"+ebay_id;
+        window.open(_url,"_blank");
+    }
+
+    function  onChecked(){
+        $(".ck").each(function(){
+            this.checked = !this.checked;
+        })
+    }
+
+    //更改线下wms的状态
+    function cpStatus(){
+        layer.open({
+            type: 1,
+            btn:['确定','取消'],
+            area:  ["500px","300px"],
+            content: returnHtml(),
+            title:  '1号仓库状态更新',
+            yes:function(){
+                var status = $("input[name='status']:checked").val();
+                var ebay_id  = getEbayOrderReturn();
+                status = typeof(status) == 'undefined' ? "" : status;
+                if(ebay_id == '' || status == ''  ){
+                    alert('订单没选择或者参数有误');
+                    return false;
+                }
+                var _url = "__URL__/updStatus";
+                var  data = "ebay_id="+ebay_id+"&status="+status;
+                var  type = 'post';
+                var  asyncs = false;
+                var returnJson = ajaxPost(_url,data,type,asyncs);
+                var returnText = returnJson.responseJSON;
+                var  msg = '';
+                if(returnText.status == 1){
+                    msg =  returnText.msg;
+                    alert(msg);
+                    window.location.reload();
+                    return false;
+                }else{
+                    msg =  returnText.msg;
+                    alert(msg);
+                    window.location.reload();
+                    return false;
+                }
+            }
+        });
+    }
+
+    function returnHtml(){
+        var  html = '';
+        var  data =  '<php> echo json_encode($ebayStatus); </php>';
+             data = $.parseJSON(data);
+            html += '<div style="width: 90%;margin: 0 auto;margin-top: 5%;">';
+            $.each(data,function(k,v){
+                html += '<span class="labes"><label><input type="radio" name="status" value='+k+'>'+ v+'</label></span>&nbsp;&nbsp;';
+            })
+            html += '</div>';
+        return html;
+    }
+</script>
+</block>
+

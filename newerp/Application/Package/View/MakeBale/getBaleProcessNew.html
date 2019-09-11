@@ -1,0 +1,46 @@
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<div>
+    <table class="table table-responsive table-hover table-condensed" width="100%" cellspacing="0" cellpadding="0">
+        <tr style="background:#FFA500;">
+            <td>订单号</td>
+            <td>跟踪号</td>
+            <td>sku</td>
+            <td>包装时间</td>
+            <td>操作</td>
+        </tr>
+        <volist name="ordersData" id="vo">
+            <tr>
+                <td class="bolds">
+                    {$vo.ebay_id}
+                    <br>{$vo.combineid_str}
+                </td>
+                <td>{$vo.ebay_tracknumber}<br>{$vo.pxorderid}</td>
+                <td class="bolds">
+                   <p class="length_breaks">{$vo.sku}*{$vo.qty}&nbsp;&nbsp;{$vo.goods_name}</p>
+                </td>
+                <td>{$vo.scan_time}</td>
+                <td><button class="btn btn-sm btn-primary" onclick="RePrint('{$vo.ebay_id}')">重新打印</button></td>
+            </tr>
+        </volist>
+    </table>
+    <div class="pageInfo">
+        <ul class="pagination" style="margin: 5px">{$pageString}</ul>
+    </div>
+</div>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript">
+    // 跳转到 后台获取到地址， windows.open 出来
+    function RePrint(ebayid){
+        var url='{:U("MakeBale/getPrintLink")}';
+        $.post(url,{"ebay_id":ebayid},function(data){
+            if(data.status==1){
+                var printurl=data.data;
+                window.open(printurl,"_blank");return '';
+            }else{
+                layer.msg("重新打印失败了", {icon: 5}); return '';
+            }
+        },'json')
+    }
+</script>

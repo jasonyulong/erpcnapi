@@ -1,0 +1,19 @@
+
+.draglist{
+    padding:0px;
+}
+
+.draglist li{
+    list-style: none; 
+    border:1px solid #999;
+    margin:5px 0px;
+}
+.draglist .placeHolder{
+    border:1px dashed #999;
+}
+
+.draglist li div{
+    height:40px;
+    line-height: 40px;
+    text-align: center;
+}

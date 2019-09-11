@@ -1,0 +1,59 @@
+<?php
+if($Order['ebay_couny'] != 'AE')
+{
+    $imgCss = "height: 102mm;width: 202mm;margin-left: 2mm; position: absolute;";
+}
+else
+{
+    $imgCss = "height: 384px;width: 100mm;margin-left: 0mm;position: absolute;";
+}
+?>
+<css href="/newerp/Public/css/fonts.css" />
+<if condition="in_array($Order['ebay_couny'], ['CL', 'MX', 'PE', 'CO']) AND $Order['ebay_carrier'] eq 'JOOM-RU挂号'">
+    <div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <?php if(is_array($Order['pdfimg'])):?>
+    <img style="width: 100mm;height: 100mm;" class="view" src="{$Order['pdfimg'][0]}"/>
+    <?php else:?>
+    <img style="width: 100mm;height: 100mm;" class="view" src="{$Order['pdfimg']}"/>
+    <?php endif;?>
+    <!--添加拣货代码-->
+    <div style="position: absolute;rigth:0px;right: 25px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 10px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<else/>
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;position: relative;">
+    <?php if(is_array($Order['pdfimg'])):?>
+    <img style="{$imgCss}" class="view" src="{$Order['pdfimg'][0]}"/>
+    <?php else:?>
+    <img style="{$imgCss}" class="view" src="{$Order['pdfimg']}"/>
+    <?php endif;?>
+    <!--添加拣货代码-->
+    <?php if($Order['ebay_couny'] != 'UA'):?>
+    <div style="position: absolute;rigth:0px;right: 25px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 280px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+    <?php else:?>
+    <div style="position: absolute;rigth:0px;right: 25px;bottom: 70px;">
+        <span class="fonts" style="margin-right: 280px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+    <?php endif;?>
+</div>
+<?php if($Order['ebay_couny'] != 'AE'):?>
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <?php if(is_array($Order['pdfimg'])):?>
+    <img style="height: 98mm;width: 201mm;margin-left: -99mm;" class="view" src="{$Order['pdfimg'][0]}"/>
+    <?php else:?>
+    <img style="height: 98mm;width: 201mm;margin-left: -99mm;" class="view" src="{$Order['pdfimg']}"/>
+    <?php endif;?>
+    <div class="line_break font12" style="width:80mm;margin-top: -5mm;">
+        {$Order['skustr']}
+    </div>
+    <div style="margin-top:-6mm;margin-left:67mm">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d');?></div>
+    </div>
+</div>
+<?php endif;?>
+</if>
+

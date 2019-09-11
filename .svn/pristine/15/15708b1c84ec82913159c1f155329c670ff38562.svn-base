@@ -1,0 +1,217 @@
+<style>
+    .row {display: block; }
+    .col {display: inline-block}
+</style>
+
+<div style="width:100mm;min-height:100mm;font-family:Arial;height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <div style="position: relative;width: 100%;height: 100%;border: 1px solid #000">
+
+        <div class="row" style="border-bottom: 1px solid #000;line-height: 1.3em">
+            <div class="col" style="width: 20%;padding: 2px 10px;text-align: center">
+                <div class="row">1</div>
+                <div class="row">WS-P</div>
+            </div>
+            <div class="col" style="width: 20%;font-size: 20px;font-weight: bold;padding-top: 5px">
+                {$Order['cky_data']}
+            </div>
+            <div class="col" style="width: 30%;font-size: 15px;text-align: center;font-weight: 300">
+                <div class="row">中国邮政</div>
+                <div class="row">CHINA POST</div>
+            </div>
+            <div class="col" style="width: 20%;font-size: 15px;text-align: center;font-weight: 300">
+                <div class="row">邮2113</div>
+                <div class="row">CN22</div>
+            </div>
+        </div>
+
+
+        <div class="row" style="border-bottom: 1px solid #000">
+            <div class="col" style="width:35%;padding-left: 10px">可以径行开拆</div>
+            <div class="col">May be opened officially</div>
+        </div>
+
+        <div class="row" style="border-bottom: 1px solid #000">
+            <div class="col" style="text-align: center;width: 30%;font-size: 10px;line-height: 1.3em;">
+                邮件种类<br>
+                Category of item<br>
+                (在适当的文字前划"√")
+            </div>
+            <div class="col">
+                <table style="text-align: center;line-height: 1.2em;border-right: none" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td style="padding: 2px 6px">礼物<br>Gift</td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td style="padding: 2px 6px">Commercial sample<br>商品货样</td>
+                    </tr>
+
+                    <tr>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <td style="padding: 2px 6px">文件<br>Documents</td>
+                        <td style="padding-top: 8px">&nbsp;&nbsp;√&nbsp;&nbsp;</td>
+                        <td style="padding: 2px 6px">其他<br>Other</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="row">
+                <table style="line-height: 1.2em;display: block;width: 100%" cellpadding="0" cellspacing="0">
+                    <tr style="">
+                        <td style="width: 58mm;font-size: 9px;line-height: 1.2em;text-align: center">内件详细名称和数量<br>Quantity and detailed description of contents</td>
+                        <td style="width: 20mm;font-size: 9px;line-height: 1.2em">重量（千克）<br>Weight（kg）</td>
+                        <td style="width: 20mm;font-size: 9px;line-height: 1.2em">价值<br>Value</td>
+                    </tr>
+                    <php>
+                        $roundnum = round((3.00+mt_rand()/mt_getrandmax()*(7.00-0.01)),2);
+                        $Value = $roundnum;
+                        $Weight = round((0.08+mt_rand()/mt_getrandmax()*(0.33-0.01)),2);
+                    </php>
+                    <tr>
+                        <td style="text-align: center">{$Order['shenbao']}</td>
+                        <td style="text-align: center">{$Weight}</td>
+                        <td style="text-align: center">{$Value}</td>
+                    </tr>
+                    <!--<tr>-->
+                        <!--<td>&nbsp;</td>-->
+                        <!--<td>&nbsp;</td>-->
+                        <!--<td>&nbsp;</td>-->
+                    <!--</tr>-->
+                    <!--<tr>-->
+                        <!--<td>&nbsp;</td>-->
+                        <!--<td>&nbsp;</td>-->
+                        <!--<td>&nbsp;</td>-->
+                    <!--</tr>-->
+                    <!--<tr>-->
+                        <!--<td>&nbsp;</td>-->
+                        <!--<td>&nbsp;</td>-->
+                        <!--<td>&nbsp;</td>-->
+                    <!--</tr>-->
+                    <!--<tr>-->
+                        <!--<td>&nbsp;</td>-->
+                        <!--<td>&nbsp;</td>-->
+                        <!--<td>&nbsp;</td>-->
+                    <!--</tr>-->
+                    <tr>
+                        <td style="font-size: 10px;line-height: 1.2em">
+                            协调系统税则号列和货物原产国(只对商品邮件填写)
+                            HS tatiff number and country of origin of goods (For
+                            commercial items only)
+                        </td>
+                        <td style="text-align: center;line-height: 1.2em">总重量<br>Total weight</td>
+                        <td style="text-align: center;line-height: 1.2em">总价值<br>Total value</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td style="text-align: center">{$Weight}</td>
+                        <td style="text-align: center">{$Value}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="row" style="line-height: 1.2em;font-size: 10px;padding: 5px">
+                我保证上述申报准确无误，本函件内未装寄法律货邮政和海关规章禁止寄递的任何危险物品
+                I, the undersigned, whose name and address are given on the item certify
+                that the particulars given in this declaration are correct and that this item
+                does not contain any dangerous article or articles prohibited by legislation
+                or by postal or customs regulation
+            </div>
+
+            <div class="row" style="text-align: center;font-weight:300;font-size: 16px;margin-top: 6px;line-height: 1.2em">
+                寄件人签名 Sender's Signature: 何丽兰
+            </div>
+
+            <div class="row" style="text-align: center;font-weight: 300;font-size: 16px;margin-top: 2px;line-height: 1.2em">
+                From:中国广州市永和镇永平街44号
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="width:100mm;min-height:100mm;font-family:Arial;height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <div class="row" style="position: relative;width: 100%;height: 100%;border: 1px solid #000">
+
+        <div class="row" style="border-bottom: 1px solid #000;line-height: 1.3em">
+            <div class="col" style="width: 20%;padding: 2px 10px;text-align: center">
+                <div class="row">1</div>
+                <div class="row">WS-P</div>
+            </div>
+            <div class="col" style="width: 20%;font-size: 20px;font-weight: bold;padding-top: 5px">
+                {$Order['cky_data']}
+            </div>
+            <div class="col" style="width: 30%;font-size: 15px;text-align: center;font-weight: 300">
+                <div class="row">中国邮政</div>
+                <div class="row">CHINA POST</div>
+            </div>
+            <div class="col" style="width: 20%;font-size: 15px;text-align: center;font-weight: 300">
+                <div class="row">邮2113</div>
+                <div class="row">CN22</div>
+            </div>
+        </div>
+
+        <div class="row" style="padding: 2px;border-bottom: 1px solid #000;">
+            <div class="row" style="font-weight: bold"> TO : </div>
+            <div class="row" style="font-weight: bold"> {$Order['ebay_username']} </div>
+            <div class="row" style="font-weight: bold;">
+                {$Order['ebay_street']},{$Order['ebay_street1']}<br>
+                {$Order['ebay_city']} {$Order['ebay_state']},<br>
+                {$Order['ebay_postcode']}
+            </div>
+            <div class="row" style="font-weight: bold">{$Order['ebay_countryname']}</div>
+            <div class="row" style="font-weight: bold">TEL : {$Order['ebay_phone']},{$Order['ebay_phone1']}</div>
+        </div>
+
+        <div class="row" style="border-bottom: 1px solid #000">
+            <div class="col" style="width: 60%">
+                <div class="row" style="text-align: center;padding-top: 5px">
+                    <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="75%" height="45"/>
+                    <div class="row">
+                        国际平小包 {$Order['ebay_tracknumber']}
+                    </div>
+                    <div class="row">
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="col" style="width:39%;">
+                <div class="row">
+                    <table cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="font6" style="width: 50%;text-align: center;line-height: 1.2em;"> 航空 </td>
+                            <td class="font6" style="width: 50%;text-align: center;line-height: 1.2em">Guangzhou China</td>
+                        </tr>
+                        <tr>
+                            <td class="font6" style="text-align: center;line-height: 1.2em">PAP AVON</td>
+                            <td class="font6" style="text-align: center;line-height: 1.2em">已验视</td>
+                        </tr>
+                        <tr>
+                            <td class="font6" style="text-align: center;line-height: 1.2em">小包邮件</td>
+                            <td class="font6" style="text-align: center;line-height: 1.2em">单位：广州小包中心</td>
+                        </tr>
+                        <tr>
+                            <td class="font6" style="text-align: center;line-height: 1.2em">PETIT PAQUET</td>
+                            <td class="font6" style="text-align: center;line-height: 1.2em">验视人：方静霞</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;font-size: 16px;font-weight: bold" colspan="2"> AAU </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="font-weight: bold;font-size: 12px;border-bottom: 1px solid #000;padding: 5px">
+            <div class="col" style="width: 70%">REF：{$Order['pxorderid']}</div>
+            <div class="col" style="width: 28%">CNI</div>
+        </div>
+
+        <div class="row" style="padding: 5px;font-size: 15px">
+            Custom : {$Order['recordnumber']}
+        </div>
+
+        <div class="row" style="padding: 5px;font-size: 15px">
+            {$Order['skustr']}
+        </div>
+
+    </div>
+
+</div>

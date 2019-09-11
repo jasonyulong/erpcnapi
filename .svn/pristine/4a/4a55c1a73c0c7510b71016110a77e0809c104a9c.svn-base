@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加分组</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.css" rel="stylesheet">
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <div class="col-xs-12" style="margin-top: 10px">
+            <label for="carrier_name">分组名称:</label>
+            <input type="text" id="carrier_name" class="form-control" value="{$group['group_name']}" maxlength="20" />
+        </div>
+
+        <div class="col-xs-12" style="margin-top: 10px">
+            <label for="carriers">渠道:</label>
+            <select id="carriers" class="chosen-select-no-results form-control account chzn-select" data-placeholder="选择分组包含的运输方式">
+                <foreach name="carriers" item="carrier">
+                    <if condition="in_array($carrier, $group['carrier'])">
+                        <option value="{$carrier}" selected>{$carrier}</option>
+                        <else/>
+                        <option value="{$carrier}">{$carrier}</option>
+                    </if>
+                </foreach>
+            </select>
+        </div>
+
+        <div class="col-xs-12" style="margin-top: 10px">
+            <label for="carrier_memo">备注:</label>
+            <textarea name="carrier_memo" id="carrier_memo" class="form-control" cols="30" rows="3">{$group['note']}</textarea>
+        </div>
+
+        <div class="col-xs-12" style="margin-top: 10px;text-align: center">
+            <button class="btn btn-sm btn-success" id="create_carrier_group" data-id="{$group['id']}"> 确定 </button>
+            <button class="btn btn-sm btn-success" id="close_carrier_group" > 取消 </button>
+        </div>
+
+    </div>
+</div>
+
+</body>
+
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="text/javascript" src="/newerp/Public/css/plugins/chosen_v1.6.2/chosen.jquery.js"></script>
+
+
+<script type="application/javascript">
+    $('#carriers').chosen();
+
+    $('#create_carrier_group').on('click', function() {
+        var name        = $.trim($('#carrier_name').val());
+        var carrier     = $.trim($('#carriers').val());
+        var carrierMemo = $.trim($('#carrier_memo').val());
+
+        if (!name) {
+            layer.msg('[分组名称] 不能为空.');
+            return null;
+        }
+
+        if (!carrier) {
+            layer.msg('[包含运输方式] 不能为空.');
+            return null;
+        }
+        var loadIndex = layer.load(1, {shade:0.5});
+        var id = $(this).attr("data-id");
+        $.ajax({
+            url  : '{:U("CarrierGroup/addUnableGroup")}',
+            type : 'post',
+            data : {name:name, carrier:carrier, carrierMemo:carrierMemo,id:id},
+            dataType : 'json'
+        }).done(function(result) {
+            layer.msg(result.data);
+
+            if (result.status) {
+                setTimeout(function() {
+                    window.parent.location.reload();
+//                    layer.close(localStorage.getItem('createLayerIndex'));
+                }, 1000);
+            }
+
+        }).fail(function(){
+            layer.msg('访问失败。');
+        }).always(function() {
+            layer.close(loadIndex);
+        });
+
+    });
+
+    $("#close_carrier_group").on("click",function () {
+        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+        parent.layer.close(index); //再执行关闭
+    })
+
+</script>
+</html>

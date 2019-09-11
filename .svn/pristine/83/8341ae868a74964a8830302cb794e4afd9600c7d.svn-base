@@ -1,0 +1,31 @@
+<?php
+namespace Mid\Service;
+
+use Mid\Model\GoodsOutWeightModel;
+
+class GoodsOutWeightService extends BaseService
+{
+
+    /**
+     * 获取并保存产品
+     * @author Simon 2017/11/21
+     */
+    public function getGoodsOutWeightList($limit = 100)
+    {
+        $action   = 'GoodsOutWeight/getGoodsOutWeightList/wid/'.$this->currentid;
+        $time1    = time();
+        $response = $this->getErpData(['limit' => $limit], $action);
+        if (!empty($response['data'])) {
+            $goodsOutWeightModel = new GoodsOutWeightModel();
+            foreach ($response['data'] as $v) {
+                unset($v['id']);
+                if ($goodsOutWeightModel->where(['sku' => ['eq', $v['sku']]])->find()) {
+                    $goodsOutWeightModel->where(['sku' => ['eq', $v['sku']]])->save($v);
+                } else {
+                    $goodsOutWeightModel->add($v);
+                }
+            }
+        }
+        die('success');
+    }
+}

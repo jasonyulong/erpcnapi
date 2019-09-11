@@ -1,0 +1,428 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2017/6/1
+ * Time: 20:39
+ */
+namespace Package\Controller;
+
+use Common\Controller\CommonController;
+use Order\Model\EbayCarrierModel;
+use Mid\Model\EbayGlockModel;
+use Order\Model\EbayConfigModel;
+use Order\Model\EbayOrderModel;
+use Order\Model\OrderTypeModel;
+use Package\Model\CarrierGroupItemModel;
+use Package\Model\CarrierGroupModel;
+use Package\Model\PickOrderDetailModel;
+use Package\Service\CreatePickService;
+use Think\Page;
+use Transport\Model\CarrierModel;
+
+/**
+ * @method $this assign($name, $value)
+ * @method display($name = '')
+ * Class OrderGroupController
+ * @package Package\Controller
+ */
+class OrderGroupController extends CommonController
+{
+    protected $pageSize = 50;
+    private $moresku_floor = 100;
+    /**
+     * 用于生成拣货单的订单的状态
+     * @var null
+     */
+    protected $pickAbleStatus = null;
+    protected $allowCarriers = null;
+    /**
+     * @var EbayCarrierModel
+     */
+    protected $ebayCarrierModel = null;
+
+    /**
+     * 当前仓库id
+     * @var null
+     */
+    private $currStoreId = null;
+    /**
+     *
+     */
+    public function _initialize() {
+        parent::_initialize();
+        $this->pageSize = session('pagesize') ? session('pagesize') : 0;
+        ////////////////////////  版本二  /////////////////////////
+        $this->pageSize = session('pagesize') ? session('pagesize') : 100;
+        $allowCarrier = load_config('newerp/Application/Transport/Conf/config.php');
+        // debug($allowCarrier);die();
+        $carriers    = array_keys($allowCarrier['CARRIER_TEMPT']);
+        $trueCarrier = [];
+        foreach ($carriers as $val) {
+            $trueCarrier[] = strpos($val, '_') === false ? $val : explode('_', $val)[0];
+        }
+        //debug($carriers);
+        $this->allowCarriers = array_unique($trueCarrier);
+        $this->currStoreId    = C("CURRENT_STORE_ID");
+    }
+
+    /**
+     *
+     */
+    public function index() {
+        $resultArr   = $this->getGroupCarriers();
+//        dump($this->allowCarriers);die;
+        $orderStatus = $this->getPickOrderStatus();
+        $orderTypeModel = new OrderTypeModel();
+        $pickOrderDetailModel = new PickOrderDetailModel();
+        $orderResult    = $orderTypeModel->alias('a')
+            ->join('inner join erp_ebay_order as b on a.ebay_id = b.ebay_id')
+            ->where([
+                'a.pick_status'      => 1,
+//                'b.ebay_addtime'   => ['egt', 1509958800],
+                'b.ebay_status'      => ['in', $orderStatus],
+                'b.ebay_warehouse'   => $this->currStoreId,
+                'b.ebay_carrier'     => ['in', $this->allowCarriers],
+                'b.ebay_combine'     => ['neq', 1],
+                'b.ebay_tracknumber' => ['neq', ''],
+                'a.type'             => ["eq",3]
+            ])
+            ->field('b.ebay_carrier, count(a.id) as counts')
+            ->group('b.ebay_carrier')
+            ->select();
+        foreach($orderResult as $k => $v){
+            //获取当前订单最后一条拣货详情，判断is_delete 0-已创建 1-已删除
+           $pickDetail =  $pickOrderDetailModel->where(['ebay_id'=>$v['ebay_id']])->order('order_addtime desc')->find();
+           if(!empty($pickDetail) && $pickDetail['is_delete'] != 1 ){
+                unset($orderResult[$k]);
+           }
+        }
+        if(strstr($_SESSION['truename'],'测试人员')&&$_GET['debug']==1){
+            echo $orderTypeModel->_sql();
+        }
+
+        foreach ($resultArr as $key => $value) {
+            $carrierTypes = $value['sub'];
+            foreach ($orderResult as $k => $v) {
+                if (isset($carrierTypes[$v['ebay_carrier']])) {
+                    $resultArr[$key]['sub'][$v['ebay_carrier']] .= '=>' . $v['counts'];
+                    $resultArr[$key]['total'] += $v['counts'];
+                }
+            }
+        }
+        $user = $_SESSION['truename'];
+        if(false !== strrpos($user,'测试人员')){
+            echo '<!--'."\n".$orderTypeModel->_sql()."\n".'-->';
+        }
+//        dump($resultArr);
+        $this->carrierGroupArr = $resultArr;
+
+        $CreatePicks=new CreatePickService();
+        $this->assign('DATETIMES',$CreatePicks->builderTime());
+
+        //获取盘点锁定sku
+        $lockModel = new EbayGlockModel('','',C('DB_CONFIG_READ'));
+        $skuCount = $lockModel->count();
+        $this->assign('skuCount',(int)$skuCount);
+        $this->display();
+    }
+
+    /**
+     * @param $carrierId
+     * @param $types
+     */
+    public function getOrderListByCarrier($carrierId, $types) {
+        $pickOrderDetailModel = new \Package\Model\PickOrderDetailModel();
+        $carrierName = (new CarrierModel())
+            ->where(['id' => $carrierId])
+            ->getField('name');
+        $carrierStatusArr = $this->getPickOrderStatus();
+        $map = [
+            'a.ebay_carrier'     => $carrierName,
+//            'a.ebay_addtime'   => ['egt', 1509958800],
+            'a.ebay_status'      => ['in', $carrierStatusArr],
+            'b.pick_status'      => 1,
+            'a.ebay_warehouse'   => $this->currStoreId,
+            'a.ebay_combine'     => ['neq', 1],
+            'a.ebay_tracknumber' => ['neq', '']
+        ];
+        if (!in_array('0', $types)) {
+            $map['b.type'] = ['in', $types];
+        }
+        //楼层的问题 -------Start-----------
+        $floor = (int)$_REQUEST['floor'];
+        $map['b.floor'] = $floor;
+        //楼层的问题===== END------------------
+
+        /**
+         *测试人员谭 2017-11-17 21:16:37
+         *说明:时间问题
+         */
+        $CreatePicks=new CreatePickService();
+        $DateFilter=$CreatePicks->builderTime();
+        $map['a.ebay_addtime']=['between',[$DateFilter['erp_add_sint'],$DateFilter['erp_add_eint']]];
+        $map['a.w_add_time']=['between',[$DateFilter['wms_add_sint'],$DateFilter['wms_add_eint']]];
+
+
+        $orderModel = new EbayOrderModel();
+        $counts = $orderModel->alias('a')
+            ->join('inner join erp_order_type as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->count();
+        $pageObj = new Page($counts, $this->pageSize);
+        $limit   = $pageObj->firstRow . ',' . $pageObj->listRows;
+        $pageStr = $pageObj->show();
+        // 因为不再使用超链接 所以将其超链接破坏掉
+        $pageStr = str_replace('href', 'data-link', $pageStr);
+        $orderInfo = $orderModel->alias('a')
+            ->join('inner join erp_order_type as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->field('a.ebay_id, a.ebay_username, a.ebay_countryname, a.ebay_addtime, a.orderweight,a.w_add_time')
+            ->limit($limit)
+            ->select();
+        foreach($orderInfo as $k => $v){
+            //获取当前订单最后一条拣货详情，判断is_delete 0-已创建 1-已删除
+            $pickDetail =  $pickOrderDetailModel->where(['ebay_id'=>$v['ebay_id']])->order('order_addtime desc')->find();
+            if(!empty($pickDetail) && $pickDetail['is_delete'] != 1 ){
+                unset($orderInfo[$k]);
+            }
+        }
+//        dump($orderInfo);
+        $this->assign('orderInfo', $orderInfo);
+        $this->assign('pageStr', $pageStr);
+        ob_start(function_exists('ob_gzhandler') ? 'ob_gzhandler' : null);
+        $this->display('tableData');
+        $pageContent = ob_get_clean();
+        echo $pageContent;
+    }
+
+    /**
+     * @param $groupId
+     * @param $types
+     */
+    public function getOrderListByCompany($groupId = '', $types = '') {
+        $carriers         = (new CarrierGroupItemModel())->getGroupCarriers($groupId);
+        $carrierStatusArr = $this->getPickOrderStatus();
+        $map = [
+            'a.ebay_carrier'     => ['in', $carriers ?: array('')],
+//            'a.ebay_addtime'     => ['egt', 1509958800],
+            'b.pick_status'      => 1,
+            'a.ebay_status'      => ['in', $carrierStatusArr ?: array('')],
+            'a.ebay_combine'     => ['neq', 1],
+            'a.ebay_warehouse'   => $this->currStoreId,
+            'a.ebay_tracknumber' => ['neq', '']
+        ];
+        if (!in_array('0', $types)) {
+            $map['b.type'] = ['in', $types];
+        }
+        //楼层的问题 -------Start-----------
+        $floor = (int)$_REQUEST['floor'];
+
+        $map['b.floor'] = $floor;
+        //楼层的问题===== END------------------
+
+
+        /**
+        *测试人员谭 2017-11-17 21:16:37
+        *说明:时间问题
+        */
+        $CreatePicks=new CreatePickService();
+        $DateFilter=$CreatePicks->builderTime();
+        $map['a.ebay_addtime']=['between',[$DateFilter['erp_add_sint'],$DateFilter['erp_add_eint']]];
+        $map['a.w_add_time']=['between',[$DateFilter['wms_add_sint'],$DateFilter['wms_add_eint']]];
+
+
+        $orderModel = new EbayOrderModel();
+        $counts = $orderModel->alias('a')
+            ->join('inner join erp_order_type as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->count();
+        $pageObj = new Page($counts, $this->pageSize);
+        $limit   = $pageObj->firstRow . ',' . $pageObj->listRows;
+        $pageStr = $pageObj->show();
+        // 因为不再使用超链接 所以将其超链接破坏掉
+        $pageStr = str_replace('href', 'data-link', $pageStr);
+        $orderInfo = $orderModel->alias('a')
+            ->join('inner join erp_order_type as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->field('a.ebay_id, a.ebay_username, a.ebay_countryname, a.ebay_addtime, a.orderweight,a.w_add_time')
+            ->limit($limit)
+            ->select();
+        $this->assign('orderInfo', $orderInfo);
+        $this->assign('pageStr', $pageStr);
+        ob_start(function_exists('ob_gzhandler') ? 'ob_gzhandler' : null);
+        $this->display('tableData');
+        $pageContent = ob_get_clean();
+        echo $pageContent;
+    }
+
+    /**
+     * 更新左侧菜单的订单的统计数量
+     * @param $groupId
+     * @param $types
+     */
+    public function updateLeftOrderCount($groupId, $types) {
+        $groupCarrierModel = new CarrierGroupItemModel();
+        $carrierNames      = $groupCarrierModel->getGroupCarriers($groupId);
+        $carrierModel = new CarrierModel();
+        $carriers     = $carrierModel->where(['name' => ['in', $carrierNames]])->group('name')->getField('id, name',
+            true);
+        $allowCarriers = [];
+        foreach ($carriers as $key => $val) {
+            if (in_array($val, $this->allowCarriers)) {
+                $allowCarriers[$key] = $val;
+            }
+        }
+        $orderStatusArr            = $this->getPickOrderStatus();
+        $map                       = [];
+        $map['b.ebay_carrier'] = ['in', $allowCarriers];
+        $map['a.pick_status'] = 1;
+        $map['b.ebay_combine'] = ['neq', 1];
+        $map['b.ebay_status'] = ['in', $orderStatusArr];
+        $map['b.ebay_tracknumber'] = ['neq', ''];
+        $map['b.ebay_warehouse'] = $this->currStoreId;
+
+        /**
+        *测试人员谭 2017-11-17 12:13:12
+        *说明: 各种时间
+        */
+
+        $CreatePicks=new CreatePickService();
+        $DateFilter=$CreatePicks->builderTime();
+
+        $map['b.ebay_addtime']=['between',[$DateFilter['erp_add_sint'],$DateFilter['erp_add_eint']]];
+        $map['b.w_add_time']=['between',[$DateFilter['wms_add_sint'],$DateFilter['wms_add_eint']]];
+
+//        $map['b.ebay_addtime'] = ['egt', 1509958800];
+        if (!in_array('0', $types)) {
+            $map['a.type'] = ['in', $types]; // 单品单件  单品多件  多品多件
+        }
+        //楼层的问题 -------Start----------- TODO 注意这里是不一样的 a b 别名
+        $floor = (int)$_REQUEST['floor'];
+        $map['a.floor'] = $floor;  // 楼层
+        //楼层的问题===== END------------------
+        $orderType           = new OrderTypeModel();
+        $carrierCountsResult = $orderType->alias('a')
+            ->join('inner join erp_ebay_order as b on a.ebay_id = b.ebay_id')
+            ->where($map)
+            ->group('b.ebay_carrier')
+            ->getField('b.ebay_carrier, count("a.id") as counts', true);
+
+        if(strstr($_SESSION['truename'],'测试人员谭')){
+            //echo $orderType->_sql();
+        }
+
+        $total     = 0;
+        $newResult = [];
+        foreach ($allowCarriers as $k => $v) {
+            $newResult[$k] = isset($carrierCountsResult[$v]) ? $carrierCountsResult[$v] : 0;
+            $total += $carrierCountsResult[$v];
+        }
+        echo json_encode(['sum' => $total, 'data' => $newResult]);
+    }
+
+    /**
+     * 获取运输方式分组先的所有的运输方式
+     * @return array
+     */
+    public function getGroupCarriers() {
+        $carrierGroupModel = new CarrierGroupModel();
+        // 查询出所有的运输方式及其分组信息
+        $carrierGroupItems = $carrierGroupModel->alias('a')
+            ->join('inner join pick_carrier_group_items as b on a.id = b.group_id')
+            ->field('a.id, a.group_name, b.carrier')
+            ->select();
+        // 按照运输方式分组 将查出的运输方式分组
+        $groupedItems = [];
+        foreach ($carrierGroupItems as $item) {
+            $groupedItems[$item['group_name']]['sub_carrier'][$item['carrier']] = $this->getCarrierIdByName($item['carrier']);
+            $groupedItems[$item['group_name']]['id']                            = $item['id'];
+        }
+        $targetFormat = [];
+        foreach ($groupedItems as $groupName => $item) {
+            $targetFormat[] = [
+                'id'       => $item['id'],
+                'sup_name' => $groupName,
+                'sub'      => $item['sub_carrier'],
+            ];
+        }
+        return $targetFormat;
+    }
+
+    /**
+     * 查找货找单可以进行的订单的状态
+     */
+    public function getPickOrderStatus() {
+        if (!$this->pickAbleStatus) {
+            $ebayConfig00 = new EbayConfigModel();
+            $pickStatus   = $ebayConfig00->getField('pick_order_status');
+            $orderStatusArr = explode(',', $pickStatus);
+            unset($ebayConfig00, $pickStatus);
+            foreach ($orderStatusArr as $key => $val) {
+                if (trim($val)) {
+                    $orderStatusArr[$key] = trim($val);
+                }
+            }
+            $this->pickAbleStatus = $orderStatusArr;
+        } else {
+            $orderStatusArr = $this->pickAbleStatus;
+        }
+        return $orderStatusArr;
+    }
+
+    /**
+     * 根据运输方式的名称获取运输方式的Id
+     * @param $name
+     * @return int
+     */
+    public function getCarrierIdByName($name) {
+        if (!$this->ebayCarrierModel) {
+            $this->ebayCarrierModel = new EbayCarrierModel();
+        }
+        return $this->ebayCarrierModel->where(['name' => $name])->getField('id');
+    }
+
+    // 生成捡货单子
+    public function CreatePickOrder() {
+        ini_set('memory_limit', '800M');
+        set_time_limit(800);
+        // die();
+        $groupId      = I("groupId");
+        $carrier      = I("carrier");
+        $bill         = I("bills");
+        $isallpage    = I("isallpage");
+//        $includeType1 = I("includetype1"); //单品/单货，
+//        $includeType2 = I("includetype2"); //单品多件，
+        $includeType3 = I("includetype1"); //多品，
+        $floor        = (int)I("floor"); //楼层
+//        $includeType1 = $includeType1 == 'true' ? 1 : 0;
+//        $includeType2 = $includeType2 == 'true' ? 1 : 0;
+        $includeType3 = $includeType3 == 'true' ? 1 : 0;
+        $isallpage    = $isallpage == 'true' ? 1 : 0;
+        if ($isallpage == '' && $bill == '') {
+            echo '<div style="color:#a11">具体订单号</div>';
+            return;
+        }
+        if ($isallpage) {
+            $bill = '';
+        }
+        if ($carrier) {
+            $groupId = '';
+        }
+        if ($carrier == '' && $groupId == '') {
+            echo '<div style="color:#a11">运输方式或物流公司必须提交一个!</div>';
+            return;
+        }
+        $data['floor']        = $floor;
+        $data['groupId']      = $groupId;
+        $data['carrier']      = $carrier;
+        $data['bill']         = $bill;
+        $data['isallpage']    = $isallpage;
+        $data['includeType1'] = 0;
+        $data['includeType2'] = 0;
+        $data['includeType3'] = $includeType3;
+        $PickOrder = new CreatePickService();
+        $PickOrder->CreatePickOrder($data, $this->allowCarriers);
+    }
+
+}

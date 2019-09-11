@@ -1,0 +1,8 @@
+
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="display: block;margin-top: -28px;margin-left: -13px;width: 106%;height: 106%;" class="view" src="{$Order['pdfimg'][0]}"/>
+</div>
+
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="display: block;margin-top: -10px;margin-left: -6px;width: 103%;height: 106%;" class="view" src="{$Order['pdfimg'][1]}"/>
+</div>

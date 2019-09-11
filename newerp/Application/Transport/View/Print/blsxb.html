@@ -1,0 +1,108 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <col style="width: 62%">
+        <col style="width: 12%">
+        <col style="width: 6%">
+        <col style="width: 20%">
+        <tr>
+            <td align="left" valign="top" colspan="4" style="border-bottom-style: none">
+                <div>
+                    <div style="border: 2px solid black;border-right-style:none;width: 136px;font-size: 9px;line-height: 15px;float: left;margin-left: 112px;">
+                        If undeliverable please return to<br>
+                        <span style="font-size: 13px;font-weight: bold">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PO BOX 9852</span><br>
+                        1934 EMC-Brucargo-Belguim
+                    </div>
+                    <div style="position:absolute;border: 2px solid black;width: 100px;font-size: 9px;line-height: 15px;right: 25px;">
+                        <br>
+                        <span style="font-size: 13px;font-weight: bold">&nbsp;&nbsp;&nbsp;BE. PP 9852</span><br>
+                        BELGIE(N)-BELGIQUE
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" style="border-bottom-style: none;">
+                <div>
+                    <div style="border:2px solid black; float:right;font-size: 19px;font-weight: bold;padding: 1px;width: 55px;text-align: center;margin-right: 15px;margin-top: 8px;">
+                        {$Order['zonecode']}
+                    </div>
+                </div>
+
+            </td>
+        </tr>
+        <tr>
+            <td class="ffa font9 line_break" style="word-break:break-all;word-wrap:break-word;width:60mm;border-bottom-style: none;border-top-style: none" colspan="4">
+                <p style="font-size: 16px;">To:</p>
+                <b>{$Order['ebay_username']}</b><br>
+                {$Order['ebay_street']} ,{$Order['ebay_street1']}<br>
+                {$Order['ebay_city']} ,{$Order['ebay_state']}<br>
+                <b>ZIP:</b>{$Order['ebay_postcode']}&nbsp;  Tel:&nbsp;{$Order['ebay_phone']},{$Order['ebay_phone1']}<br>
+                {$Order['ebay_countryname']}, {$Order['countrycode']},{$Order['countrycn']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" class="font13 ffa" align="center" style="border-top-style: none;border-bottom-style: none">
+                <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" width="90%" height="47"/><br/>
+                {$Order['ebay_tracknumber']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" style="border-top-style: none;"><b>Item detail:</b></td>
+        </tr>
+        <tr>
+            <td class="font8" align="center" style="font-weight: bold">Goods Description</td>
+            <td class="font8" align="center" style="font-weight: bold">Quantity</td>
+            <td colspan="2" class="font8" style="font-weight: bold" align="center">Sub Total</td>
+        </tr>
+        <?php
+                $value = round($Order['sbjz'],3);
+                $shenbao = mb_substr($Order['shenbao'], 0, 70);
+                $weight = round($Order['orderweight'], 4)*1000;
+                $descript = mb_substr($Order['yingwen'], 0, 40);
+
+            ?>
+        <tr>
+            <td class="font8"  style="word-break:break-all;word-wrap:break-word">{$descript}</td>
+            <td class="font8"  align="center">1</td>
+            <td colspan="2" class="font8"  align="center">USD:{$value}</td>
+        </tr>
+        <tr>
+            <td colspan="2" align="left" class="font8">
+                <b>Total:</b>
+            </td>
+            <td colspan="2" class="font8" align="center">
+                <b>USD:{$value}</b>
+            </td>
+        </tr>
+        <td colspan="4" style="text-align: right;border-top-style: none">
+            <div style="margin-right: 10px;">Order No.：{$Order['ebay_id']}</div>
+        </td>
+    </table>
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 145px;bottom: -2px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+    <div style="position: absolute;left:7px;bottom: -2px;">
+        <span style="margin-right: 5px;font-size: 12px;"><?php echo date('Y-m-d');?></span>
+    </div>
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <div style="margin:10mm;" class="font14 line_break width:80mm;">
+        {$Order['skustr']}
+    </div>
+    <div class="line_break font14 pcenter1 ">
+        订单号:{$Order['ebay_id']}
+    </div>
+    <div class="line_break font14 pcenter1">
+        跟踪号:{$Order['ebay_tracknumber']}
+    </div>
+    <div class="line_break font14 pcenter1">
+        捡货用
+    </div>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

@@ -1,0 +1,95 @@
+<?php
+namespace Package\Controller;
+use Common\Controller\CommonController;
+use Think\Page;
+    class AuthorController extends  CommonController{
+        public $pageSize = 50;
+        public $UserAuthModel = '';
+        public function _initialize(){
+            parent::_initialize();
+            $this->UserAuthModel = new \Package\Model\UserAuthModel();
+        }
+
+        public function index(){
+            exit("功能已被废除！");
+           $authInfo = $this->authInfo();
+            $get = I('get.');
+            if(!empty($get['username'])){
+                $map['a.username|b.auth_code'] = ['like',"%".trim($get['username'])."%"];
+                $this->assign('username',$get['username']);
+            }
+            $ebay_user = new \Package\Model\ErpEbayUserModel();
+            $map['a.truename'] = ['like',"%仓库%"];
+            $counts = $ebay_user->join('AS a LEFT JOIN user_auth AS b on a.id = b.id')->where($map) ->count();
+            $pageObj = new Page($counts, $this->pageSize);
+            $limit   = $pageObj->firstRow . ',' . $pageObj->listRows;
+            $pageStr = $pageObj->show();
+            $lists = $ebay_user
+                ->join('AS a LEFT JOIN user_auth AS b on a.id = b.id')
+                ->where($map)
+                ->order("a.id DESC")
+                ->limit($limit)
+                ->field('a.id,a.username,a.truename,b.auth_code,b.status')
+                ->select();
+            $this->assign("lists",$lists);
+            $this->assign('pageStr',$pageStr);
+            $this->assign('authInfo',$authInfo);
+            $this->display();
+        }
+
+        public function addAuthor(){
+            $id = (int)I('post.id');
+            $username = I('post.username');
+            if(empty($id) || $id <= 0 || empty($username)){
+                $this->jsons(['status'=>'-1','msg'=>'参数有误']);
+            }
+            $userId = $this->UserAuthModel->where(['id'=>$id])->getField('id');
+            if($userId){
+                $this->jsons(['status'=>'-1','msg'=>'该账号已授权呢！！！']);
+            }
+            $add = [
+                'id'        => $id,
+                'add_time'  => date('Y-m-d H:i:s'),
+                'auth_code' => $this->randomNum(),
+                'username'  => $username
+            ];
+            $row = $this->UserAuthModel->data($add)->add();
+            $flg = $row ? ['status'=>1,'msg'=>'操作成功'] : ['status'=>'-1','msg'=>'操作失败'];
+            $this->jsons($flg);
+        }
+
+        public function randomNum(){
+            $str = '0123456789QWERTYUIOPLKJHGFDSAZXCVBNMqwertyuioplkjhgfdsazxcvbnm';
+            $char = '';
+            for($i = 0; $i<=5; $i++){
+                $str = str_shuffle($str);
+                $char .= mb_substr($str,0,1);
+            }
+
+            return $char;
+        }
+
+        public function jsons($arr){
+            exit(json_encode($arr));
+        }
+
+        public function authInfo(){
+            $authSession = session('truename');
+           /* $_SESSION['truename'] = '盘点员1';
+            $authSession  = '盘点员1';*/
+            $row = $this->UserAuthModel->where(['username'=>$authSession])->getField('id');
+            $strstr = strstr($authSession,'测试人员') ? true : false;
+            return $row || $strstr ? true : false;
+        }
+
+        public function saveAuthor(){
+            $post = I('post.');
+            if(empty($post['id']) || $post['id']<=0 ){
+                $this->jsons(['status'=>'-1','msg'=>'参数有误']);
+            }
+            $save = empty($post['status']) ? [  'update_time' => date('Y-m-d H:i:s'), 'auth_code'   => $this->randomNum()] : ['status'=>$post['status']];
+            $row = $this->UserAuthModel->where(['id'=>$post['id']])->save($save);
+            $flg = $row ? ['status'=>1,'msg'=>'操作成功'] : ['status'=>'-1','msg'=>'操作失败'];
+            $this->jsons($flg);
+        }
+    }

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport"/>
+    <title>本仓异常按SKU录入</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+    body{padding:0;margin: 0;}
+    .container{width:100%;padding:0;margin: 0;}
+
+    .SecondPick_error{font-size:26px;}
+    .ebay_sku_table{width:100%}
+    .show_location{font-size:160px;width:200px;text-align:center;line-height:200px;height:200px;border:10px solid #0066cc;margin:10px;}
+    .fenjian_location{font-size:20px;background:#286090;color:#fff;}
+    .tr_second_bg td{background:#CCCACA}
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="padding: 8px 5px;background-color:orange;">
+        <div class="col-xs-12">
+            <span style="font-size:29px;">按SKU扫入</span>
+            <input type="text" style="font-size:25px;width:178px;display:none;" placeholder="本仓拣货单号" id="ordersn" onkeyup="selectPickOrder(event)" value="">
+            <input type="text" style="font-size:25px;width:150px;" placeholder="扫描SKU" id="sku" onkeyup="FillSKUPickOrder(event)" value="">
+        </div>
+    </div>
+
+    <div class="row" style="padding: 0 24px">
+        <div id="myTbody" style="height:230px;">
+
+        </div>
+
+
+        <div class="pageInfo" id="bottom_handle">
+            <select id="carnumber" onchange="showTheSameSKUByCarNumber(this)">
+
+            </select>
+        </div>
+        <div class="pageInfo" id="sku_table">
+        </div>
+
+    </div>
+
+
+    <audio  id="10" autoplay="autoplay">
+        <source src='' type='audio/mp3'>
+    </audio>
+    <audio id="failSound" >
+        <source src='' type='audio/mp3'>
+    </audio>
+    <audio id="scanSound" >
+        <source src='' type='audio/mp3'>
+    </audio>
+
+
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<script type="application/javascript">
+
+$(function(){
+    $("#sku").select().focus();
+
+    getCar();
+});
+
+//扫描或填写的sku 传值到哪里
+function FillSKUPickOrder(event){
+    var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+    if (keyCode !==13) {
+        return false;
+    }
+
+    var sku=$("#sku").val();
+    if(sku==''){
+        return false;
+    }
+
+    $("#sku").select();
+
+    var url="{:U('OrderCurrentStockList/ScanOneSKU')}";
+    $.post(url,{sku:sku},function(data){
+        var number='fail';
+        var msg=data.msg;
+
+        if(data.status==1){
+            number=data.data;
+            $("#myTbody").html('<div class="show_location">'+number+'</div>');
+            playm(number);
+        }else{
+            $("#myTbody").html('<div style="font-size:2em;color:#911">'+msg+'</div>');
+            playm(number);
+        }
+    },'json')
+
+
+
+}
+
+
+function playm(id){
+    var video=null;
+    if(id=="fail"){
+        video	=	document.getElementById("failSound");
+        video.src="capi/number/error.mp3";
+        video.play();
+    }else {
+        video	=	document.getElementById("10");
+        video.src="capi/number/"+id+".mp3";
+        video.play();
+    }
+}
+
+
+
+    // 获取 ERP 里面 正在上架的车子 并且 车子上正好有需要 的sku
+    function getCar(){
+        var url = "{:U('ErpInstoreApi/getCurrentCarNumberBySKU')}";
+        $.post (url, {}, function (data) {
+            if(data.status==1){
+                var datas=data.data;
+                creatSelect(datas);
+            }else{
+                layer.msg(data.msg, {icon: 5});
+            }
+        },'json');
+    }
+
+    // 初始化 select
+    function creatSelect(arr){
+        var str='<option value="">--选择正在上架的车子--</option>';
+        for(var i=0;i<arr.length;i++){
+            str+='<option value="'+arr[i]+'">'+arr[i]+'</option>';
+        }
+        $('#carnumber').html(str);
+    }
+
+    // 显示正在上架的车子 和当前的 异常看板里面的sku 的共同的 sku
+    function showTheSameSKUByCarNumber(that){
+        var carnumber=$(that).val();
+        var url = "{:U('ErpInstoreApi/getCurrentSKUListByCarnumber')}";
+        $.post (url, {carnumber:carnumber}, function (data) {
+            if(data.status==1){
+                //request success
+                var datas=data.data;
+                $("#sku_table").html(datas);
+            }else{
+                //request error
+                layer.msg(data.msg, {icon: 5});
+            }
+        },'json');
+    }
+
+
+
+</script>
+
+</html>

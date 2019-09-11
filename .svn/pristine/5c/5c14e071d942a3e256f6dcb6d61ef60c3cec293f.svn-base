@@ -1,0 +1,104 @@
+<extend name="Public:index" xmlns="http://www.w3.org/1999/html"/>
+<block name="main">
+    <style>
+        #scanRecord {
+            background: #DDDDDD;
+        }
+        #scanRecord div td{width: 40%}
+    </style>
+    <div class="form-inline">
+        <div class="input-group" style="margin-left: 25px;">
+            <p style="font-size: 18px;">拣货异常sku扫描</p>
+        </div>
+        <div class="input-group" style="margin-left: 30%">
+            <p style="font-size: 18px;color: red">今日已成功：<span id="skucount" style="display: none">{$toDayCount['skucount'] ?: 0}</span><span id="qtycount">{$toDayCount['qtycount'] ?: 0}</span>&nbsp;个</p>
+        </div>
+    </div>
+    <div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+
+        <div class="form-inline" style="float: left;width: 25%;" >
+            <div class="input-group">
+                <div class="input-group-addon">SKU</div>
+                <input type="text" id="sku" class="form-control input-sm" name="sku" style="width: 250px;height: 40px" onKeyPress="check(event)" placeholder="请扫描sku">
+            </div>
+        </div>
+
+        <div id="scanRecord" style="float: left;width: 40%;height:60%;font-size: 18px;margin-left: 30px;overflow:auto">
+            <div style="padding:20px;">
+                <table>
+                    <foreach name="datalist" item="v">
+                        <tr id="sku_{$v.sku}_{$v.picker}"><td>{$v.sku}*{$v.qty}</td><td class="jhr">拣货人：{$v.picker}</td></tr>
+                    </foreach>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <audio id='jspeech_iframe'  src='' ></audio>
+
+    <script>
+        $(function () {
+            $("#sku").select().focus();
+        });
+        /**
+         * 扫描
+         * @param event
+         * @returns {boolean}
+         */
+        function check(event) {
+
+            var sku = $.trim($("#sku").val());
+            var isie = (document.all) ? true : false;//判断是IE内核还是Mozilla
+            var keyCode;
+            if (isie) {
+                keyCode = window.event.keyCode;//IE使用windows.event事件
+            } else {
+                keyCode = event.which;//3个按键函数有一个默认的隐藏变量，这里用e来传递。e
+            }
+            if (keyCode !==13) {
+                return false;
+            }
+            //扫描二维码替换输入框值 Shawn 2018-09-04
+            if(sku.indexOf("$") >= 0){
+                var skuStr = sku.split("$");
+                sku = skuStr[1];
+                document.getElementById('sku').value = sku;
+            }
+            $("#sku").select().focus();
+            var count = $("#qtycount").html();
+            count = parseInt(count)+1;
+            var skucount = parseInt($("#skucount").html())+1;
+            if (keyCode == 13) {
+                $.ajax({
+                    type : "post",
+                    url :  "t.php?s=/Order/PickingAbnormalitySku/saveAbnormalitySku",
+                    data : {sku:sku},
+                    success : function(data) {
+                        if(data.status){
+                            $("#sku_"+data.sku+'_'+data.picker).remove();
+                            $("#qtycount").html(count);
+                            if(data.newsku == 1){
+                                $("#skucount").html(skucount);
+                            }
+                            var shtml = '<tr id="sku_'+data.sku+'_'+data.picker+'"><td>'+data.sku+'*'+data.qty+'</td><td class="jhr">拣货人：'+data.picker+'</td></tr>'
+                            $("#scanRecord").find("div").find("table").prepend(shtml);
+
+                            var src = 'http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=6&text=' + data.picker;
+                            $("#jspeech_iframe").attr("src",src);
+                            soundHandle();
+                        }else{
+                            layer.msg(data.msg, {icon: 2});
+                        }
+                    }
+                });
+            }
+        }
+
+
+        function soundHandle(){
+            var video	=	document.getElementById("jspeech_iframe");
+            video.play();
+        }
+
+    </script>
+</block>

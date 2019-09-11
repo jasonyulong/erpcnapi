@@ -1,0 +1,13 @@
+<div style="margin: 20px;">
+   输入订单号 <input id="use_ebay_id" class="default" type="text" value="" />&nbsp;
+    <input id="use_location" type="hidden" value="{$location}" />
+</div>
+<div style="margin: 20px;">
+    或者：
+</div>
+<div style="margin: 20px;">
+  输入跟踪号 <input id="use_ebay_tracknumber" onkeyup="getebayIdByTracknumber(event)" class="default" type="text" value="" />
+</div>
+<div style="margin: 40px 20px 20px 20px;">
+    <button style="margin-left: 75px" class="btn btn-warning" onclick="DoUseLocation()">确认占用{$location}</button>
+</div>

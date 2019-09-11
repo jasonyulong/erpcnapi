@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>包裹列表</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+<link href="/newerp/Public/css/whouse.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 200px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn1 {
+        background-color: rgba(144, 238 ,144, 0.5);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+
+    .content-area-modify .layui-layer-content{
+        height: 55px !important;
+        padding:5px 20px !important;
+    }
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="margin: 10px;padding: 8px 5px;background-color:orange">
+        <div class="col-xs-12">
+            <!--菜单菜单----START-->
+            <div id="whouse_menu">
+                <div class="openDiv">
+                       <span class="childmod">
+                        <b class="b_title">拣货流程</b>
+                            <a href="t.php?s=/Package/CreateSinglePickOrder/index" target="_blank">创建拣货单（单品）</a>
+                            <a href="t.php?s=/Package/OrderGroup/index" target="_blank">创建拣货单（多品）</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/0" target="_blank">等待打印</a>
+                            <!--<a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/1" target="_blank">已打印待确认</a>-->
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/2" target="_blank">待包装</a>
+                            <a href="t.php?s=/Package/PrintPickingList/orderPackages/isPrint/3" target="_blank">已包装完毕</a>
+                        </span>
+                        <span class="childmod">
+                            <b class="b_title">二次分拣</b>
+                            <a href="t.php?s=/Package/SecondPick/" target="_blank">二次分拣</a>
+                        </span>
+
+                        <span class="childmod">
+                            <b class="b_title">包装流程</b>
+                            <a href="t.php?s=/Package/MakeBale/newWorkbench" target="_blank">包装流程（单品）</a>
+                            <a href="t.php?s=/Package/MakeBale/" target="_blank">包装流程（多品）</a>
+                            <a href="t.php?s=/Package/UserPackageFee/showStatistic.html" target="_blank">包装费用统计</a>
+                            <a href="t.php?s=/Package/OrderSku/" target="_blank">SKU扫不出</a>
+                        </span>
+                        <span class="childmod">
+                            <b class="b_title">基本配置</b>
+                            <a href="/t.php?s=/Package/CarrierGroup/groupList.html" target="_blank">运输方式分组配置</a>
+                        </span>
+                </div>
+            </div>
+            <!--菜单菜单----END-->
+            <label> 拣货单状态 </label> &nbsp;&nbsp;&nbsp;&nbsp;
+            <a class="btn btn-sm {$isPrint == 0 ? 'btn-primary' : 'btn-default'}" href="__URL__/orderPackages"> 等待打印 <span class="badge">{$havePrintCount[0] ? $havePrintCount[0] : 0}</span></a>
+            <a class="btn btn-sm {$isPrint == 1 ? 'btn-primary' : 'btn-default'}" href="__URL__/orderPackages/isPrint/1"> 原已打印(将废除) <span class="badge">{$havePrintCount[1] ? $havePrintCount[1] : 0}</span></a>
+            <a class="btn btn-sm {$isPrint == 2 ? 'btn-primary' : 'btn-default'}" href="__URL__/orderPackages/isPrint/2"> 待包装 <span class="badge">{$havePrintCount[2] ? $havePrintCount[2] : 0 }</span> </a>
+            <a class="btn btn-sm {$isPrint == 3 ? 'btn-primary' : 'btn-default'}" href="__URL__/orderPackages/isPrint/3"> 已完成 <span class="badge">{$havePrintCount[3] ? $havePrintCount[3] : 0}</span> </a>
+            <if condition="($isPrint eq 3) or ($isPrint eq 2)">
+                <div class="dropdown pull-right" style="display: inline-block;margin-right: 5%">
+                    <button class="btn btn-sm btn-success dropdown-toggle" type="button" id="batch_operate" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        批量操作 <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuDivider">
+                       <!-- <li>
+                            <a href="javascript:void 0" class="batchPrintCheckedItem"> 批量打印勾选 </a>
+                        </li>-->
+
+                        <if condition="$isPrint eq 3">
+                            <li>
+                                <a href="javascript:void 0" class="exportCheckedLists"> 下载选中 </a>
+                            </li>
+                        </if>
+                        <if condition="$isPrint eq 2">
+                            <li>
+                                <a href="javascript:void 0" class="picksku_failure"> 查看捡货失败 </a>
+                            </li>
+                        </if>
+                    </ul>
+                </div>
+            </if>
+        </div>
+    </div>
+
+    <div class="row" style="margin:10px;">
+        拣货单号：<input type="text" value="{$s_ordersn}" id="s_ordersn" />
+        <div style="display: inline-block;margin-left: 20px;">类型
+            <select id="s_type" style="height: 26px;width: 100px;">
+                <option value="0" <?php if($type == 0){ echo "selected"; } ?> >全部</option>
+                <option value="1" <?php if($type == 1){ echo "selected"; } ?> >单品单货</option>
+                <option value="2" <?php if($type == 2){ echo "selected"; } ?> >单品多货</option>
+                <option value="3" <?php if($type == 3){ echo "selected"; } ?> >多品多货</option>
+            </select>
+            <button style="width: 80px;background-color: orange;border-radius: 6px;margin-left: 100px;" class="btn btn-sm" onclick="searchOrdersn('{$isPrint}')">搜索</button>
+        </div>
+    </div>
+
+    <div class="row" style="padding: 0 24px">
+        <div class="pageInfo">
+            <ul class="pagination" style="margin: 5px">{$pageStr}</ul>
+        </div>
+
+        <table class="table table-responsive table-hover table-condensed">
+            <tr>
+                <th>
+                    <label><input type="checkbox" name="checkAll" class="checkAllBox"> 全选</label>
+                </th>
+                <th>拣货单号</th>
+                <th>类型</th>
+                <th>物流分组</th>
+                <th>订单数量</th>
+                <th>SKU数量</th>
+                <th>货品数</th>
+                <th>创建日期</th>
+                <th>创建人</th>
+                <?php
+                $isPrint=(int)$_GET['isPrint'];
+                if($isPrint==2||$isPrint==3){
+                    echo '<th>包装状态</th>';
+                    echo '<th>包装消耗时间</th>';
+                }
+                ?>
+                <th>操作</th>
+            </tr>
+            <php>$orderCount = $skuCount = $productCount = 0;</php>
+
+
+            <?php
+
+            $typeArr=[
+                '0'=>'-未知的类型-',
+                '1'=>'单品单货',
+                '2'=>'单品多货',
+                '3'=>'多品多货'
+            ]
+
+            ?>
+            <foreach name="packages" item="package">
+                <tr>
+                    <td>
+                        <label> <input type="checkbox" name="checkItem" value="{$package['ordersn']}"></label>
+                    </td>
+                    <?php
+                    $is_cross = $package['is_cross'];
+                    $ordersn  = $package['ordersn'];
+                    $type     = (int)$package['type'];
+                    ?>
+                    <td>{$package.ordersn}</td>
+                    <td>
+                        <?php
+                         $styleStr=$is_cross==1?'color:#911':'';
+                         $str=$is_cross==1?'(跨仓单)':'';
+                         echo '<span style="'.$styleStr.'">'.$typeArr[$type].$str.'</span>';
+                        ?>
+                    </td>
+                    <td>{$carrierGroup[$package['carrier_company']]}</td>
+                    <td style="text-align: center">{$package['order_count']}</td>
+                    <td style="text-align: center">
+                        <?php
+                         if($type!=3){
+                          echo $package['sku_count'];
+                         }else{
+                          echo '***';
+                         }
+                        ?>
+                    </td>
+                    <td style="text-align: center">
+                        <?php
+                         if($type!=3){
+                          echo $package['sum_count'];
+                         }else{
+                          echo '***';
+                         }
+                        ?>
+                    </td>
+                    <td>{:date('y/m/d H:i', $package['addtime'])}</td>
+                    <td>{$package['adduser']}</td>
+                    <?php
+                        $orderCount += $package['order_count'];
+                        $skuCount   += $package['sku_count'];
+                        $productCount+= $package['sum_count'];
+                        if($isPrint==2||$isPrint==3){
+                             $startime=$package['work_start'];
+                             $work_end=$package['work_end'];
+                             $buser_one = "";
+                             $buser_two = "";
+                             $is_has_work = false;
+                             if($type == 3){
+                                $is_has_work = ($package['is_work'] == 1) ? true : false;
+                                $buser_one = $package['baleuser'];
+                                $buser_two = $package['baleuser'];
+                             }else{
+                                 foreach($package['order_work'] as $v){
+                                    if($v['status'] == 1){
+                                        $is_has_work = true;
+                                        $buser_one.= $v['baleuser'].",";
+                                    }
+                                    if($v['status'] == 2){
+                                        $buser_two.= $v['baleuser'].",";
+                                    }
+                                 }
+                                $buser_one = trim($buser_one,",");
+                                $buser_two = trim($buser_two,",");
+                             }
+                            if($is_has_work){
+                                $workStatus='<b style="color:#911">正在包装</b>';
+                                 $h=number_format((time()-$startime)/3600,1);
+                                $buser = $buser_one;
+                            }else{
+                                $buser = $buser_two;
+                                $workStatus='---';
+                                $h='-';
+                                if($isPrint==3){
+                                     $h=number_format(($work_end-$startime)/3600,1);
+                                }
+                            }
+
+
+                    ?>
+                    <td>{$workStatus}({$buser})</td>
+                    <td>{$h}</td>
+                    <?php
+                        }
+                    ?>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuDivider" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                操作 <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuDivider">
+                                <li><a class="showPackageOrderList" href="javascript:void 0" data-url="{:U('PrintPickingList/packageOrderList', ['ordersn' => $package['ordersn']])}">查看包裹清单</a></li>
+                                <li><a class="showPackageSkuList" href="javascript:void 0" data-url="{:U('PrintPickingList/packageSkuList', ['ordersn' => $package['ordersn']])}">查看货品清单</a></li>
+                                <li role="separator" class="divider"></li>
+                                <if condition="$type eq 3">
+                                    <li><a class="printPackage" data-pickuser="{$package.pickuser}" data-order="{$package.ordersn}" data-type="{$type}" href="javascript:void 0" data-url="{:U('PrintPickingList/printPackage', ['ordersn' => $package['ordersn']])}">打印拣货单</a></li>
+                                <else/>
+                                    <li><a class="printPackage" data-order="{$package.ordersn}" data-type="{$type}" href="javascript:void 0" data-url="{:U('PrintPickingList/printPackageNew', ['ordersn' => $package['ordersn']])}">打印拣货单</a></li>
+                                    <li><a class="printPackage merge" data-order="{$package.ordersn}" data-type="3"  href="javascript:void 0" data-url="{:U('PrintPickingList/printPackage', ['ordersn' => $package['ordersn']])}">合并打印拣货单</a></li>
+                                </if>
+
+                                <if condition="$isPrint eq 0">
+                                    <li><a class="markPrint" data-order="{$package.ordersn}" href="javascript:void 0" data-url="{:U('PrintPickingList/markAsPrinted', ['ordersn' => $package['ordersn']])}">转到待包装</a></li>  <!-- 原 标记拣货单已打印 -->
+                                    <elseif condition="$isPrint eq 1 and can('pick_order_confirm') and $type eq 3"/>
+                                    <li><a class="markConfirm" data-order="{$package.ordersn}" href="javascript:void 0" data-url="{:U('PrintPickingList/showConfirm', ['ordersn' => $package['ordersn']])}">拣货单确认</a></li>
+                                </if>
+
+                                <if condition="$isPrint eq 2">
+                                    <li><a class="viewBackToStoreSku" href="javascript:void 0" data-url="{:U('Confirm/ViewBackSKU')}&ordersn={$package['ordersn']}">查看拣货单退回SKU</a></li>
+                                </if>
+
+                                <if condition="$isPrint eq 2">
+                                    <li><a class="viewStockOutOrder" href="javascript:void 0" data-url="{:U('PrintPickingList/showStockOrder')}&ordersn={$package['ordersn']}">查看缺货订单</a></li>
+                                </if>
+
+                                <if condition="$isPrint eq 3">
+                                    <li><a href="{:U('MakeBale/ViewReturnsku', ['ordersn' => $package['ordersn']])}">打印包装失败须退回</a></li>
+                                </if>
+                                <if condition="($isPrint gt 0) and ($isPrint lt 3) and ($type lt 3)">
+                                    <li><a href="javascript:void(0)" onclick="setPickOrderOver(this)" data-order="{$package['ordersn']}">确认完成</a></li>
+                                </if>
+
+                                <if condition="can('del_pick_order')">
+                                    <li role="separator" class="divider"></li>
+                                    <li><a class="deletePackage" data-order="{$package.ordersn}" href="javascript:void 0" data-url="{:U('Confirm/deleteOnePkOrder', ['ordersn' => $package['ordersn']])}" style="color: red">删除拣货单</a></li>
+                                </if>
+
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </foreach>
+
+
+            <tr>
+                <th style="white-space: nowrap;">统计：</th>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th style="white-space: nowrap;">订单：{$orderCount}</th>
+                <th style="white-space: nowrap;">SKU：{$skuCount}</th>
+                <th style="white-space: nowrap;">产品：{$productCount}</th>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+        </table>
+
+        <div class="pageInfo">
+            <ul class="pagination" style="margin: 5px">{$pageStr}</ul>
+        </div>
+    </div>
+
+
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript" src="/newerp/Public/plugins/icheck/icheck.min.js"></script>
+<script type="application/javascript">
+
+
+    function Print_pick_failure(){
+        var checkedItems = $('td input:checked');
+        var checkedValue = [];
+
+        $.each(checkedItems, function(key, item) {
+            checkedValue.push($(item).val());
+        });
+
+        var checkedSkuStr = checkedValue.join(',');
+        var url = "t.php?s=/Package/PrintPickingList/PickFailure.html&packages=" + checkedSkuStr;
+
+        layer.open({
+            type: 2,
+            title: '捡货失败',
+            shift: '1',
+            closeBtn: 1,
+            scrollbar: false,
+            area: ['40%', '50%'],
+            content: url
+        });
+
+
+    }
+    /**
+     * 完成拣货单操作
+     * @author Shawn
+     * @date 2018-06-02
+     **/
+    function setPickOrderOver(obj) {
+        var ordersn = $(obj).attr("data-order");
+        var url = "t.php?s=/Package/PrintPickingList/setPickOrderOver&ordersn=" + ordersn;
+        layer.open({
+            type: 2,
+            title: '确认完成拣货单',
+            shift: '1',
+            closeBtn: 1,
+            scrollbar: false,
+            area: ['50%', '50%'],
+            content: url,
+            btn  : ['确定完成拣货单'],
+            yes  : function(index, layero) {
+                var loadIndex = layer.load(1, {shade:0.5});
+                $.ajax({
+                    url  : "{:U('PrintPickingList/confirmOverOrder')}",
+                    type : 'post',
+                    data : { ordersn:ordersn},
+                    dataType : 'json'
+                }).done(function(result) {
+                    layer.msg(result.msg);
+                    if (result.status) {
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                }).fail(function() {
+                    layer.msg('确认完成拣货单的访问出错.');
+                }).always(function() {
+                    layer.close(loadIndex);
+                });
+            }
+
+        });
+    }
+
+
+
+    var PageHandler = (function(window, $, layer, undefined) {
+
+        /**
+         * 简化测试输出
+         */
+        var echo = console.log.bind(console);
+        var printSuccessMarkUrl = "{:U('PrintPickingList/markAsPrinted')}";
+
+        /**
+         * @property {PageHandler} _this;
+         */
+        var _this = null;
+
+
+        /**---------------------------------------------------------------
+         * 类构造函数
+         * @constructor
+         */
+        function PageHandler()
+        {
+            _this = this;
+        }
+
+        /**---------------------------------------------------------------
+         * 初始化页面的动作绑定
+         */
+        PageHandler.prototype.init = function()
+        {
+            // 列出包裹中订单和SKU列表的 事件绑定
+            $('.showPackageOrderList, .showPackageSkuList').on('click', function() {
+                listShow(this);
+            });
+
+            $('input:checkbox').iCheck({
+                checkboxClass : 'icheckbox_square-blue'
+            });
+
+            // 打印包裹的事件绑定
+            $('.printPackage').on('click', function() {
+                printPackage(this);
+            });
+
+            // 打印拣货单
+            $('.markPrint').on('click', function() {
+                markPrint(this);
+            });
+
+            // 删除拣货单
+            $('.deletePackage').on('click', function() {
+                deletePackage(this);
+            });
+
+            // 确认拣货单
+            $('.markConfirm').on('click', function() {
+                confirmPickPackage(this);
+            });
+
+            $('.viewBackToStoreSku').on('click', function() {
+                var url = $(this).attr('data-url');
+                window.open(url,"_blank");
+            });
+
+            //viewStockOutOrder
+            $('.viewStockOutOrder').on('click', function() {
+                var url = $(this).attr('data-url');
+                $.get(url,function(data){
+                    if(data.status){
+                        layer.open({
+                            type: 1,
+                            title: '查看缺货的订单',
+                            shift: '1',
+                            closeBtn: 1,
+                            scrollbar: false,
+                            area: ['40%', '50%'],
+                            content: data.data
+                        })
+                    }
+                },'json');
+            });
+
+            // 全选 取消全选 反选  复选框
+            $('.checkAllBox').on('ifChecked', function(event){
+                $('input[name="checkItem"]').iCheck('check');
+            }).on('ifUnchecked', function (event) {
+                $('input[name="checkItem"]').iCheck('uncheck');
+            });
+
+            // 执行批量打印的操作被点击的事件
+            $('.batchPrintCheckedItem').on('click', function() {
+                batchPrint();
+            });
+
+
+            // 导出已完成数据
+            $('.exportCheckedLists').on('click', function() {
+                exportCheckList();
+            });
+
+            $(".picksku_failure").on('click', function() {
+                Print_pick_failure();
+            });
+        };
+
+
+        /**
+         |---------------------------------------------------------------
+         | 展示列表的弹窗 ( 适用于 SKU，订单 列表弹窗)
+         * @param that
+         */
+        function listShow(that)
+        {
+            var url    = $(that).attr('data-url');
+            var title  = '';
+
+            if ($(that).hasClass('showPackageOrderList')) {
+                title  = '包裹订单列表';
+            } else if ($(that).hasClass('showPackageSkuList')) {
+                title  = '包裹SKU列表';
+            }
+
+            layer.open({
+                type  : 2,
+                title : title,
+                area  : ['65%', '75%'],
+                maxmin: true,
+                shift : 2,
+                content : url
+            });
+        }
+
+
+        /**---------------------------------------------------------------
+         * 打印包裹
+         * @param that
+         */
+        function printPackage(that)
+        {
+            var url     = $(that).attr('data-url');
+            var orderSn = $(that).attr('data-order');
+            var type = $(that).attr('data-type');
+            var pickuser= $(that).attr('data-pickuser');
+            var canNext = false;
+            var status = '{$isPrint}';
+            var is_merge = $(that).hasClass("merge");
+            //单品类型选择拣货人打印
+            if(type == 1 || type == 2){
+                layer.open({
+                    content : '<div class="alert-message">您选择的拣货单:(<span style="font-weight: bold;color: green">'
+                    + orderSn + '</span>) 请选择需要打印哪些拣货人</div><div id="checked_box">正在查找拣货人，请等待...</div>',
+                    title   : '选择拣货人',
+                    skin    : 'btn-style',
+                    area    : ['500px', '500px'],
+                    btn     : ['确认打印','打印(老版)','取消打印'],
+                    btn1    : function(index) {
+                        var checkedElements = $('#checked_box').find('input:checked');
+                        var values = [];
+                        $.each(checkedElements, function ( key, item ) {
+                            values.push($(item).val());
+                        });
+                        if(values.length == 0){
+                            var info = "未选择指定拣货员，默认全部打印！是否确认？";
+                            var r = confirm(info);
+                            if(r == false){
+                               
+                                return false;
+                            }else{
+                                url+='&picker=';
+                                layer.close(index);
+                                window.open(url, '_blank');
+                                canNext = true;
+                            }
+                        }else{
+                            url+='&picker='+values.toString();
+                            layer.close(index);
+                            window.open(url, '_blank');
+                            canNext = true;
+                        }
+                    },
+                    btn2 : function(index) {
+                        url = "{:U('PrintPickingList/printPackageOld')}&ordersn="+orderSn;
+                        var checkedElements = $('#checked_box').find('input:checked');
+                        var values = [];
+                        $.each(checkedElements, function ( key, item ) {
+                            values.push($(item).val());
+                        });
+                        if(values.length == 0){
+                            var info = "未选择指定拣货员，默认全部打印！是否确认？";
+                            var r = confirm(info);
+                            if(r == false){
+                                return false;
+                            }else{
+                                url+='&picker=';
+                                layer.close(index);
+                                window.open(url, '_blank');
+                                canNext = true;
+                            }
+                        }else{
+                            url+='&picker='+values.toString();
+                            layer.close(index);
+                            window.open(url, '_blank');
+                            canNext = true;
+                        }
+                    }
+                });
+                $.post("{:U('PrintPickingList/getPicker')}",{orderSn:orderSn},function(e){
+                    if(e.status == 1){
+                        if(e.data.length > 0){
+                            var checkHtml = '';
+                            for(var i=0;i<e.data.length;i++){
+                                if(e['data'][i]['picker'] != ""){
+                                    checkHtml+='<input type="checkbox" value="'+e['data'][i]['picker']+'">'+e['data'][i]['picker'];
+                                }
+                            }
+                            $("#checked_box").html(checkHtml);
+                        }else{
+                            $("#checked_box").html('<p>没有找到拣货人，请直接打印！</p>');
+                        }
+                    }
+
+                })
+            }else{
+                if(status < 2 && is_merge == false){
+                    layer.open({
+                        content : '<div class="alert-message">您选择的拣货单:(<span style="font-weight: bold;color: green">'
+                                    + orderSn
+                                    + '</span>) 请填写拣货人</div><div id="checked_box" style="text-align: center;margin-top: 10px;">'
+                                    +'<input style="width: 200px;" type="text" id="picker_name" value="' + pickuser +'" placeholder="请扫描拣货员的条码" />'
+                                    +'<p style="color: red;">用于统计拣货绩效,拣货单进入待包装前可修改</p></div>',
+                        title   : '填写拣货人',
+                        skin    : 'btn-style',
+                        area    : ['500px', '500px'],
+                        btn     : ['确认打印','取消打印'],
+                        yes     : function(index) {
+                            var picker = $.trim($('#picker_name').val());
+                            if(picker == ''){
+                                alert('未填写拣货人不允许进行打印操作！');
+                                return false;
+                            }else{
+                                url+='&picker='+picker;
+                                //layer.close(index);
+                                window.open(url, '_blank');
+                            }
+                            return false;
+                        }
+                    });
+                }else{
+                    window.open(url, '_blank');
+                }
+            }
+            if (status !== '0') {
+                return null;
+            }
+            // var inter = setInterval(
+            //     function(){
+            //         if(canNext){
+            //             clearInterval(inter);
+            //             layer.open({
+            //                 content : '<div class="alert-message">您选择的拣货单:(<span style="font-weight: bold;color: green">'
+            //                 + orderSn + '</span>) 已经在新页面显示打印内容,请在新页面中打印,根据打印结果选择以下操作。</div>',
+            //                 title   : '拣货单打印',
+            //                 skin    : 'btn-style',
+            //                 area    : ['500px', '210px'],
+            //                 btn     : ['打印成功标记为已打印','打印失败稍后我重新打印'],
+            //
+            //                 // 打印成功标记为已采的按钮的回调动作
+            //                 yes     : function(index) {
+            //                     var loadingIndex = layer.load(1, {});
+            //                     $.ajax({
+            //                         url  : printSuccessMarkUrl,
+            //                         data : {ordersn: orderSn},
+            //                         type : 'post',
+            //                         dataType: 'json'
+            //                     }).done(function (result) {
+            //                         layer.msg(result.data);
+            //
+            //                         if (result.status) {
+            //                             setTimeout(function () {
+            //                                 window.location.reload();
+            //                             }, 1500);
+            //                         }
+            //
+            //                     }).fail(function () {
+            //                         layer.msg('拣货单确认访问出错.');
+            //                     }).always(function () {
+            //                         layer.close(loadingIndex);
+            //                     });
+            //                 },
+            //
+            //                 // 打印失败重新打印的按钮的回调事件
+            //                 btn2: function (index, layero) {
+            //                     layer.close(index);
+            //                 }
+            //             });
+            //         }
+            //     },1000
+            // )
+
+        }
+
+
+
+        /**
+         * 标记为已经打印
+         * @param that
+         */
+        function markPrint(that)
+        {
+            var ordersn = $(that).attr('data-order');
+
+            layer.confirm('您确定拣货单: <span style="color: green;font-weight: bold">' + ordersn + '</span> 已经打印过了 ?', {
+                skin: 'content-area-modify',
+                area: ['350px', '150px'],
+                btn: ['转到待包装', '放弃操作'],
+                title: '确认转到待包装',
+                yes: function (index, layero) {
+                    var loadingIndex = layer.load(1, {shade: 0.5});
+                    $.ajax({
+                        url: printSuccessMarkUrl,
+                        type: 'post',
+                        data: {ordersn: ordersn},
+                        dataType: 'json'
+                    }).done(function (result) {
+                        layer.msg(result.data);
+                        // 标记成功后刷新
+                        if (result.status) {
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    }).fail(function () {
+                        layer.msg('转到待包装 操作失败.');
+                    }).always(function () {
+                        layer.close(loadingIndex);
+                    });
+                },
+
+                btn2: function (index, layero) {
+                    layer.close(index);
+                }
+            });
+        }
+
+
+        /**
+         * 删除指定的拣货单
+         * @param that
+         */
+        function deletePackage(that)
+        {
+            var ordersn = $(that).attr('data-order');
+            var url     = $(that).attr('data-url');
+            layer.confirm('您确定要删除拣货单: <span style="color: green">' + ordersn + '</span> ?', {
+                skin : 'content-area-modify',
+                area : ['350px', '150px'],
+                btn  : ['确认删除拣货单', '放弃删除拣货单'],
+                title: '拣货单删除确认',
+                yes  : function(index, layero) {
+                    var loadIndex = layer.load(1, {shade:0.5});
+                    $.ajax({
+                        url  : url,
+                        type : 'post',
+                        data : {ordersn:ordersn},
+                        dataType : 'json'
+                    }).done(function(result) {
+                        layer.msg(result.msg);
+
+                        if (result.status) {
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1500);
+                        }
+                    }).fail(function() {
+                        layer.msg('删除拣货单的访问出错.');
+                    }).always(function() {
+                        layer.close(loadIndex);
+                    });
+
+                },
+                btn2 : function(index, layero) {
+                    layer.close(index);
+                }
+            });
+        }
+
+
+        /**
+         * 拣货单确认的操作界面
+         * @param that
+         */
+        function confirmPickPackage(that)
+        {
+            var url = $(that).attr('data-url');
+            layer.open({
+                type : 2,
+                area : ['75%', '80%'],
+                shift: 2,
+                title: '拣货单确认',
+                maxmin: true,
+                content : url,
+                cancel  : function (index, layero) {
+                    window.parent.location.reload();
+                }
+            });
+        }
+
+        /**
+         * 批量打印选中的记录
+         */
+        function batchPrint()
+        {
+            var checkedItems = $('td input:checked');
+            var checkedValue = [];
+
+            $.each(checkedItems, function(key, item) {
+                checkedValue.push($(item).val());
+            });
+
+            var checkedSkuStr = checkedValue.join(',');
+
+            layer.open({
+                content : '<div class="alert-message">您选择的' + checkedValue.length + '个拣货单,已经在新页面显示打印内容,请在新页面中打印,根据打印结果选择以下操作。</div>',
+                title   : '拣货单打印',
+                skin    : 'btn-style',
+                area    : ['500px', '210px'],
+                btn     : ['打印成功标记为已打印','打印失败稍后我重新打印'],
+
+                // 打印成功标记为已采的按钮的回调动作
+                yes     : function(index) {
+                    var loadingIndex = layer.load(1, {});
+                    $.ajax({
+                        url  : '{:U("PrintPickingList/batchMarkAsPrinted")}',
+                        data : {ordersn: checkedSkuStr},
+                        type : 'post',
+                        dataType: 'json'
+                    }).done(function (result) {
+                        if (result.status) {
+                            layer.msg(result.data);
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            layer.alert(result.data);
+                        }
+
+                    }).fail(function () {
+                        layer.msg('拣货单确认访问出错.');
+                    }).always(function () {
+                        layer.close(loadingIndex);
+                    });
+                },
+
+                // 打印失败重新打印的按钮的回调事件
+                btn2: function (index, layero) {
+                    layer.close(index);
+                }
+            });
+//            var type = '{$isPrint}';
+            var url = "{:U('PrintPickingList/batchPrint')}&_ordersn=" + checkedSkuStr;
+            window.open(url, '_blank');
+        }
+
+
+        /**
+         * 导出列表中选中的数据
+         */
+        function exportCheckList()
+        {
+            var checkedItems = $('td input:checked');
+            var checkedValue = [];
+
+            $.each(checkedItems, function(key, item) {
+                checkedValue.push($(item).val());
+            });
+
+            var checkedSkuStr = checkedValue.join(',');
+
+            location.href = "t.php?s=/Package/PrintPickingList/exportPackages.html&packages=" + checkedSkuStr;
+        }
+
+
+        return PageHandler;
+
+    })(window, $, layer);
+
+    /**
+     * 搜索操作
+     * @author Shawn
+     * @date 2018-08-23
+     * @param isprint
+     */
+    function searchOrdersn(isprint) {
+        var url = "{:U('Package/PrintPickingList/orderPackages')}";
+        var type = $("#s_type").val();
+        var ordersn = $("#s_ordersn").val();
+        window.location.href = url+'&isPrint='+isprint+'&type='+type+'&s_ordersn='+ordersn;
+    }
+
+    (new PageHandler()).init();
+</script>
+
+</html>

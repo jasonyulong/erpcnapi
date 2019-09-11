@@ -1,0 +1,171 @@
+<?php
+/**
+ * 称重规则设置
+ * Created by PhpStorm.
+ * User: xiao
+ * Date: 2018/4/11
+ * Time: 14:15
+ */
+
+namespace Package\Controller;
+
+use Common\Controller\CommonController;
+use Package\Model\WeighRuleModel;
+use Think\Log;
+class WeighSystemController extends CommonController
+{
+    //日志文件名
+    private $logName = '';
+
+    /**
+     * 当前控制器的初始化操作
+     */
+    public function _initialize() {
+        parent::_initialize();
+        $this->logName = C('LOG_PATH').'weigh_'.date('y_m_d').'.log';
+    }
+
+    /**
+     * 称重规则设置首页
+     * @author xiao
+     * @date 2018-04-12
+     */
+    public function ruleIndex(){
+        $fields = 'id,weight_begin,weight_end,allow_dif';
+        $data = (new WeighRuleModel())->getAll($fields,'weight_begin asc');
+        $this->assign('data',$data);
+        $this->display();
+    }
+
+    /**
+     * 设置称重重量范围
+     * @param data 主键id，没有为0
+     * @param min 最小范围
+     * @param max 最大范围
+     * @param dif 允许误差
+     * @return json
+     * @author xiao
+     * @date 2018-04-12
+     */
+    public function ruleSet(){
+        $id = (int)$_POST['data'];
+        $min = sprintf('%.1f', (float)$_POST['min']);
+        $max = sprintf('%.1f', (float)$_POST['max']);
+        $dif = sprintf('%.1f', (float)$_POST['dif']);
+        if($dif == 0) $this->ajaxReturn(['status'=>0,'msg'=>'请填写允许差异']);
+        //判断有没有修改
+        if(($min == 0) && ($max == 0) && ($dif == 0)) $this->ajaxReturn(['status'=>0,'msg'=>'请确认有进行修改']);
+        //判断修改值是否合理
+        if(($min < 0) || ($max < 0) && ($dif< 0)) $this->ajaxReturn(['status'=>0,'msg'=>'请合理设置，不能存在负数']);
+        //最大范围不能小于最小范围
+        if($min >= $max) $this->ajaxReturn(['status'=>0,'msg'=>'请合理设置范围区间']);
+        //误差不能大于范围
+        if($dif > $max) $this->ajaxReturn(['status'=>0,'msg'=>'允许误差不能大于设置范围']);
+        $WeighRuleModel = new WeighRuleModel();
+        //验证是否重复设置
+//        if($id > 0){
+//            $this->ajaxReturn(['status'=>0,'msg'=>'暂不支持修改']);
+//        }
+        if(!$this->checkWeight($min,$max,$id)) $this->ajaxReturn(['status'=>0,'msg'=>'请勿设置重复的重量范围']);
+        //拼装数据
+        $data['weight_begin'] = $min;
+        $data['weight_end'] = $max;
+        $data['allow_dif'] = $dif;
+        //日志记录
+        $log = "[begin]操作人：".$_SESSION['truename']."\n";
+        $log.='请求数据：'.'data=>'.$_POST['data'].',min=>'.$_POST['min'].',max=>'.$_POST['max'].',dif=>'.$_POST['dif']."\n";
+        $log.='保存数据：'.'id=>'.$id.',weight_begin=>'.$min.",weight_end=>".$max.",allow_dif=>".$dif."\n";
+        //判断是否有主键id，如果有就进行保存，否则插入
+        if($id > 0){
+            $map = "id = $id";
+            $result = $WeighRuleModel->saveData($map,$data);
+            //写日志，操作人是谁，什么时间操作，操作数据
+            if($result){
+                $log.='更新成功[end]'."\n";
+                Log::write($log,Log::INFO,'',$this->logName);
+                $data['id'] = $id;
+                $this->ajaxReturn(['status'=>1,'msg'=>'更新成功','data'=>$data]);
+            }else{
+                $log.='更新失败：'.$WeighRuleModel->_sql().'[end]'."\n";
+                Log::write($log,Log::INFO,'',$this->logName);
+                $this->ajaxReturn(['status'=>0,'msg'=>'更新失败']);
+            }
+        }else{
+            $resultId = $WeighRuleModel->insertData($data);
+            if($resultId > 0){
+                $log.='添加成功[end]'."\n";
+                Log::write($log,Log::INFO,'',$this->logName);
+                $data['id'] = $resultId;
+                $this->ajaxReturn(['status'=>1,'msg'=>'添加成功','data'=>$data]);
+            }else{
+                $log.='添加失败'.$WeighRuleModel->_sql().'[end]'."\n";
+                Log::write($log,Log::INFO,'',$this->logName);
+                $this->ajaxReturn(['status'=>0,'msg'=>'添加失败']);
+            }
+        }
+    }
+
+    /**
+     * 删除规则
+     * @param data 主键id
+     * @return json
+     * @author xiao
+     * @date 2018-04-12
+     */
+    public function ruleDelete(){
+        //获取参数判断
+        $id = (int)$_POST['data'];
+        if($id <= 0) $this->ajaxReturn(['status'=>0,'msg'=>'参数错误']);
+        //日志记录
+        $log = "[begin]操作人：".$_SESSION['truename']."\n";
+        $log.='请求数据：'.'data=>'.$_POST['data']."\n";
+        $log.='保存数据：'.'id=>'.$id."\n";
+        //开始删除
+        $WeighRuleModel = new WeighRuleModel();
+        $result = $WeighRuleModel->delete($id);
+        if($result){
+            $log.='删除成功[end]'."\n";
+            Log::write($log,Log::INFO,'',$this->logName);
+            $this->ajaxReturn(['status'=>1,'msg'=>'删除成功']);
+        }else{
+            $log.='删除失败'.$WeighRuleModel->_sql().'[end]'."\n";
+            Log::write($log,Log::INFO,'',$this->logName);
+            $this->ajaxReturn(['status'=>0,'msg'=>'删除失败']);
+        }
+    }
+
+    /**
+     * 判断设置区间是否重复
+     * @param $min 设置开始值
+     * @param $max 设置结束值
+     * @return bool
+     * @author xiao
+     * @date 2018-04-13
+     */
+    private function checkWeight($min,$max,$id){
+        $where = null;
+        if($id > 0){
+           $where['id'] = ['neq',$id];
+        }
+        $data = (new WeighRuleModel())->getAll('weight_begin,weight_end','',$where);
+        for ($i=0;$i<count($data);$i++){
+            //设置的不能包含
+            if($data[$i]['weight_begin'] <= $min && $min < $data[$i]['weight_end']){
+                return false;
+            }
+            if($data[$i]['weight_begin'] < $max && $max <= $data[$i]['weight_end']){
+                return false;
+            }
+            //不能在已存在区间
+            if(($data[$i]['weight_begin'] <= $min) && ($max <= $data[$i]['weight_end']) ){
+                return false;
+            }
+            if(($data[$i]['weight_begin'] >= $min) && ($max >= $data[$i]['weight_end']) ){
+                return false;
+            }
+
+        }
+        return true;
+    }
+
+}

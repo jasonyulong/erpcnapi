@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport"/>
+    <title>跨仓二次分拣</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+    body{padding:0;margin: 0;}
+    .container{width:100%;padding:0;margin: 0;}
+
+    .SecondPick_error{font-size:26px;}
+    .ebay_sku_table{width:100%}
+    .show_location{font-size:180px;width:200px;text-align:center;line-height:200px;height:200px;border:10px solid #0066cc;margin:10px;}
+    .fenjian_location{font-size:20px;background:#286090;color:#fff;}
+    .tr_second_bg td{background:#CCCACA}
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="padding: 8px 5px;background-color:orange">
+        <div class="col-xs-12">
+            <input type="text" style="font-size:25px;width:178px;" placeholder="拣货单号" id="ordersn" onkeyup="selectPickOrder(event)" value="">
+            <input type="text" style="font-size:25px;width:150px;" placeholder="请扫描SKU" id="sku" onkeyup="FillSKUPickOrder(event)" value="">
+        </div>
+    </div>
+
+    <div class="row" style="padding: 0 24px">
+            <div id="myTbody" style="height:230px;">
+
+            </div>
+                <!--<div date="22:41" sku="AAGF098" class="show_location">1</div>-->
+
+
+        <!--最近的几个sku -->
+
+
+        <div class="pageInfo" id="bottom_handle">
+            <a style="font-size:18px;margin-top:-4px;" onclick="view_fenjian_step()" class="btn btn-sm btn-primary">分拣进度</a>
+            <a style="font-size:18px;margin-top:-4px;" onclick="Forced_to_end()" class="btn btn-sm btn-danger" >本仓结束</a>
+            <a style="font-size:18px;margin-top:-4px;" onclick="Other_to_end()" class="btn btn-sm btn-danger" >集货结束</a>
+        </div>
+        <br>
+        <div class="pageInfo" id="bottom_handle">
+            <a style="font-size:18px;margin-top:-4px;" onclick="initCrossOrder()" class="btn btn-sm btn-danger" >初始化跨仓单</a>
+            <a style="font-size:18px;margin-top:-4px;" onclick="createTransferOrder()"  class="btn btn-sm btn-danger">手动建调拨单</a>
+        </div>
+        <br>
+        <div class="pageInfo" id="bottom_handle">
+            <a style="font-size:18px;margin-top:-4px;" onclick="CheckTransOrder()" class="btn btn-sm btn-danger" >检查调拨单</a>
+            <a style="font-size:18px;margin-top:-4px;" onclick="CheckBadOrder()" class="btn btn-sm btn-danger" >清空异常格子</a>
+        </div>
+    </div>
+
+
+    <audio  id="10" autoplay="autoplay">
+        <source src='' type='audio/mp3'>
+    </audio>
+    <audio id="failSound" >
+        <source src='' type='audio/mp3'>
+    </audio>
+    <audio id="scanSound" >
+        <source src='' type='audio/mp3'>
+    </audio>
+
+
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<script type="application/javascript">
+    function selectPickOrder(event){
+        //var keyCode = event.keyCode;
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        //$("#code").val($("#code").val()+"###"+keyCode);
+        if (keyCode !==13) {
+            return false;
+        }
+
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            return false;
+        }
+       // alert(ordersn);
+
+        $("#sku").select().focus();
+
+    }
+
+
+    // 填写 sku 该岛哪里去
+    function FillSKUPickOrder(event){
+        //var keyCode = event.keyCode;
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        if (keyCode !==13) {
+            return false;
+        }
+
+        var ordersn=$("#ordersn").val();
+        var sku=$("#sku").val();
+
+        if(ordersn==''){
+            return false;
+        }
+
+        if(sku==''){
+            return false;
+        }
+
+        $("#sku").select();
+
+        var url="{:U('OrderCrossSorting/ScanOneSKU')}";
+        $.post(url,{ordersn:ordersn,sku:sku},function(data){
+            var number='fail';
+            var msg=data.msg;
+
+            if(data.status==1){
+                number=data.data;
+                var myLocation=$("#myTbody").html();
+                //alert(myLocation);
+                if ($.trim (myLocation) != '') {
+                    myLocation = $ (myLocation);
+
+                    var date = myLocation.attr("date");
+                    var sku = myLocation.attr("sku");
+                    var location = myLocation.html ();
+
+                    if(undefined!=sku){
+                        var html = '<div style="font-size:14px;">' + date + '&nbsp;&nbsp;&nbsp;' + sku + '&nbsp;&nbsp;&nbsp;分拣位：' + location + '</div>';
+                        $ ("#bottom_info").prepend (html);
+                    }
+                }
+               // alert(myLocation);
+
+            }
+            $("#myTbody").html(msg);
+
+            playm(number);
+
+        },'json')
+
+
+
+    }
+
+
+    function playm(id){
+        var video=null;
+        if(id=="fail"){
+            video	=	document.getElementById("failSound");
+            video.src="capi/number/error.mp3";
+            video.play();
+        }else {
+            video	=	document.getElementById("10");
+            video.src="capi/number/"+id+".mp3";
+            video.play();
+        }
+    }
+
+
+    function repeat_fenjian(){
+       // alert('这功能还没开花!');
+
+        if(!confirm("重新分拣之后,会完全清空订单(小格子)与sku的关联\n需要将现有小格子里面的SKU全部拿出来\n请确保没有开始打包")){
+            return '';
+        }
+        var ordersn=$("#ordersn").val();
+        var url="{:U('OrderCrossSorting/RePick')}";
+        $.post(url,{ordersn:ordersn},function(data){
+            if(undefined===data.status){
+                 layer.alert("请求失败!");
+                return '';
+            }
+
+            if(data.status>=0){
+                layer.alert(data.msg);
+            }
+        },'json')
+    }
+
+    function  CheckTransOrder(){
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/checkTransferOrder')}&ordersn="+ordersn;
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '调拨进度',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+
+    }
+
+    function CheckBadOrder(){
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/viewBadOrder')}&ordersn="+ordersn;
+
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '异常箱子',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+    }
+
+
+    function createTransferOrder(){
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/createTransferOrder')}&ordersn="+ordersn;
+
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '分拣进度',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+    }
+
+    function view_fenjian_step(){
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/getPickStstus')}&ordersn="+ordersn;
+
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '分拣进度',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+    }
+
+    /**
+    *测试人员谭 2017-06-10 10:12:20
+    *说明: 本仓
+    */
+    function Forced_to_end(){
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/ConfirmCurrentStoreBefore')}&ordersn="+ordersn;
+
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '本仓未捡到货',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+    }
+
+    function TrueForced_to_end(){
+        if(!confirm("本仓结束之后不能再添加本仓sku进去,请将错误的SKU还回去!")){
+            return '';
+        }
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/ConfirmCurrentStore')}&ordersn="+ordersn;
+
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '本仓结束',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+    }
+
+
+
+    function Other_to_end(){
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/ConfirmOtherStoreBefore')}&ordersn="+ordersn;
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '调拨仓未捡到货',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+
+    }
+
+    function TrueOther_to_end(){
+        if(!confirm("调拨仓结束之后不能再添加sku进去,请将错误的SKU放在异常区")){
+            return '';
+        }
+        var ordersn=$("#ordersn").val();
+
+        if(ordersn==''){
+            alert("必须先扫描单号");
+            return false;
+        }
+
+        var url="{:U('OrderCrossSorting/ConfirmOtherStore')}&ordersn="+ordersn;
+
+        $.post(url,{},function(data){
+
+            layer.open({
+                type: 1,
+                title: '调拨仓结束',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+
+    }
+    // 初始化跨仓单-----
+    function initCrossOrder(){
+        var ordersn= $.trim($("#ordersn").val());
+        if(''==ordersn){
+            alert("请先扫描拣货单");return false;
+        }
+
+        var url="{:U('OrderCrossSorting/initCrossOrder')}";
+        $.post(url,{"ordersn":ordersn},function(data){
+            layer.open({
+                type: 1,
+                title: '初始化跨仓单',
+                shift: '1',
+                closeBtn: 1,
+                scrollbar: false,
+                area: ['80%', '80%'],
+                content: data
+            })
+        });
+
+
+
+
+    }
+
+function showHide196(that){
+
+    if($(that).prop('checked')){
+        $(".showhide_196 span").css("color",'#000');
+        $(".showhide_ok_196 span").show();
+    }else{
+        $(".showhide_196 span").css("color",'#bbb');
+        $(".showhide_ok_196 span").hide();
+    }
+}
+
+    function showHide234(that){
+
+        if($(that).prop('checked')){
+            $(".showhide_234 span").css("color",'#000');
+            $(".showhide_ok_234 span").show();
+        }else{
+            $(".showhide_234 span").css("color",'#bbb');
+            $(".showhide_ok_234 span").hide();
+        }
+
+    }
+</script>
+
+</html>

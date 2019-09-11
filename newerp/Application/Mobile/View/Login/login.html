@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport"/>
+    <title>WMS-手机端登陆</title>
+    <link rel="stylesheet" type="text/css" href="../cache/themes/Sugar5/css/grids-min.css"/>
+    <link rel="stylesheet" type="text/css" href="../cache/themes/Sugar5/css/forms-min.css"/>
+    <link rel="stylesheet" type="text/css" href="../cache/themes/Sugar5/css/buttons-min.css"/>
+    <link rel="stylesheet" type="text/css" href="../cache/themes/Sugar5/css/mobile.css"/>
+</head>
+
+<body>
+<header id="mob-hander">WMS Login</header>
+<div id="loginimg">
+    <div class="arc"></div>
+    <div class="arc-btm"></div>
+</div>
+<form class="pure-form pure-form-stacked"  method="post">
+    <fieldset>
+        <input id="wst_name" type="text" placeholder="Username" name="wst_name">
+        <div class="hidden text-center" id="accountMsg"><span class="glyphicon glyphicon-exclamation-sign"></span><span class="accountMsg"></span></div>
+        <input id="user_password" type="password" placeholder="Password" name="user_password">
+        <div class="hidden text-center" id="pwdMsg"><span class="glyphicon glyphicon-exclamation-sign"></span><span class="pwdMsg"></span></div>
+        <div id="login-message"></div>
+        <input type="button" name="submit" value="Sign in" id="user_submit" class="pure-button pure-button-primary">
+    </fieldset>
+</form>
+<div class="tan_link"><a href="../login.php">PC-Login</a></div>
+</body>
+</html>
+<script src="newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script>
+    /**
+     * 监听输入框回车
+     * @author Shawn
+     * @date 2018-08-21
+     */
+    $('#user_password').bind('keypress', function(event) {
+        if (event.keyCode == "13") {
+            event.preventDefault();
+            //回车执行
+            $("#user_submit").click();
+        }
+    });
+    /**
+     * 登录操作
+     * @author Shawn
+     * @date 2018-08-21
+     */
+    $("#user_submit").unbind("click").click(function () {
+        var accountNo   = $("#wst_name").val();
+        var pwd         = $("#user_password").val();
+        var url         = '{:U("Mobile/Login/loginAuth")}';
+        if(accountNo == '')
+        {
+            $("#login-message").html("用户名不能为空!");
+            return false;
+        }
+        if(pwd == '')
+        {
+            $("#login-message").html("密码不能为空!");
+            return false;
+        }
+        $.ajax({
+            url: url,
+            type: 'post',
+            data:{accountNo:accountNo,pwd:pwd},
+            dataType: 'json'
+        }).done(function (result) {
+            if (result.status == 1) {
+                window.location.href = "{:U('Mobile/Index/delivery')}";
+            }else{
+                $("#login-message").html(result.msg);
+            }
+        }).fail(function () {
+            $("#login-message").html('网络出错了！');
+        })
+    })
+</script>

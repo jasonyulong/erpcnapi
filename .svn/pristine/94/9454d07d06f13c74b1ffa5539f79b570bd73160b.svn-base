@@ -1,0 +1,203 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2017/11/9
+ * Time: 14:08
+ */
+namespace Order\Controller;
+
+use Api\Model\OrderInterceptRecordModel;
+use Order\Model\EbayOrderModel;
+use Order\Model\OrderTypeModel;
+use Order\Service\OrderInterceptService;
+use Package\Model\ApiCheckskuModel;
+use Package\Model\GoodsSaleDetailModel;
+use Package\Model\TopMenuModel;
+use Think\Controller;
+
+class CancelOrderStepController extends Controller
+{
+    /**
+     * @author Simon 2017/11/9
+     * @link   Order/CancelOrderStep/cancelOrderList
+     */
+    public function cancelOrderList() {
+        exit("功能已被废除！");
+        $request      = $_REQUEST;
+        $page_size    = $request['page_size'] ?: 50;
+        $backSteps    = ['1731' => 0, 1 => '1723', 2 => '1724', 3 => '2009'];
+        $topMenuModel = new TopMenuModel();
+        $intercept    = new OrderInterceptRecordModel();
+        $orderModel   = new EbayOrderModel();
+        $field        = [
+            'a.id'               => 'id',
+            'a.ebay_id'          => 'ebay_id',
+            'a.add_user'         => 'add_user',
+            'a.add_time'         => 'add_time',
+            'a.update_reason'    => 'update_reason',
+            'a.status'           => 'status',
+            'b.ebay_status'      => 'ebay_status',
+            'b.ebay_tracknumber' => 'ebay_tracknumber'
+        ];
+        if ($request['add_user']) {
+            $map['a.add_user'] = ['eq', $request['add_user']];
+        }
+        if ($request['ebay_id']) {
+            // hank 2018/1/20 9:35 多订单查询
+            $ebay_ids = trim($request['ebay_id'],',');
+            $ebay_ids = explode(',',$ebay_ids);
+            $map['a.ebay_id'] = ['in', $ebay_ids];
+        }
+        if ($request['ebay_tracknumber']) {
+            $map['b.ebay_tracknumber'] = ['eq', $request['ebay_tracknumber']];
+        }
+        //添加加时间
+        if($request['addtime_start']){
+            $map['a.add_time'][] = ['egt',$request['addtime_start']];
+        }
+        if($request['addtime_end']){
+            $map['a.add_time'][] = ['elt',$request['addtime_end']];
+        }
+        //订单状态
+        if($request['ebay_status']){
+            if($request['ebay_status'] !=100){
+                $map['b.ebay_status'] = $request['ebay_status'];
+            }
+        }
+        //处理状态
+        if(isset($request['status'])){
+            if($request['status'] == 2){
+                $map['a.status'] = 0;
+            }else{
+                $map['a.status'] = $request['status'];
+            }
+        }
+        $count = $intercept
+            ->table($intercept->getTableName() . ' a')
+            ->join($orderModel->getTableName() . ' b on a.ebay_id = b.ebay_id', 'inner')
+            ->where($map)
+            ->field($field)
+            ->count();
+        $page  = new \Think\Page($count, $page_size);
+        $page->setConfig('prev', '上一页');
+        $page->setConfig('next', '下一页');
+        $list     = $intercept
+            ->table($intercept->getTableName() . ' a')
+            ->join($orderModel->getTableName() . ' b on a.ebay_id = b.ebay_id', 'inner')
+            ->field($field)
+            ->where($map)
+            ->limit($page->firstRow, $page->listRows)
+            ->order('a.add_time desc')
+            ->select();
+        $showPage = $page->show();
+        $all_ebay_status = $topMenuModel->getField('id,name');//所有的订单状态
+        $this->assign('topMenus', $topMenuModel->getField('id,name'));
+        $this->assign('addUsers', $intercept->group('add_user')->getField('add_user', true));
+        $this->assign('list', $list);
+        $this->assign('show', $showPage);
+        $this->assign('backSteps', $backSteps);
+        $this->assign('all_ebay_status',$all_ebay_status);
+        $this->assign('allStatus', [0 => '未处理', 1 => '已处理']);
+        $this->assign('all_manage_status',[2=>'未处理',1=>'已处理']);
+        //$this->assign('one_status',$request['status']);
+        $this->assign('request', $request);
+        $this->display();
+    }
+
+    /**
+     * 处理拦截
+     * @author Simon 2017/11/22
+     */
+    public function controlIntercept() {
+        $ebay_id              = $_REQUEST['ebay_id'];
+        $orderInterceptServer = new OrderInterceptService();
+        $res                  = $orderInterceptServer->controlIntercept($ebay_id);
+        echo json_encode($res);
+    }
+
+    /**
+     * 批量处理拦截
+     * @author Simon 2017/11/22
+     */
+
+    /**
+    *测试人员谭 2018-07-27 19:27:07
+    *说明: 已经改成 自动立马处理的了
+    */
+    public function batchControlIntercept() {
+        $ebay_ids = $_REQUEST['ebay_ids'];
+        if (empty($ebay_ids)) {
+            echo json_encode(['status' => 0, 'msg' => '必传参数异常']);
+        }
+        $ebay_ids             = explode(',', $ebay_ids);
+        $orderInterceptServer = new OrderInterceptService();
+        $return               = [];
+        foreach ($ebay_ids as $ebay_id) {
+            $res = $orderInterceptServer->controlIntercept($ebay_id);
+            if (!$res['status']) {
+                $return['failed'][] = $ebay_id . '--' . $res['msg'];
+            } else {
+                $return['success'][] = $ebay_id . '--处理成功';
+            }
+        }
+        echo json_encode($return);
+    }
+
+    /**
+     * 退回可打印
+     * 1、状态变为1723
+     * 2、删除拣货单
+     * @author Simon 2017/11/9
+     */
+    public function backToCanPrint() {
+        $intercept       = new OrderInterceptRecordModel();
+        $orderType       = new OrderTypeModel();
+        $goodsSaleDetail = new GoodsSaleDetailModel();
+        $ebayOrderModel  = new EbayOrderModel();
+        $apiCheck        = new ApiCheckskuModel();
+        $id              = $_REQUEST['id'];
+        $info            = $intercept->where(['id' => $id])->find();
+        $flag            = true;
+        $intercept->startTrans();
+        $ret1 = $orderType->where(['ebay_id' => $info['ebay_id']])->limit(1)->delete();
+        false === $ret1 && $flag = false;
+        $ret2 = $goodsSaleDetail->where(['ebay_id' => $info['ebay_id']])->delete();
+        false === $ret2 && $flag = false;
+        $ret3 = $ebayOrderModel->where(['ebay_id' => $info['ebay_id']])->setField('ebay_status', 1731);
+        false === $ret3 && $flag = false;
+        $ret4 = $apiCheck->where(['ebay_id' => $info['ebay_id']])->delete();
+        false === $ret4 && $flag = false;
+        //wms取消后回传erp扣库存
+        $erpHost                   = C('ONLINE_PIC_URL');
+        $url                       = '/API/quickStopDelivery.php';
+        $postData['order_num_str'] = $info['ebay_id'];
+        $postData['to_status']     = $info['new_status'] ?: '';
+        $postData['reason']        = $info['update_reason'];
+        $postData['status']        = $info['son_status'];
+        $postData['user']          = $info['add_user'];
+        $i                         = 0;
+        while ($i < 3) {
+            $i++;
+            $return = curl_post($erpHost . $url, $postData, 5);
+            $return = json_decode($return, true);
+            if (!empty($return)) {
+                break;
+            }
+        }
+        if ($return['status']) {
+            $intercept->where(['id' => $id])->save(
+                ['note' => $return['msg'], 'status' => 1, 'is_to_erp' => 1, 'update_user' => '', 'update_time' => date('Y-m-d H:i:s')]
+            );
+        } else {
+            $flag = false;
+        }
+        if ($flag) {
+            $intercept->commit();
+            echo json_encode(['status' => 1, 'msg' => '退回成功']);
+        } else {
+            $intercept->rollback();
+            echo json_encode(['status' => 0, 'msg' => '退回失败']);
+        }
+    }
+}

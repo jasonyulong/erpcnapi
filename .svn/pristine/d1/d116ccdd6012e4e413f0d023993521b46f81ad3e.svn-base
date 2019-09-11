@@ -1,0 +1,50 @@
+<div>
+    <div style="margin:10px;color:#30B2E6;font-weight:bold">开始时间：{$work_start}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        花费时间: {$CostHours} 小时&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        已完成: {$Len}/{$Total}</div>
+
+    <table class="table table-responsive table-hover table-condensed" width="100%" cellspacing="0" cellpadding="0">
+        <tr style="background:#FFA500;">
+            <td>订单号</td>
+            <td>跟踪号</td>
+            <td>sku</td>
+            <td>包装时间</td>
+            <td>操作</td>
+        </tr>
+
+        <?php
+                           // debug($Orders);
+                             foreach($Arr as $List){
+                                 $ebay_id_old=$List['ebay_id'];
+                                 $skus=$List['skus'];
+                                 $combineid=$List['skus'][0]['combineid']; // 盒子号
+                                 $baletime=date('y-m-d H:i:s',$List['baletime']);
+                                 if($combineid){
+                                    $combineid_str='盒子号：'.$combineid;
+                                 }else{
+                                    $combineid_str='';
+                                 }
+                            ?>
+        <tr>
+            <td class="bolds">
+                {$ebay_id_old}
+                <br>{$combineid_str}
+            </td>
+            <td>{$List['ebay_tracknumber']}<br>{$List['pxorderid']}</td>
+            <td class="bolds">
+                <?php
+                                    foreach($skus as $skulist){
+                                        echo '<p class="length_breaks">'.$skulist['sku'].'*'.$skulist['qty'];
+                echo '&nbsp;&nbsp;'.$skulist['goods_name'].'</p>';
+                }
+                ?>
+            </td>
+            <td>{$baletime}</td>
+            <td><button class="btn btn-sm btn-primary" onclick="RePrint({$ebay_id_old})">重新打印</button></td>
+        </tr>
+        <?php
+             }
+       ?>
+
+    </table>
+</div>

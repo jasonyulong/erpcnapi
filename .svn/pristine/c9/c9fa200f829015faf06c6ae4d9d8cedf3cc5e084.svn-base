@@ -1,0 +1,174 @@
+<extend name="Public:index" />
+<block name="main">
+    <style>
+        .span1{padding:5px 0px;border:1px solid #5cb85c;cursor: pointer;background-color:#18a689;color:#fff;border-radius: 3px;width:130px; display:inline-block}
+        .span3{background-color:red !important;border: 1px solid red !important;width:130px; display:inline-block}
+        .span4{background-color: #ccc !important;border:1px solid #ccc !important;padding:5px 10px;color:#fff;width:130px; display:inline-block}
+        .disbcheck{background-color: #ccc !important; border:1px solid #ccc !important;}
+        .span1:hover{opacity: 0.6}
+        .disclik{cursor: pointer}
+    </style>
+    <div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+        <form>
+            <div class="form-inline">
+                <div class="input-group">
+                    <div class="input-group-addon">用户名或授权码</div>
+                    <input type="text" name="content" class="form-control input-sm" style="width:120px" value="{$username}" >
+                </div>
+                <button onclick="searchForm(this)" class="btn btn-primary btn-sm" id="search-btn" type="button">搜索</button>
+            </div>
+        </form>
+        <ul class="pagination">{$show}</ul>
+        <table class="table custom-table">
+            <thead>
+                <th width="10%" style="text-align: center;">编号</th>
+                <th width="18%" style="text-align: center;">用户名</th>
+                <th width="18%" style="text-align: center;">组</th>
+                <th width="18%" style="text-align: center;">授权码</th>
+                <th width="18%" style="text-align: center;">状态</th>
+                <th width="18%" style="text-align: center;">操作</th>
+            </thead>
+
+            <volist  name="lists" id="vo">
+               <?php
+                    $status = empty($vo['status']) ? 2  :  $vo['status'];
+                    $checkStatusList = [1=>'使用中','-1'=>'<span style="color:red">已停用</span>',2=>'未申请'];
+               ?>
+               <tr>
+                   <td>{$vo['id']}</td>
+                   <td class="username">{$vo['username']}</td>
+                   <td>{$vo['truename']}</td>
+                   <td>
+                       <if condition="$authInfo">
+                           {$vo['auth_code']}
+                         <else/>
+                           ******
+                       </if>
+                   </td>
+                   <td> <span class="disclik" data-id="{$vo['id']}" data-status="{$vo['status']}"> {$checkStatusList[$status]} </span></td>
+                   <td data-id="{$vo['id']}">
+                       <!--只有授权过得才有权限-->
+                       <if condition="$authInfo">
+                           <if condition="isset($vo['auth_code']) && !empty($vo['auth_code']) ">
+                               <span class="span4 ">已授权</span>
+                            <else/>
+                               <span class="span1 author">获取授权码</span>
+                           </if>
+                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                       <span  class="span1 span3" data-id="{$vo['id']}" data-code="{$vo['auth_code']}">重新获取授权码</span> </td>
+                   </if>
+               </tr>
+            </volist>
+        </table>
+        <ul class="pagination">{$pageStr}</ul>
+    </div>
+
+    <script src="/newerp/Public/layer/layer.js"></script>
+    <script> var authInfo = <php> echo $authInfo;</php> </script>
+    <script>
+        $(function () {
+            $('#status').chosen({search_contains: true, width: '120px', allow_single_deselect: true});
+            $('select[name=field]').chosen({search_contains: true, width: '120px', allow_single_deselect: true});
+        })
+        /*
+         * 搜索
+         */
+        function searchForm(obj) {
+            var username = $.trim($("input[name='content']").val());
+                username = username != '' ?  "/username/"+username : "";
+            var url = '/t.php?s=/Package/Author/index'+username;
+            location.href = url;
+        }
+
+        $(".author").click(function(){
+            var user_id = $(this).parent('td').attr("data-id");
+            var name = $.trim($(this).parent().siblings(".username").text());
+
+            if(confirm("您确定要授权该用户吗？")){
+                $.ajax({
+                  url:"__URL__/addAuthor",
+                  type:"post",
+                  data:{"id":user_id,"username":name},
+                  dataType:'json',
+                success:function(d){
+                    if(d.status == 1){
+                        layer.msg(d.msg);
+                        setTimeout(function(){
+                            window.location.reload();
+                        },3000)
+                    }else{
+                        layer.msg(d.msg);
+                        return false;
+                    }
+                },
+                error:function(){
+                    layer.msg('网络异常，稍后请重试！！！');
+                    return false;
+                }
+                })
+            }
+        })
+
+        $(".span3").click(function(){
+            var id = $(this).attr('data-id');
+            var data_code = $(this).attr('data-code');
+            if(data_code == ''){
+                layer.msg('请先授权');
+                return false;
+            }
+
+            if(confirm("您确定要重置授权码？")){
+                $.ajax({
+                    url:"__URL__/saveAuthor",
+                    type:"post",
+                    data:{"id":id},
+                    dataType:'json',
+                    success:function(d){
+                        if(d.status == 1){
+                            layer.msg(d.msg);
+                            setTimeout(function(){
+                                window.location.reload();
+                            },3000)
+                        }else{
+                            layer.msg(d.msg);
+                        }
+                    },
+                    error:function(){
+                        layer.msg('网络异常，稍后请重试！！！');
+                    }
+                })
+            }
+        })
+
+        $(".disclik").click(function(){
+            var id      =   $(this).attr("data-id");
+            var status  =   $(this).attr("data-status");
+                if(status == '' || authInfo == ''){
+                    return false;
+                }
+            var m = status == 1 ? "您确定要禁用该授权码吗？" : "您确定要启用该授权码吗";
+            status = status == 1 ? "-1" : 1;
+            if(confirm(m)){
+                $.ajax({
+                    url:"__URL__/saveAuthor",
+                    type:"post",
+                    data:{"id":id,"status":status},
+                    dataType:'json',
+                    success:function(d){
+                        if(d.status == 1){
+                            layer.msg(d.msg);
+                            setTimeout(function(){
+                                window.location.reload();
+                            },3000)
+                        }else{
+                            layer.msg(d.msg);
+                        }
+                    },
+                    error:function(){
+                        layer.msg('网络异常，稍后请重试！！！');
+                    }
+                })
+            }
+        })
+    </script>
+</block>

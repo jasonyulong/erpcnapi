@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<style type="text/css">
+    table th,td {
+        text-align: center;
+        padding:2px 0 !important;
+        vertical-align: middle !important;
+    }
+    .zk_whouse{text-decoration: underline;font-weight: bold;font-style: oblique!important;}
+
+</style>
+<style media="print" type="text/css">
+    .noPrint {
+        visibility: hidden;
+        display: none;
+    }
+    .not-last-bottom:not(:last-of-type){
+        margin-bottom: 10px !important;
+    }
+</style>
+<body>
+<div class="row noPrint" style="padding: 5px;text-align: center;background-color:lightskyblue;margin: 0 auto">
+    请使用本页的打印按钮直接打印，不要使用浏览器打印功能. &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="btn btn-sm btn-success" onclick="print()">打印</button>
+</div>
+
+<php>
+    $totalPage = count($pageSkuInfo);
+    $skuCounts = 0;
+    $skuNumberCount = 0;
+</php>
+
+<foreach name="pageSkuInfo" item="pageSku" key="k">
+
+
+<div class="container not-last-bottom" style="width: 210mm;min-height: 305mm;max-height: 305mm;border: 1px solid #000;padding-top:10px;margin: 0 auto;">
+    <div class="row" style="font-family: 微软雅黑;font-size: 20px;text-align: center;margin-top: 5px;font-weight: bold">
+        仓库发货拣货单
+    </div>
+
+    <div class="row" style="font-size: 14px;margin-top: 5px;text-align: center">
+        <div class="col-xs-3" style="width: 20%;padding:0;padding-left:15px">
+            <div style="display: inline-block">
+                <span> 仓库：</span>
+                <span style="padding: 0 15px;border-bottom: 1px solid #000">{$storeName}</span>
+            </div>
+        </div>
+        <div class="col-xs-3" style="width: 20%;padding: 0">
+            <div style="display: inline-block">
+                <span>类型：</span>
+                <span style="padding: 0 15px;border-bottom: 1px solid #000">
+                    {$pickOrderMain['type'] == 1 ? '单品单货' : ($pickOrderMain['type'] == 2 ? '单品多货' : ($pickOrderMain['type'] == 3 ? '多品多货' : ''))}
+                </span>
+            </div>
+        </div>
+
+        <div class="col-xs-3" style="width: 20%;padding: 0">
+            <div style="display: inline-block">
+                <span> 标签：</span>
+                <span style="padding: 0 15px;border-bottom: 1px solid #000">{$labelType}</span>
+            </div>
+        </div>
+
+        <div class="col-xs-4" style="width: 35%;padding: 0">
+            <div style="display: inline-block">
+                <span>单号：</span>
+                <span style="padding: 0 5px;text-align: center">
+                    <div style="display: inline-block">
+                        <img src="/barcode128.class.php?data={$pickOrderMain['ordersn']}" alt="">
+                        <span id="ordersn" style="position:absolute;font-size: 10px;margin:-15px 0 0 -160px;">{$pickOrderMain['ordersn']}</span>
+                    </div>
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row" style="text-align: center;">
+        <div class="col-xs-4" style="width: 27%;padding: 0;padding-left: 15px">
+            <div style="display:inline-block">
+                <span style="font-weight: bold">建单时间:</span>
+                <span style="padding: 0 10px;border-bottom: 1px solid #000">{:date('y/m/d H:i', $pickOrderMain['addtime'])}</span>
+            </div>
+        </div>
+
+        <div class="col-xs-3" style="padding: 0;width: 20%">
+            <div style="display: inline-block;">
+                <span style="font-weight: bold">
+                     <if condition="$pkuser neq '' ">
+                         拣货人
+                         <else/>
+                         建单人:
+                     </if>
+                </span>
+                <span style="padding: 0 10px;border-bottom: 1px solid #000">
+                    <if condition="$pkuser neq '' ">
+                        {$pkuser}
+                        <else/>
+                        {$pickOrderMain['adduser']}
+                    </if>
+                </span>
+            </div>
+        </div>
+
+        <div class="col-xs-4" style="width: 25%;padding: 0">
+            <div style="display: inline-block">
+                <span style="font-weight: bold">打印时间:</span>
+                <span style="padding: 0 10px;border-bottom: 1px solid #000">
+                    {:date('y/m/d H:i')}
+                    <!--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+                </span>
+            </div>
+        </div>
+
+        <div class="col-xs-3" style="width: 25%;padding: 0">
+            <div style="display: inline-block">
+                <span style="font-weight: bold">打单员:</span>
+                <span style="padding: 0 10px;border-bottom: 1px solid #000">
+                    {:session('truename')}
+                </span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" style="width: 93%;text-align: center;margin: 0 auto;padding-top: 10px">
+        <table class="table table-bordered border-hover table-striped" style="margin-bottom: 0;">
+
+            <tr>
+                <th style="width:5%">编号</th>
+                <th style="width:18%">SKU</th>
+                <th style="width:18%">库位</th>
+                <th style="padding: 0 5px !important;width:10%">数量</th>
+                <th colspan="2" style="width:20%">标记（x | v）  捡到数量 </th>
+                <th style="width:20%">品名</th>
+            </tr>
+            
+
+            <?php
+                foreach($pageSku as $key=>$skuInfo){
+                    if($skuInfo['sku']==''){
+                        continue;
+                    }
+
+                    $skuCounts++;
+                    $skuNumberCount += $skuInfo['counts'];
+                    $storeid=$skuInfo['storeid'];
+                    if(234==$storeid){
+                        $whouse_class='zk_whouse';
+                    }else{
+                        $whouse_class='';
+                    }
+            ?>
+
+                    <tr style="{$key % 2 ? 'background-color: #cccaca !important' : ''}">
+                        <td>{$skuInfo['sku'] ? $key+1 : ''}</td>
+                        <td class="{$whouse_class}">{$skuInfo['sku'] ? $skuInfo['sku'] : '&nbsp;'}</td>
+                        <td>{$skuInfo['location'] ? $skuInfo['location'] : '&nbsp;'}</td>
+                        <td style="padding: 0 5px"> × {$skuInfo['counts'] ? $skuInfo['counts'] : '0'}</td>
+                        <td > </td>
+                        <td > </td>
+                        <td style="text-align: left">
+                            <div style="margin: 0 auto;font-size:12px;max-width: 350px;overflow: hidden;text-overflow: ellipsis; white-space:nowrap;padding: 0">
+                                <?php if($_GET['debug']){ ?>
+                                    <img style="height:20px;width:170px" src="/barcode128.class.php?data={$skuInfo['sku']}" alt="">
+
+                                <?php
+
+                                }
+                                echo ($skuInfo['goods_name']?$skuInfo['goods_name'] : '&nbsp;');
+
+                                ?>
+                            </div>
+                        </td>
+                    </tr>
+
+               <?php } ?>
+
+        </table>
+    </div>
+
+    <if condition="($k + 1) eq $totalPage">
+        <div class="row" style="width: 93%;margin: 0 auto;margin-top: 10px">
+            <span style="">
+                当前拣货单({$pickOrderMain['ordersn']}) 共有SKU种类合计:
+                <span style="padding: 0 5px;border-bottom: 1px solid #000">{$skuCounts}</span>
+                货品总数合计:
+                <span style="padding: 0 5px; border-bottom: 1px solid #000">{$skuNumberCount}</span>
+            </span>
+        </div>
+    </if>
+
+    <div class="row" style="text-align: center;margin-top: 5px">
+        {$k+1} / {$totalPage}
+    </div>
+</div>
+</foreach>
+
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript">
+
+//    调用方式：
+    function print() {
+
+        //    检测插件是否安装代码：
+        try{
+            version = jsPrintSetup.getVersion();
+        } catch(e) {
+            if(confirm('请先安装打印插件，安装插件否则将不能打印！你可以进入点击firefox，工具->插件，搜索"JSPrintSetup "安装，或者点击确定进入插件首页安装！')){
+                window.location.href="http://jsprintsetup.mozdev.org/installation.html";
+            }
+        }
+
+        jsPrintSetup.setOption('orientation', jsPrintSetup.kPortraitOrientation);
+        //jsPrintSetup.definePaperSize(in short jspid, in short pd, in wstring pn, in wstring pwg, in wstring name, in double w, in double h, in short m);
+
+        // 设置头部外边距 单位mm
+        jsPrintSetup.setOption('marginTop', 0);
+        jsPrintSetup.setOption('marginBottom', 0);
+        jsPrintSetup.setOption('marginLeft', 0);
+        jsPrintSetup.setOption('marginRight', 0);
+        // 设置页头
+        jsPrintSetup.setOption('headerStrLeft', '');
+        jsPrintSetup.setOption('headerStrCenter', '');
+        jsPrintSetup.setOption('headerStrRight', '');
+        // 设置页脚
+        jsPrintSetup.setOption('footerStrLeft', '');
+        jsPrintSetup.setOption('footerStrCenter', '');
+        jsPrintSetup.setOption('footerStrRight', '');
+        jsPrintSetup.clearSilentPrint();
+        jsPrintSetup.setOption('printSilent', 1);
+        jsPrintSetup.print();
+        //打印之后自动转入待包装 Shawn
+        var ordersn = $.trim($("#ordersn").html());
+        if(ordersn != ''){
+            var url='{:U("PrintPickingList/printAutoGocConfirmed")}';
+            $.post(url,{"ordersn":ordersn},function(data){
+                if(data.status < 2){
+                    layer.msg(data.msg, {icon: 2});
+                }
+            },'json');
+            return true;
+        }
+    }
+</script>
+
+</html>

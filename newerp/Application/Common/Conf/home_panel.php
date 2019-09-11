@@ -1,0 +1,13 @@
+<?php
+//数据面板配置
+$home_panel=array(
+    array('id'=>1,'title'=>'滞销商品'),
+    array('id'=>2,'title'=>'热销商品'),
+    array('id'=>3,'title'=>'库存不足商品'),
+    array('id'=>5,'title'=>'新刊登商品'),
+    array('id'=>6,'title'=>'已下线商品'),
+    array('id'=>7,'title'=>'业务推荐'),
+    array('id'=>8,'title'=>'新增建议采购价'),
+    array('id'=>9,'title'=>'需调价商品'),
+    array('id'=>10,'title'=>'销售价计算器'),
+);

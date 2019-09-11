@@ -1,0 +1,62 @@
+<extend name="Public:index" />
+<block name="main">
+    <div class="ibox float-e-margins" style="margin:0 auto;height: 100%;padding:20px;width:100%;background:#fff;">
+        <form>
+            <div class="form-inline">
+                <div class="input-group">
+                    <div class="input-group-addon">订单号</div>
+                    <input type="text" name="ebay_id" class="form-control" value="{$request.ebay_id}">
+                </div>
+                <div class="input-group">
+                    <div class="input-group-addon">拣货单添加时间</div>
+                    <input type="text" class="form-control input-sm" name="order_addtime" style="width: 100px;" placeholder="开始日期" onclick="laydate()" value="{$request.ebay_addtime_start}">
+                    <div class="input-group-addon">至</div>
+                    <input type="text" class="form-control input-sm" name="order_addtime" style="width: 100px;" placeholder="结束日期" onclick="laydate()" value="{$request.ebay_addtime_end}">
+                </div>
+                <div class="input-group">
+                    <select name="ebay_status" data-placeholder="订单状态">
+                        <option value="0">全部</option>
+                        <php>foreach($topMenus as $id=>$name){</php>
+                        <option value="{$id}"  <php>if($id == $request['ebay_status'])echo 'selected'</php>>{$name}</option>
+                        <php>}</php>
+                    </select>
+                </div>
+            </div>
+            <button onclick="searchForm(this)" class="btn btn-primary" type="button">搜索</button>
+        </form>
+        <table class="table custom-table" >
+            <thead>
+                <th width="10%">订单号</th>
+                <th width="18%">运输方式</th>
+                <th width="18%">拣货单</th>
+            </thead>
+            <php>foreach($items as $v){</php>
+            <tr>
+                <td>{$v['ebay_id']}</td>
+                <td>{$v['sku']}</td>
+                <td>{$v['pick_orders']}</td>
+            </tr>
+            <php>}</php>
+        </table>
+    </div>
+
+    <script>
+
+
+        /*
+         * 搜索
+         */
+        function searchForm(obj) {
+            var data = $(obj).closest('form').serialize();
+            data     = data.replace(/(&|^)(\w*?\d*?\-*?_*?)*?=?((?=&)|(?=$))/g, '');
+            data     = data.replace(/^&/g, '');
+            var url = '/t.php?s=/Order/Order/index';
+            if (url.indexOf('?') > 0) {
+                url += '&' + data;
+            } else {
+                url += '?' + data;
+            }
+            location.href = url;
+        }
+    </script>
+</block>

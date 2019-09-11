@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<style type="text/css">
+    table tr td, th {
+        vertical-align: middle !important;
+        text-align: center !important;
+    }
+</style>
+<body>
+
+<div class="container-fluid" style="width: 99%;margin: 0 auto">
+    <div class="row">
+        <ul class="nav nav-tabs" role="tablist">
+
+            <li role="presentation" class="{$type == 1 ? 'active' : ''}">
+                <a href="{:U('PrintPickingList/showConfirm', ['type' => 1, 'ordersn' => $ordersn])}">数量确认</a>
+            </li>
+
+            <if condition="can('pick_order_reconfirm')">
+                <li role="presentation" class="{$type == 2 ? 'active' : ''}">
+                    <a href="{:U('PrintPickingList/showConfirm', ['type' => 2, 'ordersn' => $ordersn])}">组长核对</a>
+                </li>
+            </if>
+
+            <if condition="can('del_pick_confirm')">
+                <li role="presentation" class="{$type == 3 ? 'active' : ''}">
+                    <a href="{:U('PrintPickingList/showPreConfirmPage', ['ordersn' => $ordersn])}">预览配货</a>
+                </li>
+            </if>
+
+        </ul>
+
+        <div class="tab-content">
+
+            <div role="tabpanel" class="tab-pane active">
+
+                <!-- 第一个标签页: 数量确认的标签页内容 -->
+                <if condition="$type eq 1">
+                    <div class="container-fluid">
+                        <if condition="!isset($packageSkuInfo[0]['fillCounts'])">
+
+                            <div class="row" id="sku-scan-form-container" style="margin-top: 0;width: 110px;float: left;margin-left: 0">
+                                <div class="form-inline form-group has-success">
+                                    <div class="col-xs-2" style="padding-left: 0">
+                                        <div class="input-group">
+                                        <span class="input-group-addon" style="" id="basic-addon1"><i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+                                            <input type="text" class="form-control" placeholder="SKU扫描" id="sku-scan-form" style="width: 105px" data-order="{$ordersn}" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" style="width: 30%;float: right;margin-top: -30px">
+                                <button class="btn btn-danger btn-sm" onclick="FillAllNumber()" style="display: inline-block">一键填写</button>
+                                <button class="btn btn-success btn-sm confirm-package-sku-number" style="display: inline-block">拣货数量确认</button>
+                            </div>
+                        </if>
+                        <div class="row pull-right" style="margin-top: 10px;width: 87%;margin-bottom: 44%;margin-right: 10px">
+                            <table class="table table-responsive table-condensed table-hover">
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>库位</th>
+                                    <th>应拣货数量</th>
+                                    <th>实拣货数量</th>
+                                    <th>品名</th>
+                                </tr>
+                                <php>$styleArr = ['success', 'info','warning','danger', 'active'];</php>
+                                <foreach name="packageSkuInfo" item="skuInfo" key="k">
+                                    <tr class="{$styleArr[$k%5]}">
+                                        <td style="vertical-align: middle">
+                                            <img style="height:60px;width:60px;" src="http://hkerp.wisstone.com/images/{$skuInfo.pic}"/>
+                                            {$skuInfo.sku}
+                                        </td>
+                                        <td style="vertical-align: middle">{$skuInfo.location}</td>
+                                        <td style="vertical-align: middle">{$skuInfo.counts}</td>
+                                        <td style="vertical-align: middle;text-align: center">
+
+                                            <if condition="isset($skuInfo['fillCounts'])">
+                                                <!-- {已经填写数量的情况下的} -->
+                                                <input type="number" data="{$skuInfo.counts}" id="{$skuInfo.sku}" readonly value="{:isset($skuInfo['fillCounts']) ? $skuInfo['fillCounts'] : ''}" class="form-control skuCountClass" style="display: inline-block;width: 90px;padding: 2px 6px;height: 27px;">
+                                                <else/>
+                                                <input type="number" data="{$skuInfo.counts2}" id="{$skuInfo.sku}" class="form-control skuCountClass" style="display: inline-block;width: 90px;padding: 2px 6px;height: 27px;">
+                                            </if>
+                                        </td>
+                                        <td style="vertical-align: middle;width: 250px;word-break: break-all;text-overflow: clip">{$skuInfo.goods_name}</td>
+                                    </tr>
+                                </foreach>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 第二个标签页的组长核对的页面内容 -->
+                    <elseif condition="$type eq 2"/>
+                    <div class="container-fluid">
+                        <div class="row" id="sku-scan-form-container" style="margin-top: 0;width: 110px;float: left;margin-left: 0">
+                            <div class="form-inline form-group has-success">
+                                <div class="col-xs-2" style="padding-left: 0">
+                                    <div class="input-group">
+                                        <span class="input-group-addon" style="" id="basic-addon1"><i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+                                        <input type="text" class="form-control" placeholder="SKU扫描" id="sku-scan-form" style="width: 105px" data-order="{$ordersn}" aria-describedby="basic-addon1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="width: 30%;float: right;margin-top: -30px"><button class="btn btn-success btn-sm confirm-package-sku-number second-confirm" style="display: inline-block">组长核对数量确认</button></div>
+                        <div class="row pull-right" style="margin-top: 10px;width: 87%;margin-bottom: 44%;margin-right: 10px">
+                        <table class="table table-responsive table-condensed table-hover">
+                            <tr>
+                                <th>SKU</th>
+                                <th>库位</th>
+                                <th>应拣货数量</th>
+                                <th>实拣货数量</th>
+                                <th>品名</th>
+                            </tr>
+                            <php>$styleArr = ['success', 'info','warning','danger', 'active'];</php>
+                            <foreach name="packageSkuInfo" item="skuInfo" key="k">
+                                <tr class="{$styleArr[$k%5]}">
+                                    <td style="vertical-align: middle">
+                                        <img style="height:60px;width:60px;" src="http://hkerp.wisstone.com/images/{$skuInfo.pic}"/>
+                                        {$skuInfo.sku}
+                                    </td>
+                                    <td style="vertical-align: middle">{$skuInfo.location}</td>
+                                    <td style="vertical-align: middle">{$skuInfo.counts}</td>
+
+                                    <td style="vertical-align: middle;text-align: center">
+                                        <input type="number" id="{$skuInfo.sku}" value="{:isset($skuInfo['fillCounts']) ? $skuInfo['fillCounts'] : ''}" class="form-control skuCountClass" style="display: inline-block;width: 90px;padding: 2px 6px;height: 27px;">
+                                    </td>
+
+                                    <td style="vertical-align: middle;width: 250px;word-break: break-all;text-overflow: clip">{$skuInfo.goods_name}</td>
+                                </tr>
+                            </foreach>
+                        </table>
+                    </div>
+                    </div>
+
+                    <elseif condition="$type eq 3"/>
+
+                    <div class="container-fluid">
+                    <div class="row" style="margin: 0 auto;">
+                        <div class="row" style="margin-right: 5%;margin-top:20px;margin-bottom: 20px;">
+
+                            <button class="btn btn-sm btn-success order-confirm pull-right" data-url="{:U('Confirm/DoConFirmPickOrder', ['ordersn' => $ordersn])}">
+                                订单确认
+                            </button>
+                            <input type="text" style="width:200px;margin-right:10px;margin-left: 10px;" placeholder="请填写工号" class="form-control pull-right" id="userid" />
+                        </div>
+                        <table class="table table-responsive table-hover table-condensed">
+                            <tr>
+                                <th>订单编号</th>
+                                <th>运输方式</th>
+                                <th>添加时间</th>
+                                <th>订单状态</th>
+                                <th>SKU 详情</th>
+                                <th>操作</th>
+                            </tr>
+
+                            <foreach name="assignOrderInfo" item="orderItem" key="ebayId">
+                                <tr class="{$orderItem['is_delete'] == 1 ? 'danger' : ''}">
+                                    <td>{$ebayId}</td>
+                                    <td><div style="width: 35%;word-break: break-all">{$orderItem['carrier']}</div></td>
+                                    <td>{:date('y/m/d H:i', $orderItem['order_addtime'])}</td>
+                                    <td>{$orderItem['is_delete'] == 0 ? '<span class="alert-success">正常</span>' : '<span class="alert-danger">已删除</span>'}</td>
+                                    <td>
+                                        <table class="table table-responsive table-hover table-condensed" style="margin-bottom: 0">
+                                            <foreach name="orderItem['skus']" item="skuItem" key="sku">
+                                                <tr title="{$skuItem.info}">
+                                                    <td>{$sku}</td>
+                                                    <td>{$skuItem.need_qty}</td>
+                                                    <td>
+                                                        <if condition="$orderItem['is_delete'] == 1">
+                                                            --
+                                                            <else/>
+                                                            {$skuItem['is_success'] == 1 ? '<span class="alert-success">成功</span>' : '<span class="alert-danger">失败</span>'}
+                                                        </if>
+                                                    </td>
+                                                </tr>
+                                            </foreach>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <if condition="$orderItem['is_delete'] == 1">
+                                            <button title="撤销删除" data-order="{$ebayId}" class="btn btn-sm btn-success reverse-delete-order-btn"><i class="fa fa-refresh"></i></button>
+                                            <else/>
+                                            <button title="删除订单" data-order="{$ebayId}" class="btn btn-sm btn-danger delete-order-btn"><i class="fa fa-trash"></i></button>
+                                        </if>
+                                    </td>
+                                </tr>
+                            </foreach>
+                        </table>
+                    </div>
+                    </div>
+                </if>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script src="/newerp/Public/js/plugins/jquery.pin/jquery.pin.min.js"></script>
+
+<if condition="$type eq 1 or $type eq 2">
+    <script type="application/javascript">
+
+        // 简化测试输出
+        var echo = console.log.bind(console);
+
+        (function (window, $, layer, undefined) {
+
+            var ordersn = '{$ordersn}';
+
+            // 别针插件锁定扫描输入框
+            $('#sku-scan-form-container').pin();
+
+            /* bootstrap的颜色方案: success, info, warning, danger, active */
+            var mapObj = {
+                success: 'rgb(223, 240, 216)',
+                info: 'rgb(217,237,247)',
+                warning: 'rgb(252,248,227)',
+                danger: 'rgb(242,222,222)',
+                active: ''
+            };
+
+            // 扫描到SKU 然后光标 锁定到扫到的那条SKU的form 中
+            $('#sku-scan-form').on('keydown', function (event) {
+
+                if (event.keyCode != 13) {
+                    return null;
+                }
+
+                var SKU = $(this).val().toUpperCase();
+                window.location.hash = '#' + SKU;
+                var target = $('#' + SKU);
+                var colorClassName = target.parent().parent().attr('class');
+
+                $(this).css('background-color', mapObj[colorClassName]);
+                target.focus();
+            });
+
+            // 数量确认后，点击回车，光标重新锁定到扫描SKU的输入框中，等待SKU的再次扫描
+            $('.skuCountClass').on('keydown', function (event) {
+                if (event.keyCode != 13) {
+                    return null;
+                }
+                $('#sku-scan-form').val('').focus();
+            });
+
+
+            // 拣货单SKU数量进行确认
+            $('.confirm-package-sku-number').on('click', function () {
+                var skuObject = $('.skuCountClass');
+                var targetResultSet = {};
+                targetResultSet.ordersn = ordersn;
+                targetResultSet.skuSet = {};
+                try {
+                    var err = null;
+                    $.each(skuObject, function (key, val) {
+
+                        targetResultSet.skuSet[key] = {};
+                        targetResultSet.skuSet[key].sku = $(val).attr('id');
+                        targetResultSet.skuSet[key].counts = $(val).val();
+
+                        if (targetResultSet.skuSet[key].counts === '') {
+                            err = new Error('未检测到SKU：' + targetResultSet.skuSet[key].sku + ' 的数量. 如果确实没有请填写0.但不能为空.', targetResultSet.skuSet[key].sku);
+                            err.sku = targetResultSet.skuSet[key].sku;
+                            throw err;
+                        } else if (isNaN(targetResultSet.skuSet[key].counts)) {
+                            err = new Error('Sku:' + targetResultSet.skuSet[key].sku + '数量填写有误.不是数值类型');
+                            err.sku = targetResultSet.skuSet[key].sku;
+                            throw err;
+                        } else if (!targetResultSet.skuSet[key].sku) {
+                            return null;
+                        }
+                    });
+                } catch (err) {
+                    layer.alert(err.message, {title: '发生错误.'});
+                    $('#sku-scan-form').val('');
+                    window.location.hash = '#' + err.sku;
+                    $('#' + err.sku).focus();
+                    return null;
+                }
+
+                var loadIndex = layer.load(1, {shade: 0.5});
+
+                $.ajax({
+                    url: '{:U("PrintPickingList/doConfirmSku")}',
+                    type: 'post',
+                    data: targetResultSet,
+                    dataType: 'json'
+                }).done(function (result) {
+                    layer.msg(result.data);
+
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500);
+
+//                    if (result.status) {
+//                        $('.skuCountClass, .confirm-package-sku-number').prop('disabled', true);
+//                        layer.open({
+//                            type: 2,
+//                            area: ['90%', '90%'],
+//                            title: '订单派货预确认 ：' + result.carrier_company,
+//                            shift: 2,
+//                            maxmin: true,
+//                            scrollbar: false,
+//                            content: '{:U("PrintPickingList/showPreConfirmPage")}&ordersn=' + targetResultSet.ordersn
+//                        });
+//                    }
+                }).fail(function () {
+                    layer.msg('提交网络访问失败.');
+                }).always(function () {
+                    layer.close(loadIndex);
+                });
+            });
+
+
+            // 拣货单预确认按钮
+//        $('.pre-confirm-package').on('click', function() {
+//            layer.msg('Hello, World');
+//        });
+
+
+        })(window, $, layer);
+
+
+        function FillAllNumber(){
+            if(!confirm("一键填写意味着您确定您的捡货单没有错货问题,并且只有少量sku未拣到货\n确定操作么?")){
+                return false;
+            }
+            //alert($("input.skuCountClass").length);
+          $("input.skuCountClass").each(function(){
+              var currentVal= $.trim($(this).val());
+              var saveVal=$(this).attr("data");
+
+              if(currentVal===""){
+                  $(this).val(saveVal);
+              }
+          })
+        }
+
+
+    </script>
+
+    <elseif condition="$type eq 3"/>
+    <script type="application/javascript">
+        var ordersn = '{$ordersn}';
+
+        // 撤销删除的按钮事件
+        $('.reverse-delete-order-btn').on('click', function() {
+            var ebayId = $(this).attr('data-order');
+            var url    = '{:U("PrintPickingList/reverseDeleteOrder")}';
+
+            var loadIndex = layer.load(1, {shade:5});
+            $.ajax({
+                url  : url,
+                type : 'post',
+                data : {ordersn: ordersn, ebayId: ebayId},
+                dataType : 'json'
+            }).done(function(result) {
+                layer.msg(result.data);
+                if (result.status) {
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                }
+            }).fail(function() {
+                layer.msg('删除访问出错.');
+            }).always(function() {
+                layer.close(loadIndex);
+            });
+
+        });
+
+        // 删除订单的按钮事件
+        $('.delete-order-btn').on('click', function() {
+            var ebayId = $(this).attr('data-order');
+            var url    = '{:U("Confirm/deleteOnOrder")}';
+            var loadIndex = layer.load(1, {shade:0.5});
+
+            $.ajax({
+                url  : url,
+                type : 'post',
+                data : {ordersn: ordersn, ebay_id: ebayId},
+                dataType : 'json'
+            }).done(function(result) {
+                layer.msg(result.msg);
+                if (result.status) {
+                    setTimeout(function() {window.location.reload();}, 1000);
+                }
+            }).fail(function() {
+                layer.msg('删除访问出错.');
+            }).always(function() {
+                layer.close(loadIndex);
+            });
+        });
+
+        // 最终订单的确认，订单将在这一步进行订单状态的改变
+        $('.order-confirm').on('click', function() {
+            var url = $(this).attr('data-url');
+
+
+            var userid= $.trim($("#userid").val());
+            if(userid==''||isNaN(0+userid)){
+                layer.msg("工号必填!", {icon: 5});
+                return false;
+            }
+            url=url+"&userid="+userid;
+            var loadingIndex = layer.load(1, {shade:0.5});
+            $.ajax({
+                url : url,
+                type: 'get',
+                dataType: 'json'
+            }).done(function(result) {
+
+                layer.msg(result.msg);
+
+                if (result.status) {
+                    setTimeout(function() {
+                        // 没有需要退回SKU的情况
+                        if (result.data.length == 0) {
+                            return null;
+                        }
+
+                        var backHtml =  "<div class='row' style='width:90%;margin:10px auto'>" +
+                                        "<table class='table table-responsive table-hover table-condensed'>" +
+                                        "<tr><th>SKU</th><th>库位</th><th>品名</th><th>应退回数量</th></tr>";
+
+                        var allSkus = result.data;
+                        $.each(allSkus, function(key, item) {
+                            backHtml += "<tr><td>" + item.sku + "</td><td>" + item.location + "</td><td style='width: 40%;text-align: center;word-break: break-all'>" + item.goods_name + "</td><td>" + item.backqty + "</td></tr>";
+                        });
+
+                        backHtml += "</table></div>";
+
+                        layer.open({
+                            content : backHtml,
+                            type : 1,
+                            area : ['60%', '70%'],
+                            title: '应退回SKU列表',
+                            maxmin : true,
+                            cancel : function(index, layero) {
+                                window.parent.location.reload();
+                            }
+                        });
+                    }, 1000);
+                }
+            }).fail(function() {
+                layer.msg('确认网络访问失败.');
+            }).always(function() {
+                layer.close(loadingIndex);
+            });
+        });
+    </script>
+</if>
+</html>

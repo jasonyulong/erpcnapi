@@ -1,0 +1,122 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="4" class="notop">
+                <table cellpadding="0" cellspacing="0" width="100%" style="border:none;">
+                    <tr>
+                        <td class="noright nobottom">
+                            <div class="font20">Tracked</div>
+                            <div class="font12">Signature</div>
+                        </td>
+                        <td class="noright nobottom" style="font-size:50pt;">48</td>
+                        <td class="font10 pcenter1 noright nobottom">
+                            Postage on Account GB<br>
+                            HQ80703
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="4" class="">
+                <span class="blod font16">{$Order['zonecode']}</span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="noright">
+                &nbsp;&nbsp;&nbsp;
+            </td>
+            <td colspan="3" class="pcenter1 font11">
+                <p style="width:70mm;"><img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" height="40"/></p>
+                {$Order['ebay_tracknumber']}
+            </td>
+        </tr>
+
+        <tr>
+            <td class=" font10 ffa" colspan="4">
+
+                <table cellpadding="0" cellspacing="0" width="100%" style="border:none;">
+                    <tr>
+                        <td class="noright nobottom">
+                            <p class="font14">{$Order['ebay_username']}</p><br>
+                            <p class="font12">
+                            <div style="width:70mm;overflow-wrap: break-word;">
+                                {$Order['ebay_street']}, {$Order['ebay_street1']}
+                            </div>
+                            {$Order['ebay_city']}&nbsp;{$Order['ebay_state']} {$Order['countrycode']}&nbsp;{$Order['countrycn']}<br><br>
+                            </p>
+                            <p style="font-weight: bold">ZIP: {$Order['ebay_postcode']}</p>
+                            <p>TEL: <span style="font-weight: bold">{$Order['ebay_phone']} &nbsp;&nbsp;{$Order['ebay_phone1']}</span></p>
+                        </td>
+                        <td class="font9 noright nobottom">
+                            <div style="transform: rotate(-90deg);margin-top:4mm;">
+                                Return to:<br>
+                                ANJ (UK) Ltd<br>
+                                Building 2, St. Modwen Road<br>
+                                Stretford,MANCHESTER<br>
+                                M32 0ZF<br>
+                                United Kingdom
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+
+        </tr>
+
+        <tr>
+            <td class="font8" colspan="4">
+                <p style="font-weight: bold">
+                    <span class="blod font16">{$Order['zonecode']}</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    AJ Ref: {$Order['ebay_id']}</p>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="font8" colspan="4" style="line-height: 1.1em;padding-left: 5px;">
+                <div style="width:80mm;" class="line_break">
+                    {$Order['skustr']}
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="next">
+        <tr>
+            <td height="10"></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>运输方式：</td>
+            <td class="font18 bold">{$Order['ebay_carrier']}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>捡货信息：</td>
+            <td class="font10">
+                <div style="width:80mm;" class="line_break">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+
+        <tr style="height:50px">
+            <td style="text-align: center;font-size:18px;line-height: 50px;">D</td>
+            <td  style="height: 100%;line-height:50px"  colspan="2" class="ffa font14" align="right" ><font> <span style="margin-right:20px">中快E速宝美国专线(带电)</span> </font></td>
+        </tr>
+
+
+        <tr style="width:100%;">
+            <td style="width:50%;text-align:right;height:30px;line-height:30px;border-right: none">From:</td>
+            <td style=";height:30px;line-height:30px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Evalyn Feng</td>
+        </tr>
+
+        <tr>
+            <td width="100%" class="noright ffa nobottom" align="center" colspan="5" style="border-right:1px solid" >TO:
+                {$Order['ebay_username']}<br/>
+                {$Order['ebay_street']} ,{$Order['ebay_street1']}<br/>
+                {$Order['ebay_city']} ,{$Order['ebay_state']}&nbsp;{$Order['ebay_postcode']}<br/>
+                {$Order['ebay_countryname']}<br/>
+            </td>
+        </tr>
+
+
+        <tr style="height:125px">
+            <td colspan="4" class="font9 ffa" align="center">
+                <img style="margin-top:20px" src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="280" height="37"/><br/>
+               <span style="font-weight: 800;font-size:18px"> {$Order['ebay_tracknumber']} </span>
+            </td>
+        </tr>
+
+
+    </table>
+</div>
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

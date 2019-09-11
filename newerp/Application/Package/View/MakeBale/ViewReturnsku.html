@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>包装完成需退回</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+
+    .content-area-modify .layui-layer-content{
+        height: 55px !important;
+        padding:5px 20px !important;
+    }
+    .container{width:90%;}
+    .pd10{padding:10px;}
+    .pd5{padding:5px;}
+    .package_process{background:#fff;border:1px solid #666;padding:10px;margin-top: 10px;}
+    .sku_color{color:#FFF;font-size:25px;}
+    .banner_color_blue{background:#30b2e6}
+    .banner_color_org{background-color:orange;}
+    .input_br{border: 1px solid #666;font-size:26px;padding:2px 3px;}
+    .processbg{width:130px;background:url("themes/default/images/process.jpg") no-repeat;height:17px;}
+    .processbg_success{background:url("themes/default/images/process.jpg") no-repeat 0 -17px;}
+    .fonts{text-align: center;}
+    p.length_break,p.length_breaks{width:300px;white-space:nowrap;display:block;text-overflow:ellipsis;overflow:hidden;}
+    p.length_breaks{width:200px;}
+    .font20{font-size:30px;}
+    .peel_message_box{
+        position: absolute;left:82.4%;top:0;background-color: rgba(255,0,0,1);width:200px;height:40px;text-align: center;border-radius: 2px;font-family: 微软雅黑;vertical-align: middle;font-size:25px;font-weight: bold;color: #fff;padding:10px 20px;letter-spacing: 2px;
+        /*visibility:hidden;*/
+    }
+    .jiaodui_style{color:red;width:66px;font-size:30px;}
+    #sku_img{background:#999;padding:10px;margin-left:10px;height:400px;width:400px;}
+    #sku_img img{height:380px;width:380px;}
+    .scan_his{background:#FFA500;border:1px solid #AFAFAF;height:30px;line-height:30px;padding-left:8px;}
+    .scan_his_body{border: 1px solid #AFAFAF;min-height:100px;border-top:none;}
+    td.bolds{font-weight:bold;}
+</style>
+<body>
+<div style="color: #a11;font-size:15px;">{$Errormsg}</div>
+
+<div style="margin:0 auto;width:210mm;border: 1px solid #555;">
+    <div style="height:60px;padding-top:10px;">
+        <b style="font-size:20px;">拣货单包装后退回单</b>： &nbsp;&nbsp;&nbsp;&nbsp;
+        <p style="display:inline-block;text-align: center">
+            <img src="/barcode128.class.php?data={$ordersn}" alt="">&nbsp;<br>{$ordersn}
+        </p>
+        时间：<?php echo date('Y-m-d H:i'); ?>
+    </div>
+
+    <table class="table table-responsive table-hover table-condensed" width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+        <td>库位</td>
+        <td>SKU</td>
+        <td>数量</td>
+        <td>品名</td>
+    </tr>
+    <?php
+        foreach($SKUArr as $List){
+            $location=$List['location'];
+            $qty=$List['qty'];
+            $goods_name=$List['goods_name'];
+            $sku=$List['sku'];
+            $pic=$List['pic'];
+    ?>
+        <tr>
+            <td>{$location}</td>
+            <td>
+                {$sku}
+                <img style="height:60px;width:60px;" src="http://hkerp.wisstone.com/images/{$pic}"/>
+            </td>
+            <td>{$qty}</td>
+            <td><p style="max-width:240px;">{$goods_name}</p></td>
+        </tr>
+
+    <?php
+             }
+
+    ?>
+</table>
+</div>
+</body>
+</html>

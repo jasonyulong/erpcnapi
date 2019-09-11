@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>开始作业</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<style type="text/css">
+    .btn-style .layui-layer-btn {
+        text-align: center;
+        padding-bottom: 5%;
+    }
+
+    .btn-style .layui-layer-content {
+        padding-bottom:0;
+        height: 110px !important;
+    }
+
+    .btn-style .layui-layer-btn a {
+        border:none;
+    }
+
+    .btn-style .layui-layer-btn a:first-child{
+        background-color: rgba(0, 128, 0, 0.55);
+    }
+    .btn-style .layui-layer-btn a:last-child {
+        background-color: rgba(160, 0, 0, 0.93);
+        color: white;
+    }
+
+    .btn-style .alert-message {
+        background-color: rgba(221, 221, 0, 0.52);
+        padding:10px;
+        border-radius: 2px;
+    }
+
+    .content-area-modify .layui-layer-content{
+        height: 55px !important;
+        padding:5px 20px !important;
+    }
+</style>
+<body>
+
+
+<div class="container">
+    <div class="row" style="margin: 10px;padding: 8px 5px;background-color:orange">
+        <div class="col-xs-12">
+            <label style="font-size:30px;">开始包装作业</label> &nbsp;&nbsp;
+            <input type="text" id="ordersn" placeholder="扫描单号" style="font-size:30px;" onkeyup="ScanAndJump(event)"/>
+            <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" style="float: right;margin-right: 10px;" onclick="window.open('t.php?s=/Package/MakeBale/newWorkbench');"> 单品单货 </button>
+            <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" style="float: right;margin-right: 10px;" onclick="window.open('t.php?s=/Package/MakeBale/newWorkbenchMore');"> 单品多货</button>
+        </div>
+    </div>
+
+    <div class="row" style="margin: 10px;padding: 8px 5px;background-color:orange">
+        <div class="col-xs-12">
+            <label style="font-size:30px;">【<b>{$_SESSION['truename']}</b>】正在作业中的拣货单:</label> &nbsp;&nbsp;
+            <span id="is_work_ordersn">{$workOrdersn}</span>
+        </div>
+    </div>
+
+    <div style="font-size:30px;color:#911;margin:10px">{$ErrorMsg}</div>
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+
+<script type="application/javascript">
+    $(function(){
+        $("#ordersn").select().focus();
+
+
+        var workOrdersn='{$workOrdersn}';
+
+
+
+        if(workOrdersn){
+            if(!/^PK\d{10}$/.test(workOrdersn)){
+                console.log('正在作业的这个单号怎么会有问题呢');
+                return '';
+            }
+
+            var index=layer.confirm('系统检测到上次作业没有完成!是否继续?', {
+                btn: ['确定','取消']
+            }, function(){
+                JumpToWorkPage(workOrdersn);
+            }, function(){
+                layer.closeAll();
+                return false;
+            });
+
+        }
+
+    });
+
+
+    function ScanAndJump(event){
+        //var keyCode = event.keyCode;
+        var keyCode=(navigator.appName=="Netscape")?event.which:event.keyCode;
+        //$("#code").val($("#code").val()+"###"+keyCode);
+        if (keyCode !==13) {
+            return '';
+        }
+
+        var ordersn=$("#ordersn").val();
+        if(!/^PK\d{10}$/.test(ordersn)){
+            ordersn=$("#ordersn").select();
+            layer.msg("扫描的拣货单号有误", {icon: 5});
+            return '';
+        }
+        JumpToWorkPage(ordersn);
+    }
+    /**
+    *测试人员谭 2017-05-27 15:47:21
+    *说明: 跳转到工作台子
+    */
+    function JumpToWorkPage(ordersn){
+        var url="{:U('MakeBale/selectWorkbench')}&ordersn="+ordersn;
+        location.href=url;
+    }
+</script>
+
+</html>

@@ -1,0 +1,132 @@
+<css href="/newerp/Public/css/fonts.css" />
+<style>
+    body {font-family: 宋体;}
+    .tag{
+        font-family: 华文细黑;
+    }
+</style>
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table style="table-layout: fixed" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td colspan="4" width="40%" style="border-right-style: none;border-bottom-style: none">
+                <div style="height: 10mm">
+                    <img src="../themes/Sugar5/images/hrb_logo.jpg" width="110" height="35" style="float: left;"/>
+
+                </div>
+                <div style="font-size:8pt;margin-left: 15px;"><b>Small Packet BY AIR</b></div>
+                <div style="text-align: center;margin-left:45px;width:25%;font-size: 15px;border:2px solid #4c4c4c;padding-left: 8px;padding-right: 8px;padding-top: -1px;padding-bottom: -1px;"><b>{$Order['countrycode']}{$Order['importantcode']}</b></div>
+
+            </td>
+
+            <td colspan="4" align="center" style="vertical-align: middle;">
+                <div style="float:left;width:58mm;height: 13mm;margin-bottom:6px;text-align: center">
+                    <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="215" height="48"/>
+                    <br><b style="font-size: 11pt;">{$Order['ebay_tracknumber']}</b>
+                </div>
+            </td>
+
+        </tr>
+        <tr class="tag">
+            <td colspan="4" width="40%" style="font-size: 7pt;">
+               <b> From:</b><br>
+                &nbsp;3rd Floor, 36 WanZongCheng Village , MinZhi Road-ZS , SHENZHEN
+                <br>
+                <b>Phone:</b>&nbsp;13420918301
+            </td>
+            <td colspan="4" rowspan="2  " style="font-size:9pt;line-height:10pt;border-bottom-style: none">
+                <b>Ship To: </b>{$Order['ebay_username']}<br>
+                <div style="overflow-wrap: break-word;">
+                    <b>Add:&nbsp;</b> {$Order['ebay_street']}, {$Order['ebay_street1']}
+
+                    {$Order['ebay_city']}, {$Order['ebay_state']}<br>
+                    {$Order['ebay_countryname']}&nbsp;&nbsp;<br>
+                    <b>Zip: </b>{$Order['ebay_postcode']}<br>
+                    <br>
+                    <b>Phone: </b>{$Order['ebay_phone']}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">untracked自编号:{$Order['ebay_id']}</td>
+        </tr>
+        <tr>
+            <td colspan="4">退件单位：深圳市国际大宗邮件处理中心</td>
+            <td colspan="4" style="border-top-style: none">
+                <div align="right" style="margin-right: 10mm;margin-top: 1mm"><b>{$Order['countrycn']}</b></div>
+            </td>
+
+        </tr>
+
+        <tr style="text-align:center;font-size: 7pt" class="tag">
+            <td>No</td>
+            <td>Qty</td>
+            <td colspan="3">Description of Contents</td>
+            <td style="line-height: 9pt;"  class="blod">kg.</td>
+            <td style="line-height: 9pt;"  class="blod">Val(US $)</td>
+            <td>Goods Origin</td>
+        </tr>
+        <tr align="center" class="tag" style="font-size: 7pt">
+            <?php
+                $qty = explode('*', $Order['skustr'])[0];
+            ?>
+            <td>1</td>
+            <td>{$qty}</td>
+            <td colspan="3">{$Order['yingwen']}</td>
+            <td style="line-height: 8pt;" >
+                {$Order['orderweight']|round=4}
+            </td>
+            <td style="line-height: 8pt;" >
+                {$Order['sbjz']}
+            </td>
+            <td>china</td>
+        </tr>
+        <tr align="center" class="tag" style="font-size: 7pt">
+            <td></td>
+            <td></td>
+            <td colspan="3">Total Gross Weight(Kg)</td>
+            <td style="line-height: 8pt;" >{$Order['orderweight']|round=4}</td>
+            <td style="line-height: 8pt;" >{$Order['sbjz']}</td>
+            <td></td>
+        </tr>
+        <tr class="tag" style="font-size: 7pt">
+            <td  colspan="8">
+                <p style="line-height:8pt;">I certify that the particulars given in this declaration are correct and this item does not contain any dangerous articles prohibited by legislation or by postal or customers regulatioins.</p>
+                <br>
+                <div>
+                    <div style="float:left;height:9pt;line-height:9pt;font-size: 8pt;"><p><b>Sender's signiture& Data Signed:  </b>
+                    </p></div>
+                    <div class="tag" style="float:right;margin-right:5px;margin-top:-1px;text-align:center;line-height:14pt;font-weight:bold;font-size: 10pt;">CN22</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;right: 5px;bottom: 3px;margin-right: 45px;">
+        <span class="fonts" style="text-align: center;font-weight: bold;border:2px solid #4c4c4c;padding-left: 2px;padding-right: 2px;padding-top: -1px;padding-bottom: -1px;">{$countriest[$Order['ebay_carrier']]}</span>
+        <!--<span class="fonts" style="margin-right: 18px;">{$countriest[$Order['ebay_carrier']]}</span> -->
+    </div>
+    <div style="position: absolute;left:7px;bottom: 0px;">
+        <span style="margin-right: 5px;font-size: 12px;"><?php echo date('Y-m-d');?></span>
+    </div>
+</div>
+
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <div style="margin:10mm;" class="font14 line_break width:80mm;">
+        {$Order['skustr']}
+    </div>
+    <div class="line_break font14 pcenter1 ">
+        订单号:{$Order['ebay_id']}
+    </div>
+    <div class="line_break font14 pcenter1">
+        跟踪号:{$Order['ebay_tracknumber']}
+    </div>
+    <div class="line_break font14 pcenter1">
+        捡货用
+    </div>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

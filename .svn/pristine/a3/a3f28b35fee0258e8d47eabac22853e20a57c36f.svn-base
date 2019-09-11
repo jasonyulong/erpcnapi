@@ -1,0 +1,26 @@
+<extend name="Public/base1"/>
+
+<!-- CSS  -->
+<block name="linkrel">
+    <style>
+        table th,td {text-align: center !important;}
+    </style>
+</block>
+
+<!-- 面包屑导航 -->
+<block name="bread">
+    <li><a class="m-r-xs text-muted welcome-message">&nbsp;&nbsp;<span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;当前位置：</a></li>
+    <li><a class="m-r-xs"> 物流管理 &gt; 仓库信息</a></li>
+</block>
+
+<!-- 订单内容的主显示区 -->
+<block name="content">
+
+</block>
+
+<!-- JS 部分 -->
+<block name="src_js">
+    <script type="application/javascript">
+
+    </script>
+</block>

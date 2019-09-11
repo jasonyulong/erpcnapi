@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>特殊入库</title>
+</head>
+<link href="/newerp/Public/css/bootstrap.min.css-v=3.3.5.css" rel="stylesheet">
+<link href="/newerp/Public/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/blue.css">
+<link rel="stylesheet" href="/newerp/Public/plugins/icheck/skins/square/orange.css">
+<link href="/newerp/Public/css/whouse.css" rel="stylesheet">
+<style type="text/css">
+    #data_div table td{padding: 4px;}
+    #data_div2 table td{padding: 4px;}
+    td.alinks{cursor: pointer;color: #004488;}
+</style>
+<body>
+<div style="height:40px;background:#449D44;color:#fff;">扣库存队列</div>
+
+<h1> 特殊入库 除非有库存，否则一旦入库则 会产生异常</h1>
+<h1> 干之前保证：</h1>
+<h1> 1. 真的有库存</h1>
+<h1> 2. 找IT干一下 update ebay_order_ext set had_pdf=1 where ebay_id in()</h1>
+<h1> 3. 线上必须在 缺货中</h1>
+<div class="container" id="data_div">
+    <textarea id="ebay_ids" rows="10" cols="100"></textarea>
+    <input type="button" value="同步" onclick="RsyncOrder()"/>
+</div>
+</body>
+<script src="/newerp/Public/js/jquery.min.js-v=2.1.4"></script>
+<script src="/newerp/Public/js/bootstrap.min.js-v=3.3.5"></script>
+<script src="/newerp/Public/layer/layer.js"></script>
+<script type="application/javascript" src="/newerp/Public/plugins/icheck/icheck.min.js"></script>
+<script type="application/javascript">
+  function RsyncOrder(){
+
+      layer.load(2);
+
+      var ebay_ids=$("#ebay_ids").val();
+
+      var url='{:U("Test/doActionLoadOrder")}';
+
+
+      $.post(url,{ebay_ids:ebay_ids},function(data){
+          layer.closeAll();
+          layer.open({
+              type : 1,
+              area : ['50%', '40%'],
+              title: '订单干入结果',
+              shift: 2,
+              maxmin  : false,
+              scrollbar: false,
+              content :data
+          });
+      });
+  }
+</script>
+
+</html>

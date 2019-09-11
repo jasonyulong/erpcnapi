@@ -1,0 +1,62 @@
+<div style="margin:15px; margin-top:0;">
+    <div style="color: #a11;font-size:15px;">{$Errormsg}</div>
+    <div style="color: #1a1;font-size:15px;">{$Successmsg}</div>
+
+    &nbsp;<span style="color:#a11;font-size:20px;"><br>（未包完的的包裹结束作业之后,请立即归还库存!!!）</span>
+    <table class="table table-responsive table-hover table-condensed" width="100%" cellspacing="0" cellpadding="0">
+    <?php
+        if(count($Arr)>0){
+    ?>
+        <tr style="background:#FFA500;">
+            <td colspan="3">目前还有以下订单没有包装,请仔细核对!</td>
+        </tr>
+        <tr style="background:#FFA500;">
+            <td colspan="3">
+                是否要确定结束作业
+                <input class="btn btn-danger" value="确定结束作业" type="button"  onclick="conFirmOverOrder('{$ordersn}')"/>
+                <input class="btn btn-primary" value="查看要退回的SKU" type="button"  onclick="viewReturnOrder('{$ordersn}')"/>
+            </td>
+        </tr>
+        <tr style="background:#FFA500;">
+            <td>订单号</td>
+            <td>跟踪号</td>
+            <td>sku</td>
+        </tr>
+    <?php
+        }
+    ?>
+
+        <?php
+                           // debug($Orders);
+                             foreach($Arr as $List){
+                                 $ebay_id_old=$List['ebay_id'];
+                                 $skus=$List['skus'];
+                                 $combineid=$List['skus'][0]['combineid']; // 盒子号
+                                 $baletime=date('y-m-d H:i:s',$List['baletime']);
+                                 if($combineid){
+                                    $combineid_str='盒子号：'.$combineid;
+                                 }else{
+                                    $combineid_str='';
+                                 }
+                            ?>
+        <tr>
+            <td class="bolds">
+                {$ebay_id_old}
+                <br>{$combineid_str}
+            </td>
+            <td>{$List['ebay_tracknumber']}<br>{$List['pxorderid']}</td>
+            <td class="bolds">
+                <?php
+                                    foreach($skus as $skulist){
+                                        echo '<p class="length_breaks">'.$skulist['sku'].'*'.$skulist['qty'];
+                echo '&nbsp;&nbsp;'.$skulist['goods_name'].'</p>';
+                }
+                ?>
+            </td>
+        </tr>
+        <?php
+             }
+       ?>
+
+    </table>
+</div>

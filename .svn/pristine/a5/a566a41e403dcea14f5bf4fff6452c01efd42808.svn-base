@@ -1,0 +1,78 @@
+<?php
+    if($Order['countrycode'] == 'MA')
+    {
+        $imgcss = '';
+    }
+    else
+    {
+        $imgcss = 'height:110mm;width:110mm;';
+    }
+?>
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <img style="{$imgcss}" class="view" src="{$Order['pdfimg']}"/>
+
+    <!--添加拣货代码-->
+    <div style="position: absolute;rigth:0px;right: 5px;bottom: 3px;">
+        <span class="fonts" style="margin-right: 5px">{$countriest[$Order['ebay_carrier']]}</span>
+    </div>
+</div>
+<?php if($Order['countrycode'] != 'EG'):?>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+</div>
+<?php else:?>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <p style="text-align: center;">
+        <span style="font-size:24px"><strong>EGYPT</strong></span>
+    </p>
+    <p style="text-align: center;">
+        <span style="font-size:22px"><strong>Invoice</strong></span>
+    </p>
+    <p>
+        <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" width="90%" height="36"/>
+    </p>
+    <p><span style="text-decoration:underline; text-decoration: underline;"><strong>Seller:</strong></span></p>
+    <p class="font8">Shenzhen tonglian trading co   LTD</p>
+    <p class="font8">Room 610, unit 3, block 33, wanzhong village, minzhi street, longhua district,shenzhen</p>
+    <p class="font8">Shenzhen</p>
+    <p><span style="text-decoration:underline; text-decoration: underline;"><strong>Customer:</strong></span></p>
+    <p>{$Order['ebay_username']}</p>
+    <p>
+        <li>{$Order['ebay_username']}</li>
+        <li>{$Order['ebay_street']}, {$Order['ebay_street1']}</li>
+    <p>{$Order['ebay_city']},{$Order['ebay_state']},{$Order['ebay_countryname']}</p>
+    <p><span style="text-decoration:underline; text-decoration: underline;"><strong>Items:</strong></span></p>
+    <div class="container datagrid">
+        <table border="1" cellspacing="0" class="order_item_table" style="border-color:#F5F5F5; width:100%">
+            <thead>
+            <tr>
+                <td class="item_name"><strong>Item name</strong></td>
+                <td class="item_quantity"><strong>Quantity</strong></td>
+                <td class="item_international_base_cost"><strong>FOB price (USD)</strong></td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="item_name font6" >{$Order['ebay_itemtitle']}</td>
+                <td class="item_quantity">1</td>
+                <td class="item_international_base_cost">{$Order['ebay_total']}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php endif;?>
+

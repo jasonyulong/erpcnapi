@@ -1,0 +1,143 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="left" valign="top" class="noright nobottom">
+                <img src="../themes/Sugar5/images/hrb_logo.jpg" height="30" width="125" style="clear:both;"/>
+
+                <?php if(strstr($Order['ebay_carrier'],'挂号'))
+                        echo '<span class="blod font20">R</span>';
+                ?>
+            </td>
+            <td>
+                <b>Small Packet BY AIR</b>
+            </td>
+            <td>
+                <b>RU21</b>
+            </td>
+        </tr>
+        <tr>
+            <td class="ffa line_break" style="width:40mm;">
+                <p>From:23010104577000</p>
+
+                <p class="font8 blod line_break">
+                    {$Order['backAddress']}<br>
+                    <b>Phone:13420918301</b>
+                </p>
+
+                <p>
+                    自编号：{$Order['ebay_id']}
+                </p>
+            </td>
+            <td colspan="2">
+                <div class="font9" style="font-weight:normal;width:56mm; word-wrap:break-word;word-break:break-all;"
+                     class="line_break">
+                    Ship To: <b>{$Order['ebay_username']}</b><br>
+                    {$Order['ebay_street']}, {$Order['ebay_street1']}<br/>
+                    {$Order['ebay_city']}, {$Order['ebay_state']}&nbsp;{$Order['ebay_countryname']} {$Order['ebay_postcode']}<br/>
+                    RUSSIA 7 俄罗斯<br/>
+                    tel:{$Order['ebay_phone1']}phone: {$Order['ebay_phone']}
+                </div>
+            </td>
+        </tr>
+        <?php
+            $zonde = 0;
+            $zonecode = substr($Order['ebay_postcode'],0,2);
+            $zonecode = (int)$zonecode;
+            if($zonecode >=10 && $zonecode < 20){
+                $zonde = 1;
+            }
+            if($zonecode >=20 && $zonecode < 30){
+                $zonde = 2;
+            }
+            if($zonecode >=30 && $zonecode < 40){
+                $zonde = 3;
+            }
+            if($zonecode >=40 && $zonecode < 50){
+                $zonde = 4;
+            }
+            if(in_array($zonecode,[60,61,62])){
+                $zonde = 4;
+            }
+            if(in_array($zonecode,[68,69])){
+                $zonde = 5;
+            }
+            if(in_array($zonecode,[63,64,65,66,67])){
+                $zonde = 6;
+            }
+        ?>
+        <tr>
+            <td colspan="3">
+                <p>
+                    untracked
+                    <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="80%" height="40"/>
+                    <b>{$zonde}</b>
+                </p>
+                <p class="pcenter1 font8">{$Order['ebay_tracknumber']}</P>
+            </td>
+        </tr>
+        <tr>
+            <td class="font8">Description Of Contents</td>
+            <td class="font8">Kg</td>
+            <td class="font8">Vals(USD $)</td>
+        </tr>
+        <tr>
+            <td class="font8">{$Order['shenbao']}</td>
+            <td class="font8">0.08</td>
+            <td class="font8">                <?php
+                    // 白俄罗斯 捷克 乌克兰 巴西 总金额的50% 且 小于 1
+                    // 其他国家 总金额的50% 且 小于 10
+                    $countryArr = array(
+                        '白俄罗斯'=>'BY',
+                '捷克'=>'CZ',
+                '乌克兰'=>'UA',
+                '巴西'=>'BR'
+                );
+                $countryCode = trim($Order['countrycode']);
+                $ebay_total = trim($Order['ebay_total']);
+
+                $Value = $ebay_total*0.5;
+                $randNum = 0.98*rand(8,10);
+                $Value = $Value >= 10?$randNum:$Value;
+
+                if(in_array($countryCode,$countryArr)){
+                $randNum = 0.098*rand(8,10);
+                $randNum = round($randNum,2);
+                $Value = $Value >= 1?$randNum:$Value;
+                }
+                echo $Value;
+                ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="font8">Total Gross Weight(Kg)</td>
+            <td class="font8">0.08</td>
+            <td class="font8">{$Value}</td>
+        </tr>
+        <tr>
+            <td class="font7 ffa"  colspan="3">I certify that the particulars given in this declaration are correct and
+                this item does not contain any dangerous articles prohibited by legislation or by
+                postal or customers regulations.
+            </td>
+        </tr>
+        <tr>
+            <td class="font8 blod" colspan="2">Sender's signiture& Data Signed:</td>
+            <td class="font11 blod">CN22</td>
+        </tr>
+    </table>
+</div>
+<div class="mod_second_lables"
+     style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="font14 line_break" style="width: 80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">{$Order['ebay_id']}</div>
+                <div class="font14">{$Order['ebay_tracknumber']}</div>
+                <div class="font14">{$Order['ebay_carrier']}</div>
+                <div class="font14 blod">请勿粘贴</div>
+            </td>
+        </tr>
+    </table>
+</div>

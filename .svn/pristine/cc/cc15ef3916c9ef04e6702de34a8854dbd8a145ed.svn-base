@@ -1,0 +1,23 @@
+<?php
+/**
+ * User: 王模刚
+ * Date: 2017/11/10
+ * Time: 16:42
+ */
+
+namespace Common\Model;
+
+
+use Think\Model;
+
+class EbayOnhandleModel extends Model
+{
+    protected $tableName;
+
+    public function __construct($store_id,$name='',$tablePrefix='',$connection='')
+    {
+        $this->tableName = 'ebay_onhandle_'.$store_id;
+        parent::__construct($name,$tablePrefix,$connection);
+    }
+
+}

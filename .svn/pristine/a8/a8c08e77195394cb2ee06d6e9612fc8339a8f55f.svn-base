@@ -1,0 +1,542 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2017/6/6
+ * Time: 9:46
+ */
+
+namespace Package\Controller;
+
+use Common\Controller\CommonController;
+use Package\Model\OrderPackageModel;
+use Package\Model\PickerOrderModel;
+use Package\Model\PickFeeModel;
+use Package\Model\PickOrderDetailModel;
+use Package\Model\PickOrderModel;
+
+/**
+ * |-----------------------------------------------------------------------------
+ * |    统计用户包装订单的费用
+ * |
+ * |    以包装人员进行分组，统计包装人员包装所得费用的统计展示s
+ * |
+ * Class UserPackageFeeController
+ * @method $this assign($name, $val)
+ * @method display($template = '');
+ * @package Package\Controller
+ */
+class UserPackageFeeController extends CommonController
+{
+
+
+    /**
+     * 将在构造函数中进行调用的方法，进行当前类的初始化方法
+     */
+    public function _initialize()
+    {
+        parent::_initialize();
+    }
+
+
+    /**
+     * ran 订单包装统计和拣货统计权限分开
+     * 展示统计的计算结果列表默认为最近一个月
+     */
+    public function showStatistic()
+    {
+        if (!can('order_package_packing')) {
+            echo "<h1 style='color: #911'> 您没有权限查看订单包装费用统计的权限. </h1>";
+            exit(-1);
+        }
+
+        $PickFee = new PickFeeModel();
+        $beginTime = strtotime($_REQUEST['timeArea_start']);
+        $endTime = strtotime($_REQUEST['timeArea_end']);
+        $day = ceil(($endTime-$beginTime)/86400);
+        if($day > 31){
+            exit("查询区间请勿超过一个月");
+        }
+        $timeArea = $this->getStatisticArea($rawTimeCondition);
+
+        $conditions = [
+            'endtime' => ['between', $timeArea]
+        ];
+
+        $statisticResult = $PickFee->where($conditions)->field('pkuser,sum(fee) as fee,count(ebay_id) as cc')->group('pkuser')
+            ->select();
+        $html = '';
+        foreach ($statisticResult as $key => $List) {
+            $statisticResult[$key]['fee'] = round($List['fee'], 3);
+            $html .= $this->showDetails($List['pkuser']);
+        }
+
+        $this->assign('statisticResult', $statisticResult)
+            ->assign('timeCondition', $rawTimeCondition)
+            ->assign('html', $html)
+            ->display();
+    }
+
+    /**
+     * 陈兴燃
+     * 包装费重置
+     */
+    public function resetPackageFee()
+    {
+        if (!empty($_POST)) {
+            $skus = I("post.skus");
+            $skus = trim($skus, ',');
+            $timeArea_start = I("post.timeArea_start");
+
+            if (empty($skus)) {
+                echo '<br><p class="text-center text-danger">请输入要清空的sku!</p>';
+                die;
+            }
+
+            if (empty($timeArea_start)) {
+                echo '<br><p class="text-center text-danger">你还没选择初始时间!</p>';
+                die;
+            }
+
+            $timeArea_start = strtotime($timeArea_start);
+            $time = time() - $timeArea_start;
+            $isTenDay = (int)($time / (3600 * 24));
+
+            if ($isTenDay > 16) {
+                echo '<br><p class="text-center text-danger">你超出了时间选择范围!</p>';
+                die;
+            }
+
+            $skus = str_replace('，', ',', $skus);
+            $skus = str_replace(' ', ',', $skus);
+            $skuArr = explode(",", $skus);
+            $msg = '<div style="padding: 2rem">';
+            $pickFee = new PickFeeModel('', '', C('DB_CONFIG2'));
+
+            foreach ($skuArr as $sku) {
+                $sku = trim($sku);
+                $result = $pickFee->where(" sku='$sku' and endtime > $timeArea_start ")->save(array("fee" => 0));
+                $msg .= "<p class=\"text-success text-center\">sku: " . $sku . " ,一共" . '<span class="text-danger">' . $result . '</span>' . '条数据将要重新计算</p>';
+            }
+            echo $msg . '</div>';
+            die;
+        }
+
+        $this->display();
+    }
+
+
+    public function showStatisticPrint()
+    {
+
+        $PickFee = new PickFeeModel('', '', C('DB_CONFIG2'));
+
+        $timeArea = $this->getStatisticArea($rawTimeCondition);
+
+        $conditions = [
+            'endtime' => ['between', $timeArea]
+        ];
+
+        $statisticResult = $PickFee->where($conditions)
+            ->field('pkuser,sum(fee) as fee,count(ebay_id) as cc')->group('pkuser')
+            ->select();
+        $html = '';
+        foreach ($statisticResult as $key => $List) {
+
+            $html .= $this->showDetails($List['pkuser']);
+        }
+
+        $this->assign('html', $html)
+            ->display();
+    }
+
+
+    function pickerStatisticPrint()
+    {
+        $this->pickerStatistic(true);
+    }
+
+    /**
+     * 获取查询的时间节点的范围
+     * @param $rawCondition
+     * @return array
+     */
+    private function getStatisticArea(&$rawCondition = '')
+    {
+        $rawCondition = $_REQUEST;
+
+        if ($rawCondition['timeArea_start'] && $rawCondition['timeArea_end']) {
+            $timeAreaCondition = [
+                strtotime($rawCondition['timeArea_start'] . ' 00:00:00'),
+                strtotime($rawCondition['timeArea_end'] . ' 23:59:59')
+            ];
+        } else {
+            $rawCondition['timeArea_start'] = date('Y-m-d', strtotime('-10 days'));
+            $rawCondition['timeArea_end'] = date('Y-m-d');
+
+            $timeAreaCondition = [
+                strtotime(date('Y-m-d', strtotime('-10 days')) . ' 00:00:00'),
+                strtotime(date('Y-m-d') . ' 23:59:59')
+            ];
+        }
+        return $timeAreaCondition;
+    }
+
+
+    /**
+     * @param $user
+     */
+    public function showDetails($user)
+    {
+        $timeArea = $this->getStatisticArea();
+
+        $PickFeeModel = new PickFeeModel();
+
+        $conditions = [
+            'pkuser' => $user,
+            'endtime' => ['between', $timeArea],
+        ];
+
+        $orders = $PickFeeModel->where($conditions)
+            ->field('fee,sum(fee) as fees,count(ebay_id) as qtys,fee_group')
+            ->group('fee_group')
+            ->select();
+        $this->assign('orders', $orders);
+        $this->assign('pkuser', $user);
+        return $this->fetch('showDetails');
+    }
+
+
+    public function pickerStatistic($print = false)
+    {
+//
+//        if (!can('order_package_statistic')) {
+//            echo "<h1 style='color: #911'> 您没有权限查看拣货费用计的权限. </h1>";
+//            exit(-1);
+//        }
+        $beginTime = strtotime($_REQUEST['timeArea_start']);
+        $endTime = strtotime($_REQUEST['timeArea_end']);
+        $day = ceil(($endTime-$beginTime)/86400);
+        if($day > 31){
+            exit("查询区间请勿超过一个月");
+        }
+
+        $PickerOrderModel = new  PickerOrderModel('', '', C('DB_CONFIG2'));
+        $timeArea = $this->getStatisticArea($rawTimeCondition);
+        $conditions = [
+            'picktime' => ['between', $timeArea],
+        ];
+        $UserArr = $PickerOrderModel->where($conditions)->group('pickuser')->field('pickuser')->select();
+        $MainData = [];
+        foreach ($UserArr as $List) {
+            $pickuser = $List['pickuser'];
+
+            $where=[];
+
+            $where['picktime']=['between', $timeArea];
+            $where['pickuser']=$pickuser;
+            $MainData[$pickuser]=$PickerOrderModel->where($where)->group('type')->field('type,count(id) as cc')
+                ->select();
+        }
+
+        $this->assign('MainData', $MainData);
+        $this->assign('UserArr', $UserArr);
+        $this->assign('timeCondition', $rawTimeCondition);
+
+        if ($print) {
+            $this->display('pickerStatisticPrint');
+            return;
+        }
+        $this->display();
+
+    }
+
+
+    /**
+     * author: ran
+     * ran 订单包装统计和拣货统计权限分开
+     * @param bool $print
+     */
+    public function pickerCount()
+    {
+        if (!can('order_package_statistic')) {
+            echo "<h1 style='color: #911'> 您没有权限查看拣货费用计的权限. </h1>";
+            exit(-1);
+        }
+
+        $get = I('get.');
+        if (!empty($get['start']) || !empty($get['end'])) {
+            $start = strtotime($get['start']);
+            $end = strtotime($get['end']);
+            $this->assign('arr', $get);
+        } else {
+            $arr['start'] = date('Y-m-d 00:00:00');
+            $arr['end'] = date('Y-m-d 23:59:59');
+            $start = strtotime($arr['start']);
+            $end = strtotime($arr['end']);
+            $this->assign('arr', $arr);
+        }
+        $condition['isprint'] = 1;
+        $condition['addtime'] = [['EGT', $start], ['ELT', $end]];
+        $scantime['scantime'] = [['EGT', $start], ['ELT', $end]]; //出库
+        $apichecksku['addtime'] = [['EGT', $start], ['ELT', $end]]; //包装
+        $orderConfirm['confirm_time'] = [['EGT', $start], ['ELT', $end]]; //已捡货
+        $listCountArray = [];
+        $PickOrderModel = new  \Package\Model\PickOrderModel();
+        $PickerOrderDetailModel = new  \Package\Model\PickOrderDetailModel();
+        $ApiOrderweight = new \Package\Model\ApiOrderWeightModel();
+        $apiCheckSku = new \Package\Model\ApiCheckskuModel();
+
+        $listCount = $PickOrderModel->where($condition)->field('isprint,ordersn')->select();
+        $waitForPrint = [];
+        foreach ($listCount as &$val) {
+            $waitForPrint[] = $val['ordersn'];
+        }
+        if (empty($waitForPrint)) {
+            $listCountArray[1] = 0;
+        } else {
+            $waitForPrints['ordersn'] = ['in', $waitForPrint];
+            $listCountArray[1] = $PickerOrderDetailModel->where($waitForPrints)->count('distinct(ebay_id)'); //
+        }
+        $listCountArray[2] = $this->pickerOrder($condition);   //拣货的
+        $listCountArray[4] = $ApiOrderweight->where($scantime)->count();   //已出库
+        $listCountArray[3] = $apiCheckSku->where($apichecksku)->count(); //包装
+        $this->assign('counts', $listCountArray);
+        $this->display();
+    }
+
+    public function pickerOrder($where)
+    {
+        unset($where['isprint']);
+        $where['isprint'] = ['in', '2,3'];
+        $PickOrderModel = new  \Package\Model\PickOrderModel();
+        $PickerOrderDetailModel = new  \Package\Model\PickOrderDetailModel();
+        $pickOrderCofrim = new \Package\Model\PickOrderConfirmModel();
+        $list = $PickOrderModel->where($where)->field('ordersn')->select();
+        $mapOrder = [];
+        foreach ($list as $v) {
+            $mapOrder[] = $v['ordersn'];
+        }
+
+        if (!empty($mapOrder)) {
+            $map['ordersn'] = ['in', $mapOrder];
+            $map['status'] = 2;
+            $ordersnList = $pickOrderCofrim->where($map)->group('ordersn')->field('ordersn')->select(); //二次过滤
+            $arr = [];
+            foreach ($ordersnList as $v) {
+                $arr[] = $v['ordersn'];
+            }
+            //现在就是拣货数量
+            $condition['is_delete'] = ['neq', 1];
+            $condition['ordersn'] = ['in', $arr];
+            $num = $PickerOrderDetailModel->where($condition)->count('distinct(ebay_id)');
+
+        } else {
+            $num = 0;
+        }
+
+        return $num;
+    }
+
+    /**
+     * 获取sku统计
+     * @param timeArea_start 开始时间
+     * @param timeArea_end 结束时间
+     * @param feeGroup 标识
+     * @param user 包装员
+     * @return json 返回值
+     * @author xiao
+     * @date 2018-04-06
+     */
+    public function getSkuTotal(){
+        $beginTime = strtotime(trim($_POST['timeArea_start']));
+        $endTime = strtotime(trim($_POST['timeArea_end']));
+        //判断查询日期间隔不能超过一个月
+        $day = ceil(($endTime-$beginTime)/86400);
+        if($day > 31){
+            $this->ajaxReturn(array('status'=>0,'msg'=>'查询区间请勿超过一个月'));
+        }
+        $beginTime = strtotime($_POST['timeArea_start'] . ' 00:00:00');
+        $endTime = strtotime($_POST['timeArea_end'] . ' 23:59:59');
+        $feeGroup = trim($_POST['feeGroup']);
+        $user = trim($_POST['user']);
+        $PickFee = new PickFeeModel();
+        $pickOrderDetail = new PickOrderDetailModel();
+        $map['endtime'] = array('between',array($beginTime,$endTime));
+        $map['pkuser'] = array('eq',$user);
+        $map['fee_group'] = array('eq',$feeGroup);
+        $ebayIds = array();
+        $orderIds = array();
+        //计算sku需要字段
+        $PickData = $PickFee->getAll($map,'ebay_id,ordersn');
+        if(!empty($PickData)){
+            foreach ($PickData as $k=>$v){
+                if(!in_array($v['ebay_id'],$orderIds)){
+                    $ebayIds[] = $v['ebay_id'];
+                }
+                if(!in_array($v['ordersn'],$orderIds)){
+                    $orderIds[] = $v['ordersn'];
+                }
+            }
+            $orderMap['ordersn'] = array('in',$orderIds);
+            $orderMap['ebay_id'] = array('in',$ebayIds);
+            $data = $pickOrderDetail->getSkuTotal($orderMap);
+            if(empty($data)){
+                $this->ajaxReturn(array('status'=>0,'msg'=>'计算失败，请刷新重试'));
+            }else{
+                $data['skudiscount'] = (int)$data['skudiscount'];
+                $data['skucount'] = (int)$data['skucount'];
+                $this->ajaxReturn(array('status'=>1,'data'=>$data));
+            }
+        }else{
+            $this->ajaxReturn(array('status'=>0,'msg'=>'计算失败，请刷新重试'));
+        }
+    }
+    /**
+     * 获取拣货sku统计
+     * @param timeArea_start 开始时间
+     * @param timeArea_end 结束时间
+     * @param type 标识
+     * @param user 包装员
+     * @return json 返回值
+     * @author xiao
+     * @date 2018-04-25
+     */
+    public function getPickSkuTotal(){
+        $PickerOrderModel = new  PickerOrderModel('', '', C('DB_CONFIG2'));
+        $beginTime = strtotime(trim($_POST['timeArea_start']));
+        $endTime = strtotime(trim($_POST['timeArea_end']));
+        //判断查询日期间隔不能超过一个月
+        $day = ceil(($endTime-$beginTime)/86400);
+        if($day > 31){
+            $this->ajaxReturn(array('status'=>0,'msg'=>'查询区间请勿超过一个月'));
+        }
+        $user = trim($_POST['user']);
+        $type = trim($_POST['type']);
+        $beginTime = strtotime($_POST['timeArea_start'] . ' 00:00:00');
+        $endTime = strtotime($_POST['timeArea_end'] . ' 23:59:59');
+        $map['picktime'] = array('between',array($beginTime,$endTime));
+        $map['pickuser'] = array('eq',$user);
+        $map['type'] = array('eq',$type);
+        $ebayIds = array();
+        $orderIds = array();
+        $pickOrderDetail = new PickOrderDetailModel();
+        $pickData = $PickerOrderModel->where($map)->field('ebay_id,ordersn')->select();
+//        echo $PickerOrderModel->_sql();exit;
+        if(!empty($pickData)){
+            foreach ($pickData as $k=>$v){
+                if(!in_array($v['ebay_id'],$orderIds)){
+                    $ebayIds[] = $v['ebay_id'];
+                }
+                if(!in_array($v['ordersn'],$orderIds)){
+                    $orderIds[] = $v['ordersn'];
+                }
+            }
+            $orderMap['ordersn'] = array('in',$orderIds);
+            $orderMap['ebay_id'] = array('in',$ebayIds);
+            $data = $pickOrderDetail->getSkuTotal($orderMap);
+            if(empty($data)){
+                $this->ajaxReturn(array('status'=>0,'msg'=>'计算失败，请刷新重试','sql'=>$pickOrderDetail->_sql()));
+            }else{
+                $data['skudiscount'] = (int)$data['skudiscount'];
+                $data['skucount'] = (int)$data['skucount'];
+                $this->ajaxReturn(array('status'=>1,'data'=>$data));
+            }
+        }else{
+            $this->ajaxReturn(array('status'=>0,'msg'=>'计算失败，请刷新重试','sql'=>$PickerOrderModel->_sql()));
+        }
+    }
+
+    public function putsmExcel()
+    {
+        $start = $_REQUEST['start'];
+        $end   = $_REQUEST['end'];
+        $start_s=strtotime($start);
+        $end_s=strtotime($end);
+        $days=ceil(($end_s-$start_s)/3600/24)-1 ?: 1;
+
+        $dbconLocal=M('api_orderweight');
+
+        $field = "count(id) as cc,scan_user,from_unixtime(scantime, '%Y-%m-%d') as time_date";
+        $map['scantime'] = ['between', [$start_s,$end_s]];
+
+
+        $sql=$dbconLocal->field($field)->where($map)->group("scan_user,time_date")->select();
+
+        $sqlCounts=$dbconLocal->field($field)->where($map)->group("time_date")->select();
+        $countsArr     = [];
+
+        foreach ($sqlCounts as $counts) {
+            $countsArr['arr'][$counts['time_date']] = $counts['cc'];
+        }
+
+        $userdd = array_unique(array_column($sql, 'scan_user'));
+        $dataArr = [];
+        $userIdModel = M('erp_ebay_user');
+        foreach ($userdd as $key => $val) {
+            $userId        = $userIdModel->field('id')->where(['username' => $val])->find()['id'];
+            $dataArr[$val] = [];
+            foreach ($sql as $reKey => $reVal) {
+                if ($reVal['scan_user'] == $val) {
+                    $dataArr[$val]['QCuserId']                   = $userId;
+                    $dataArr[$val]['arr'][$reVal['time_date']] = $reVal['cc'];
+                }
+            }
+        }
+
+        $fileName = "订单扫描数据导出-";
+        $output = fopen('php://output', 'w') or die("can't open php://output");
+        $filename = $fileName . date('Y') . "-" . date('m') . "-" . date('d');
+        header("Content-Type: application/csv");
+        //判断浏览器，输出双字节文件名不乱码
+        $ua = $_SERVER["HTTP_USER_AGENT"];
+        if (preg_match("/MSIE/", $ua)) {
+            header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+        }
+        else if (preg_match("/Firefox/", $ua)) {
+            header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '.csv"');
+        }
+        else {
+            header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+        }
+
+        $head='扫描人';
+        $table_head[] = $head;
+        for($i=$days;$i>=0;$i--) {
+            $table_head[] = date('Y-m-d', strtotime($end." -{$i}day"));
+        }
+        $table_head[] = "合计：";
+        //输出Excel列名信息
+        foreach ($table_head as $key => $value) {
+            //CSV的Excel支持GBK编码，一定要转换，否则乱码
+            $table_head[$key] = iconv('utf-8', 'gbk', $value);
+        }
+        fputcsv($output, $table_head);
+        $dataArr['总计：']  = $countsArr;
+
+        foreach ($dataArr as $k => $v) {
+            $arr=[];
+            $k = iconv('utf-8', 'gbk', $k);
+            $v['QCuserId']  = iconv('utf-8', 'gbk', $v['QCuserId']);
+            $arr[] = $k.' ['.$v['QCuserId'].']';
+            $count = 0;
+            for($i=$days;$i>=0;$i--) {
+                $date = date('Y-m-d', strtotime($end." -".$i."day"));
+                if(in_array($date,array_keys($v['arr']))){
+                    $num = $v['arr'][$date];
+                    $num = iconv('utf-8', 'gbk', $num);
+                    $arr[] = $num;
+                    $count = $count + $num;
+                }else{
+                    $arr[] = 0;
+                }
+
+            }
+            $arr[] = $count;
+            fputcsv($output, array_values($arr));
+        }
+
+        fclose($output) or die("can't close php://output");
+        exit;
+    }
+}

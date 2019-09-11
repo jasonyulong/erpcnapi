@@ -1,0 +1,86 @@
+<div style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <div class="font16">该模板已废除</div>
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td  align="left" valign="top" class="noright nobottom">
+                <img src="../themes/Sugar5/images/hrb_logo.jpg" height="25" width="105"  style="clear:both;"/>
+            </td>
+            <td>
+                <p class="pcenter1 font7 ffa">Small Packet<br>BY AIR</p>
+            </td>
+            <td>
+                <div class="countrycode blod" style="margin-left:10mm;border:none;">{$Order['countrycode']}{$Order['importantcode']}</div>
+            </td>
+            <td class="blod pcenter1">已检视</td>
+        </tr>
+        <tr>
+            <td width="40%" class="ffa">
+                <div>From:</div>
+                <p class=" font7 blod" style="width:100%">
+                    {$Order['backAddress']}
+                </p>
+            </td>
+            <td  width="60%"  colspan="3" class="font9 blod nobottom ffa2">
+                <div style="font-weight:normal;">Ship To: <b>{$Order['ebay_username']}</b></div>
+                {$Order['ebay_street']}, {$Order['ebay_street1']}<br/>
+                {$Order['ebay_city']}, {$Order['ebay_state']}&nbsp;<br>
+                {$Order['ebay_countryname']}&nbsp;{$Order['countrycn']}<br/>
+                <span style="font-weight:normal;">tel:{$Order['ebay_phone1']}</span>
+            </td>
+        </tr>
+        <tr>
+            <td width="20%" class="ffa  font10">自编号:{$Order['ebay_id']}</td>
+            <td width="80%" class="font9 blod " style="line-height: 10pt;" colspan="3">
+                phone: {$Order['ebay_phone']} &nbsp;&nbsp;Zip：<span class="font9">{$Order['ebay_postcode']}</span></b>
+            </td>
+        </tr>
+        <tr>
+            <td class="noright" valign="middle"><p style="padding-top:10px;">Untracked</p></td>
+            <td colspan="3">
+                <img src="../barcode128.class.php?data={$Order['ebay_tracknumber']}" alt="" width="100%" height="35"/>
+                <p class="pcenter1 font8 blod">{$Order['ebay_tracknumber']}</P>
+            </td>
+        </tr>
+        <tr>
+            <td class="font9" colspan="2">Description Of Contents</td>
+            <td class="font9">Kg</td>
+            <td class="font9">Vals(USD$)</td>
+        </tr>
+        <tr>
+            <td class="font9" style="height:20pt;" colspan="2">{$Order['shenbao']}</td>
+            <td class="font9">0.08</td>
+            <td class="font9">1.5</td>
+        </tr>
+        <tr>
+            <td class="font9" colspan="2">Total Gross Weight(Kg)</td>
+            <td class="font9">0.08</td>
+            <td class="font9">1.5</td>
+        </tr>
+        <tr>
+        <td class="font7 ffa" colspan="4">I certify that the particulars given in this declaration are correct and this
+            item does not contain any dangerous articles prohibited by legislation or by
+            postal or customers regulations.</td>
+        </tr>
+        <tr>
+            <td class="font9 blod" colspan="3">Sender's signiture& Data Signed:</td>
+            <td class="font11 blod">CN22</td>
+        </tr>
+    </table>
+</div>
+<div class="mod_second_lables" style="width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0" class="">
+        <tr class="">
+            <td>
+                <div class="line_break font14" style="margin: 10mm;border:none;width:80mm;">
+                    {$Order['skustr']}
+                </div>
+                <div class="font14">该模板已废除</div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top:10px;margin-left:5px">
+        <div >订 &nbsp;单&nbsp; 号  :{$Order['ebay_id']} </div>
+        <div>打印时间 : <?php echo date('Y-m-d H:i:s');?></div>
+    </div>
+</div>

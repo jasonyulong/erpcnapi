@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport"/>
+    <meta charset="UTF-8">
+    <title>发货</title>
+</head>
+<link rel="stylesheet" type="text/css" href="../cache/themes/Sugar5/css/grids-min.css"/>
+<link rel="stylesheet" type="text/css" href="../cache/themes/Sugar5/css/forms-min.css"/>
+<link rel="stylesheet" type="text/css" href="../cache/themes/Sugar5/css/menus-min.css"/>
+<link rel="stylesheet" type="text/css" href="../cache/themes/Sugar5/css/mobile.css"/>
+<body>
+    <div class="pure-menu pure-menu-horizontal erp-top-hander">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item pure-menu-selected pure-menu-has-children pure-menu-allow-hover">
+                <a href="#" class="pure-menu-link">发货</a>
+            </li>
+            <!--<li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                <a href="#" id="menuLink1" class="pure-menu-link">Inventory</a>
+                <ul class="pure-menu-children">
+                    <li class="pure-menu-item"><a href="./local.php" class="pure-menu-link">Location setting</a></li>
+                    <li class="pure-menu-item"><a href="./skucheck.mob.php" class="pure-menu-link">Inbound Check</a></li>
+                    <li class="pure-menu-item"><a href="./CheckStore/scanBarcode.php" class="pure-menu-link">存储位置检测</a></li>
+                    <li class="pure-menu-item"><a href="../tp.php?s=/Warehousing/qcbypda" class="pure-menu-link">质检通过</a></li>
+                    <li class="pure-menu-item"><a href="../tp.php?s=/Whousingcar/warehousingfromcar" class="pure-menu-link">推车上架</a></li>
+                    <li class="pure-menu-item"><a href="../t.php?s=/Purchase/PdaInventory/scanning" class="pure-menu-link">推车上架(无需上车)</a></li>
+                </ul>
+            </li>-->
+        </ul>
+    </div>
+    <div id="one-line"></div>
+    <div id="welcome" >
+        Welcome, <strong>{$_SESSION['truename']}</strong>
+        [<a href="{:U('Mobile/Login/loginOut')}" class='utilsLink'>Log Out</a>]
+    </div>

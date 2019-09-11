@@ -1,0 +1,94 @@
+<?php
+namespace Order\Controller;
+
+use Order\Model\ApiCarrierStatisticsModel;
+use Order\Model\EbayCarrierModel;
+use Order\Model\EbayOrderModel;
+use Think\Controller;
+
+/**
+ * 自动仓库日清统计
+ */
+class SynCarrierStatisticsController extends Controller
+{
+
+    /**
+     * 默认的日清时间点
+     */
+    private $default_h_i = "15:00";
+
+    /**
+     * @desc   自动仓库日清统计 按运输方式
+     * @Author leo
+     * TODO: /usr/local/php/bin/php /opt/web/erpcnapi/erpcnapi/tcli.php Order/SynCarrierStatistics/index
+     */
+    public function index()
+    {
+        if(!IS_CLI){
+            echo "请求异常! \n ";
+            return ;
+        }
+        $currStoreId    = C("CURRENT_STORE_ID");
+        $carrierModel = new EbayCarrierModel();
+        $where['ebay_warehouse'] = $currStoreId;
+        $count    = $carrierModel->where($where)->count();
+        $pageshow = 50;
+        $pCount   = ceil($count / $pageshow);
+        p("Task start count {$count}, Total {$pCount} batch,every {$pageshow} strip");
+
+        for ($page = 0; $page <= $pCount; $page++) {
+            if ($page <= 0) {
+                $page = 1;
+            }
+            $pagesize = ($page - 1) * $pageshow;
+
+            $carrierData = $carrierModel->field('name,completed_time')->where($where)->limit($pagesize, $pageshow)->select();
+            $this->addSynCarrierStatistics($carrierData);
+
+            p("The {$page} batch complete,limit($pagesize,$pageshow)");
+        }
+
+        p('End of the task');
+    }
+
+    //添加，统计的数据
+    public function addSynCarrierStatistics($carrierData)
+    {
+        $orderModel = new EbayOrderModel();
+        $carrierStatisticsModel = new ApiCarrierStatisticsModel();
+        if (empty($carrierData)) {
+            return false;
+        }
+        $start_time = date("Y-m-d", strtotime("-2 day"));
+        $end_time   = date("Y-m-d", strtotime("-1 day"));
+        $to_time    = date("Ymd", strtotime("-1 day"));
+        foreach ($carrierData as $key => $val) {
+            $where = [];
+            $h_i   = $val['completed_time'];
+            if (empty($h_i)) {
+                $h_i = $this->default_h_i;
+            }
+            $where['w_add_time'][] = ['gt', $start_time . " {$h_i}:00"];
+            $where['w_add_time'][] = ['elt', $end_time . " {$h_i}:00"];
+            $where['ebay_carrier'] = $val['name'];
+            $order_count           = $orderModel->where($where)->count();
+            $where['ebay_status']  = 2;
+            $order_count_2         = $orderModel->where($where)->count();
+            $saveStatistics = [
+                'to_time'             => $to_time,
+                'carrier_name'        => $val['name'],
+                'total_order_count'   => $order_count,
+                'total_order_count_2' => $order_count_2,
+                'completed_time'      => $h_i,
+                'add_time'            => time(),
+            ];
+            $ScId = $carrierStatisticsModel->where(['to_time'=>$to_time,'carrier_name'=>$val['name']])->getField('id');
+            if($ScId){
+                $carrierStatisticsModel->where(['id'=>$ScId])->save($saveStatistics);
+            }else{
+                $carrierStatisticsModel->add($saveStatistics);
+            }
+        }
+        return true;
+    }
+}

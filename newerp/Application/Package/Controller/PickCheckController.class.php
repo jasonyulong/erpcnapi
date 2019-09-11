@@ -1,0 +1,37 @@
+<?php
+
+namespace Package\Controller;
+
+use Package\Model\PickCheckModel;
+use Package\Service\CheckService;
+use Think\Controller;
+
+/**
+ * Class CreatePickController
+ * @package Package\Controller
+ *  二次分拣单
+ */
+class PickCheckController extends Controller{
+
+    function index(){
+        if(!IS_CLI){
+            echo 'Must Run in Cli!!!!!!';
+            die();
+        }
+
+        $PickCheckService=new CheckService();
+        $PickCheckService->CheckOrder();
+    }
+
+
+    function CheckOrders(){
+        exit("功能已被废除！");
+        $CHeckModel=new PickCheckModel();
+        $RR=$CHeckModel->select();
+
+        $this -> assign('Data', $RR);
+        $this -> display('list');
+
+    }
+
+}

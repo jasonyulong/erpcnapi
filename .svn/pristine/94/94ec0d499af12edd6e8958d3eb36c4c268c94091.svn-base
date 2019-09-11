@@ -1,0 +1,154 @@
+<css href="/newerp/Public/css/fonts.css" />
+<div style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center" class="noright" width="15%"><br><span style="text-align: center;font-weight: bold;font-size: 50px;border:2px solid #4c4c4c;padding-left: 8px;padding-right: 8px;padding-top: -1px;padding-bottom: -1px;">F</span><br>
+            From:
+            </td>
+            <td class="noright" align="center" width="60%">
+                <div style="text-align:left;margin-right:-40px;margin-top:0px;width:110px;height:42px;"><img src="/themes/Sugar5/images/hrb_logo.jpg" height="35" width="105" /></div>
+                <br>
+                <div style="text-align:left;margin-right:-40px;margin-top:-20px;width:120px;height:42px;font-size: 12px;border-top:2px solid #4c4c4c;"><img src="/themes/Sugar5/images/zhez_wh.jpg" height="40px" width="120px" /></div>
+            </td>
+            <td align="center" width="20%">
+                <div style="text-align:left;margin-bottom:0px;margin-right:-40px;margin-top:15px;width:80px;height:42px;font-weight: bold;font-size: 12px;border:2px solid #4c4c4c;padding-left: 8px;padding-right: 8px;padding-top: -1px;padding-bottom: -1px;">
+                Airmail<br>
+                Postage Paid<br>
+                China Post
+                </div>
+                <span style="font-weight: bold;font-size: 18px;margin-right: -40px;"> 3H</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" width="45%">
+                caoting<br>...<br>
+                36 Zhengtong Road ,Erqi district
+                ,Zhengzhou City,China
+                HENAN HENAN 450000
+                CHINA
+            </td>
+            <td width="55%" align="center" ><br><img src="/barcode128.class.php?data=ZIP{$Order['ebay_postcode']}" height="50" width="175" /><br>
+                ZIP{$Order['ebay_postcode']}
+            </td>
+        </tr>
+        <tr>
+            <td  align="center" class="font15" width="15%"><div style="text-align:center;margin-top:30px;width:60px;height:50px;font-weight: bold;font-size: 28px;">TO:</div></td>
+            <td colspan="2" width="85%">
+                {$Order['ebay_username']}<br/>
+                {$Order['ebay_street']}, {$Order['ebay_street1']}<br>
+                {$Order['ebay_city']}  {$Order['ebay_state']}&nbsp;{$Order['ebay_postcode']}
+                {$Order['ebay_countryname']}                <br/><br/>
+                TEL:
+                <empty name="Order['ebay_phone1']">
+                    {$Order['ebay_phone']}
+                    <else />
+                    {$Order['ebay_phone1']}
+                </empty>
+
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="3" align="center">
+                USPS TRACKING #<br>
+                <img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}" height="70px" width="290px" /><br>
+                {$Order['ebay_tracknumber']}
+            </td>
+
+        </tr>
+
+
+    </table>
+
+</div>
+<div class="" style="position: relative;width:100mm;min-height:100mm;max-height:100mm;border:1px dashed black;padding:1mm;font-size:12px; margin:1px;overflow:hidden;">
+    <table cellpadding='0' cellspacing='0' width='100%' border='0' class='view'>
+        <tr>
+            <td class="font6 faa noright nobottom"  colspan="3" style="padding:0px;">
+                <img height="30" class="nobottom faa" width="135" src="/themes/Sugar5/images/hrb_logo.jpg"/><br/><br/>
+                <span class="faa font6"> IMPORTANT:</span><br>
+                <span class="faa font6">The item/parcel may be</span><br>
+                <span class="faa font6">opened officially.</span><br>
+                <span class="faa font6">Please print in English.</span><br>
+            </td>
+            <td align="center" width="40px" class="noright nobottom"><div style="text-align:center;margin-top:30px;margin-left:-20px;width:30px;height:23px;font-weight: bold;font-size: 19px;border:2px solid #4c4c4c;">
+                {$Order['countrycode']}
+            </div>
+                <div style="text-align:center;margin-top:-2px;margin-left:-20px;width:30px;height:23px;font-weight: bold;font-size: 19px;border:2px solid #4c4c4c;">
+                    3H
+                </div>
+            </td>
+            <td colspan="4" width="175px" align="center"> <br/><img src="/barcode128.class.php?data={$Order['ebay_tracknumber']}"  height="70" width="165" /><br>
+                {$Order['ebay_tracknumber']}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4"  class="nobottom faa" valign="middle" width="100%" style="padding:2px;">
+                FROM:caoting<br>...<br>
+                36 Zhengtong Road ,Erqi district
+                ,Zhengzhou City,China
+                HENAN HENAN 450000
+                CHINA
+            </td>
+            <td colspan="4"  class="nobottom" valign="middle" width="100%" style="padding:2px;">
+                SHIP TO:{$Order['ebay_username']}<br/>
+                {$Order['ebay_street']}, {$Order['ebay_street1']}<br>
+                {$Order['ebay_city']}  {$Order['ebay_state']}&nbsp;{$Order['ebay_postcode']}
+                {$Order['ebay_countryname']}
+            </td>
+
+        </tr>
+        <tr>
+            <td height="10px" colspan="4" class="font8 " width="42%">
+                PHONE:
+
+            </td>
+            <td colspan="4"  class="font8 nobottom"></td>
+
+        </tr>
+        <tr>
+            <td height="10px" colspan="4" class="font8" width="42%">Fees({$Order['ebay_currency']}):</td>
+            <td height="10px" colspan="4" class="font8 nobottom"></td>
+        </tr>
+        <tr>
+            <td height="10px" colspan="4" class="font8" width="42%">Certificate No.</td>
+            <td colspan="4" class="font8">PHONE:{$Order['ebay_phone']}</td>
+        </tr>
+        <tr height="20px">
+            <td align="center" width="13px">NO</td>
+            <td align="center" class="font8" width="13px">Qty</td>
+            <td align="center" colspan="3" width="5%" class="font8">Description of Contents</td>
+            <td align="center" class="font8">Kg</td>
+            <td align="center" class="font8">Va({$Order['ebay_currency']})</td>
+            <td align="center" class="font8">Goods Origin</td>
+        </tr>
+        <tr height="20px">
+            <td class="nobottom" align="center">1</td>
+            <td align="center" class="font8 nobottom">1</td>
+            <td align="left" colspan="3" class="font8 nobottom">{$Order['yingwen']}{$Order['zhongwen']}</td>
+            <td align="center" class="font8 nobottom">{$Order['sb_weight']}</td>
+            <td align="center" class="font8 nobottom">{$Order['price']}</td>
+            <td align="center" class="font8 nobottom">CN</td>
+        </tr>
+
+        <tr height="20px">
+            <td></td>
+            <td align="center" class="font8 notottom">1</td>
+            <td align="left" colspan="3" class="font8 notottom">Total Gross Weight (Kg)</td>
+            <td align="center" class="font8 notottom">{$Order['sb_weight']}</td>
+            <td align="center" class="font8 notottom">{$Order['price']}</td>
+            <td align="center" class="font8 notottom"></td>
+        </tr>
+
+        <tr>
+            <td colspan="8" style="padding: 2px;line-height:12px">
+                <span class="ffa font7">(I the undersigned certify that the particulars given in this declaration are correct and this item does not contain any angerous articles prohi bited by legislation or by postal or customs regulations)</span>
+                <br/><br/>
+                <span style="display:inline-block;float:left" class="ffa font7">
+         Sender’s signature & Date Signed:</span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
